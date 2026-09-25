@@ -59,6 +59,31 @@ client/src/
 server/                  scaffold tRPC/Drizzle do template + testes
 ```
 
+## Paleta
+
+As cores saem da logo do PNST, que tem exatamente duas: o laranja **#F16122** e
+o branco, sobre fundo escuro.
+
+| Token        | Valor     | Uso                                                |
+| ------------ | --------- | -------------------------------------------------- |
+| `orange-100` | `#ffeae1` | tintas de fundo (painéis, ícones, item ativo)      |
+| `orange-200` | `#ffd1bf` | bordas de tinta, badge                             |
+| `orange-500` | `#f16122` | **cor da logo** — botão primário, foco, marcadores |
+| `orange-600` | `#e14f00` | hover de preenchimento                             |
+| `orange-700` | `#b43900` | texto de acento sobre fundo claro                  |
+| `orange-800` | `#882700` | texto de acento forte                              |
+| `ink`        | `#1c1713` | superfícies escuras (artwork do login, marca)      |
+
+Os neutros são cinzas quentes na mesma família de matiz. Os status mantêm
+significado próprio e são propositalmente distintos do laranja da marca:
+aprovado em verde, em análise em azul, rascunho em cinza quente e rejeitado em
+vermelho — "em análise" era âmbar e foi movido para azul justamente para não
+colidir com a marca.
+
+Todos os pares de texto/fundo foram conferidos: nenhum ficou abaixo de 3:1 e os
+dois pares mais fracos (subtítulo e pílula de rascunho) melhoraram em relação à
+paleta anterior.
+
 ## Build estático para preview
 
 Para publicar o protótipo em hosting estático sem fallback de SPA (link de

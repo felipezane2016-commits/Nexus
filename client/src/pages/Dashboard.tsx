@@ -54,7 +54,7 @@ export default function Dashboard() {
 
   const metrics = [
     {
-      tone: "blue",
+      tone: "violet",
       icon: ReceiptIcon,
       label: "Recibos na competência",
       value: String(summary.count),
@@ -68,14 +68,14 @@ export default function Dashboard() {
       detail: `${summary.byStatus.Aprovado} recibo(s) conferido(s)`,
     },
     {
-      tone: "orange",
+      tone: "blue",
       icon: Clock3,
       label: "Em análise",
       value: formatBRL(summary.sentAmount),
       detail: `${summary.byStatus.Enviado} aguardando conferência`,
     },
     {
-      tone: "violet",
+      tone: "orange",
       icon: Wallet,
       label: "Total do fechamento",
       value: formatBRL(closingTotal(monthReceipts)),
