@@ -59,6 +59,19 @@ client/src/
 server/                  scaffold tRPC/Drizzle do template + testes
 ```
 
+## Build estático para preview
+
+Para publicar o protótipo em hosting estático sem fallback de SPA (link de
+preview, GitHub Pages), gere o build com rotas em hash e caminhos relativos:
+
+```bash
+VITE_HASH_ROUTER=1 pnpm exec vite build --base=./
+```
+
+As rotas passam a viver no hash (`#/recibos`), então qualquer caminho de
+publicação funciona. O `pnpm dev` e o `pnpm build` normais seguem com rotas em
+path.
+
 ## Limites conhecidos
 
 Este é um protótipo de front-end: **não há backend nem banco**. O login compara

@@ -1,7 +1,8 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Redirect, Route, Switch } from "wouter";
+import { Redirect, Route, Router as WouterRouter, Switch } from "wouter";
+import { useHashLocation } from "wouter/use-hash-location";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { PortalProvider, usePortal } from "./contexts/PortalContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -51,6 +52,12 @@ function Router() {
 // O protótipo usa o design system em client/src/index.css, que é claro por
 // definição — por isso o tema não é alternável aqui.
 
+// Builds estáticos publicados fora de um servidor com fallback de SPA (preview
+// por link, GitHub Pages) não conseguem servir /recibos direto. Com
+// VITE_HASH_ROUTER=1 as rotas passam a viver no hash (#/recibos) e funcionam em
+// qualquer caminho. O dev e o build normal seguem com rotas em path.
+const hashRouting = import.meta.env.VITE_HASH_ROUTER === "1";
+
 function App() {
   return (
     <ErrorBoundary>
@@ -58,7 +65,13 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <PortalProvider>
-            <Router />
+            {hashRouting ? (
+              <WouterRouter hook={useHashLocation}>
+                <Router />
+              </WouterRouter>
+            ) : (
+              <Router />
+            )}
           </PortalProvider>
         </TooltipProvider>
       </ThemeProvider>
