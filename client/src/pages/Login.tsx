@@ -1,6 +1,7 @@
 import { usePortal } from "@/contexts/PortalContext";
 import { DEMO_CREDENTIALS } from "@/lib/portalSeed";
-import { ShieldCheck, Sparkles } from "lucide-react";
+import logoBranca from "@/assets/pnst-logo-branca.webp";
+import { ShieldCheck } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { useLocation } from "wouter";
 
@@ -36,9 +37,11 @@ export default function Login() {
         <div className="art-orbit orbit-one" />
         <div className="art-orbit orbit-two" />
         <div className="login-art-copy">
-          <span className="eyebrow light">
-            <Sparkles size={12} /> Nexus · Operações
-          </span>
+          <img
+            className="art-logo"
+            src={logoBranca}
+            alt="Pacheco Neto Sanden Teisseire Advogados"
+          />
           <h1>
             Seus recibos, <em>fechados no prazo</em>.
           </h1>
@@ -56,16 +59,8 @@ export default function Login() {
 
       <section className="login-panel">
         <div className="login-panel-inner">
-          <div className="brand-lockup">
-            <span className="brand-mark">N</span>
-            <div>
-              <strong>Nexus</strong>
-              <small>Portal do Prestador</small>
-            </div>
-          </div>
-
           <div className="login-heading">
-            <span className="eyebrow">Entrar</span>
+            <span className="eyebrow">Portal do Prestador · Entrar</span>
             <h2>Bem-vinda de volta</h2>
             <p>
               Use o código de acesso enviado pelo escritório na assinatura do

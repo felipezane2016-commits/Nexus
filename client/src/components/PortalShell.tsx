@@ -1,3 +1,4 @@
+import logo from "@/assets/pnst-logo.webp";
 import { usePortal } from "@/contexts/PortalContext";
 import {
   CalendarCheck,
@@ -56,12 +57,13 @@ export default function PortalShell({
     <div className="portal-shell">
       <aside className={menuOpen ? "sidebar sidebar-open" : "sidebar"}>
         <div className="sidebar-top">
-          <div className="brand-lockup">
-            <span className="brand-mark">N</span>
-            <div>
-              <strong>Nexus</strong>
-              <small>Portal do Prestador</small>
-            </div>
+          <div className="brand-logo-wrap">
+            <img
+              className="brand-logo"
+              src={logo}
+              alt="Pacheco Neto Sanden Teisseire Advogados"
+            />
+            <small>Portal do Prestador</small>
           </div>
           <button
             type="button"
