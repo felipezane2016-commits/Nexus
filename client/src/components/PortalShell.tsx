@@ -74,7 +74,7 @@ export default function PortalShell({
         </div>
 
         <div className="profile-mini">
-          <span className="avatar">{initials(provider.name)}</span>
+          <div className="avatar">{initials(provider.name)}</div>
           <div>
             <strong>{provider.name}</strong>
             <span>{provider.code}</span>
@@ -176,9 +176,9 @@ export default function PortalShell({
               {rejectedCount > 0 ? <i /> : null}
             </button>
             <div className="topbar-user">
-              <span className="avatar avatar-small">
+              <div className="avatar avatar-small">
                 {initials(provider.name)}
-              </span>
+              </div>
               <div>
                 <strong>{provider.name}</strong>
                 <span>{provider.email}</span>

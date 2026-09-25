@@ -61,28 +61,23 @@ server/                  scaffold tRPC/Drizzle do template + testes
 
 ## Paleta
 
-As cores saem da logo do PNST, que tem exatamente duas: o laranja **#F16122** e
-o branco, sobre fundo escuro.
+Fiel à logo do PNST, que tem exatamente três cores: laranja **#F16122**, branco e
+preto. O sistema não usa nenhuma outra matiz — todos os neutros são cinzas puros.
 
-| Token        | Valor     | Uso                                                |
-| ------------ | --------- | -------------------------------------------------- |
-| `orange-100` | `#ffeae1` | tintas de fundo (painéis, ícones, item ativo)      |
-| `orange-200` | `#ffd1bf` | bordas de tinta, badge                             |
-| `orange-500` | `#f16122` | **cor da logo** — botão primário, foco, marcadores |
-| `orange-600` | `#e14f00` | hover de preenchimento                             |
-| `orange-700` | `#b43900` | texto de acento sobre fundo claro                  |
-| `orange-800` | `#882700` | texto de acento forte                              |
-| `ink`        | `#1c1713` | superfícies escuras (artwork do login, marca)      |
+| Cor             | Valor                 | Uso                                                                       |
+| --------------- | --------------------- | ------------------------------------------------------------------------- |
+| Laranja da logo | `#f16122`             | botão primário, foco, marcadores, sublinhado de links, barra de progresso |
+| Preto           | `#141414`             | texto, superfícies escuras (login, marca, ícones, avatar)                 |
+| Branco          | `#ffffff`             | cartões e texto sobre preto                                               |
+| Cinzas neutros  | `#f4f4f4` … `#5c5c5c` | fundo da página, bordas, texto secundário                                 |
 
-Os neutros são cinzas quentes na mesma família de matiz. Os status mantêm
-significado próprio e são propositalmente distintos do laranja da marca:
-aprovado em verde, em análise em azul, rascunho em cinza quente e rejeitado em
-vermelho — "em análise" era âmbar e foi movido para azul justamente para não
-colidir com a marca.
+Laranja nunca é usado como cor de texto pequeno sobre branco (contraste de 3,2:1).
+Nesses casos ele vira sublinhado, marcador ou fundo com texto preto (5,7:1).
 
-Todos os pares de texto/fundo foram conferidos: nenhum ficou abaixo de 3:1 e os
-dois pares mais fracos (subtítulo e pílula de rascunho) melhoraram em relação à
-paleta anterior.
+Os status são diferenciados por preenchimento, sem cores fora da logo:
+rascunho em cinza, enviado com contorno, aprovado em preto e rejeitado em laranja.
+
+As regras de marca ficam num bloco no final de `client/src/index.css`.
 
 ## Build estático para preview
 
