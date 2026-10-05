@@ -5,22 +5,21 @@ export default function NotFound() {
   const [, navigate] = useLocation();
 
   return (
-    <div className="page-content">
-      <div className="card">
+    <main className="page-content">
+      <section className="operations-surface">
         <div className="empty-state">
-          <Compass size={26} className="muted-icon" />
+          <Compass size={24} strokeWidth={1.8} />
           <strong>Página não encontrada</strong>
           <span>O endereço acessado não existe no Portal do Prestador.</span>
           <button
             type="button"
-            className="secondary-button"
+            className="button-secondary"
             onClick={() => navigate("/")}
-            style={{ marginTop: 14 }}
           >
-            <ArrowLeft size={14} /> Voltar ao dashboard
+            <ArrowLeft size={14} strokeWidth={2} /> Voltar à visão geral
           </button>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

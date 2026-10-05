@@ -6,8 +6,8 @@ export default function StatusPill({
   status: PrototypeReceiptStatus;
 }) {
   return (
-    <span className={`status ${STATUS_CLASS[status]}`}>
-      <i className="status-dot" />
+    <span className={`status-pill ${STATUS_CLASS[status]}`}>
+      <span className="status-dot" aria-hidden="true" />
       {status}
     </span>
   );

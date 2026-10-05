@@ -6,8 +6,15 @@ import {
   type ReceiptDraft,
   type ValidationErrors,
 } from "@/lib/portal";
-import { Paperclip, X } from "lucide-react";
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { AlertCircle, CheckCircle2, Paperclip, X } from "lucide-react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 
 function emptyDraft(competencia: string): ReceiptDraft {
   return {
@@ -35,6 +42,48 @@ function receiptToDraft(receipt: Receipt): ReceiptDraft {
   };
 }
 
+type FieldProps = {
+  id: string;
+  label: string;
+  error?: string;
+  hint?: string;
+  children: (aria: {
+    id: string;
+    "aria-invalid"?: true;
+    "aria-describedby"?: string;
+  }) => ReactNode;
+};
+
+/** Liga rótulo, dica e erro ao campo, para leitor de tela anunciar os três. */
+function Field({ id, label, error, hint, children }: FieldProps) {
+  const describedBy = [error ? `${id}-erro` : null, hint ? `${id}-dica` : null]
+    .filter(Boolean)
+    .join(" ");
+  return (
+    <div className="field-group">
+      <label className="field-label" htmlFor={id}>
+        {label}
+      </label>
+      {children({
+        id,
+        "aria-invalid": error ? true : undefined,
+        "aria-describedby": describedBy || undefined,
+      })}
+      {hint ? (
+        <span id={`${id}-dica`} className="field-hint">
+          {hint}
+        </span>
+      ) : null}
+      {error ? (
+        <span id={`${id}-erro`} className="field-error" role="alert">
+          <AlertCircle size={13} strokeWidth={2} />
+          {error}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
 type ReceiptModalProps = {
   receipt: Receipt | null;
   competencia: string;
@@ -52,12 +101,28 @@ export default function ReceiptModal({
     receipt ? receiptToDraft(receipt) : emptyDraft(competencia)
   );
   const [errors, setErrors] = useState<ValidationErrors>({});
+  const firstFieldRef = useRef<HTMLInputElement>(null);
+  // onClose muda a cada render do pai; guardado em ref, o efeito abaixo roda uma
+  // vez só e não devolve o foco ao primeiro campo no meio da digitação.
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    firstFieldRef.current?.focus();
+    const onKey = (event: KeyboardEvent) =>
+      event.key === "Escape" && onCloseRef.current();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   function update<K extends keyof ReceiptDraft>(
     field: K,
     value: ReceiptDraft[K]
   ) {
     setDraft(current => ({ ...current, [field]: value }));
+    // Erro corrigido some na hora, sem esperar o próximo envio.
+    if (errors[field])
+      setErrors(current => ({ ...current, [field]: undefined }));
   }
 
   function handleFile(event: ChangeEvent<HTMLInputElement>) {
@@ -67,14 +132,12 @@ export default function ReceiptModal({
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const found = validateReceiptDraft(draft);
-    if (Object.keys(found).length > 0) {
+    if (Object.values(found).some(Boolean)) {
       setErrors(found);
       return;
     }
     onSave(draft);
   }
-
-  const firstError = Object.values(errors).find(Boolean);
 
   return (
     <div
@@ -82,20 +145,21 @@ export default function ReceiptModal({
       onMouseDown={event => event.target === event.currentTarget && onClose()}
     >
       <div
-        className="modal-card"
+        className="modal-panel"
         role="dialog"
         aria-modal="true"
-        aria-label={receipt ? "Editar recibo" : "Novo recibo"}
+        aria-labelledby="recibo-titulo"
       >
-        <div className="modal-header">
+        <div className="modal-panel-header">
           <div>
             <span className="eyebrow">
               {receipt ? receipt.id : "Novo lançamento"}
             </span>
-            <h2>{receipt ? "Editar recibo" : "Lançar recibo"}</h2>
+            <h2 id="recibo-titulo">
+              {receipt ? "Editar recibo" : "Lançar recibo"}
+            </h2>
             <p>
-              O recibo fica como rascunho até você enviá-lo para conferência do
-              escritório.
+              O recibo fica como rascunho até você enviá-lo para conferência.
             </p>
           </div>
           <button
@@ -104,105 +168,159 @@ export default function ReceiptModal({
             aria-label="Fechar"
             onClick={onClose}
           >
-            <X size={17} />
+            <X size={17} strokeWidth={2} />
           </button>
         </div>
 
-        <form className="modal-form" onSubmit={handleSubmit}>
-          <div className="form-grid">
-            <label>
-              <span>Data do serviço</span>
-              <input
-                type="date"
-                value={draft.serviceDate}
-                onChange={event => update("serviceDate", event.target.value)}
+        <form className="modal-panel-body" onSubmit={handleSubmit} noValidate>
+          <div className="field-grid">
+            <Field
+              id="recibo-data"
+              label="Data do serviço"
+              error={errors.serviceDate}
+            >
+              {aria => (
+                <input
+                  {...aria}
+                  ref={firstFieldRef}
+                  className="field-input"
+                  type="date"
+                  value={draft.serviceDate}
+                  onChange={event => update("serviceDate", event.target.value)}
+                />
+              )}
+            </Field>
+            <Field id="recibo-categoria" label="Categoria">
+              {aria => (
+                <select
+                  {...aria}
+                  className="field-input"
+                  value={draft.category}
+                  onChange={event =>
+                    update("category", event.target.value as ReceiptCategory)
+                  }
+                >
+                  {RECEIPT_CATEGORIES.map(category => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </Field>
+          </div>
+
+          <div className="field-grid">
+            <Field id="recibo-cliente" label="Cliente" error={errors.client}>
+              {aria => (
+                <input
+                  {...aria}
+                  className="field-input"
+                  value={draft.client}
+                  onChange={event => update("client", event.target.value)}
+                  placeholder="Razão social ou nome"
+                />
+              )}
+            </Field>
+            <Field
+              id="recibo-valor"
+              label="Valor (R$)"
+              error={errors.amount}
+              hint="Aceita 1.280,50 ou 1280.50"
+            >
+              {aria => (
+                <input
+                  {...aria}
+                  className="field-input"
+                  value={draft.amount}
+                  onChange={event => update("amount", event.target.value)}
+                  placeholder="1.280,50"
+                  inputMode="decimal"
+                />
+              )}
+            </Field>
+          </div>
+
+          <div className="field-grid">
+            <Field id="recibo-caso" label="Caso ou processo">
+              {aria => (
+                <input
+                  {...aria}
+                  className="field-input"
+                  value={draft.caseRef}
+                  onChange={event => update("caseRef", event.target.value)}
+                  placeholder="Número do processo ou projeto"
+                />
+              )}
+            </Field>
+            <Field id="recibo-solicitante" label="Solicitante">
+              {aria => (
+                <input
+                  {...aria}
+                  className="field-input"
+                  value={draft.requester}
+                  onChange={event => update("requester", event.target.value)}
+                  placeholder="Quem pediu o serviço"
+                />
+              )}
+            </Field>
+          </div>
+
+          <Field
+            id="recibo-descricao"
+            label="Descrição do serviço"
+            error={errors.description}
+          >
+            {aria => (
+              <textarea
+                {...aria}
+                className="field-input"
+                value={draft.description}
+                onChange={event => update("description", event.target.value)}
+                placeholder="O que foi executado, onde e para quem."
               />
-            </label>
-            <label>
-              <span>Categoria</span>
-              <select
-                value={draft.category}
-                onChange={event =>
-                  update("category", event.target.value as ReceiptCategory)
-                }
-              >
-                {RECEIPT_CATEGORIES.map(category => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
+            )}
+          </Field>
+
+          <div className="field-group">
+            <span className="field-label" id="recibo-anexo-rotulo">
+              Comprovante
+            </span>
+            <label
+              className={
+                draft.attachmentName
+                  ? "upload-zone upload-zone-filled"
+                  : "upload-zone"
+              }
+            >
+              <input
+                type="file"
+                onChange={handleFile}
+                aria-labelledby="recibo-anexo-rotulo"
+              />
+              {draft.attachmentName ? (
+                <CheckCircle2 size={20} strokeWidth={1.9} />
+              ) : (
+                <Paperclip size={20} strokeWidth={1.9} />
+              )}
+              <strong>{draft.attachmentName ?? "Selecionar arquivo"}</strong>
+              <span>
+                {draft.attachmentName
+                  ? "Clique para trocar"
+                  : "NF, boleto ou recibo — PDF, JPG ou PNG"}
+              </span>
             </label>
           </div>
 
-          <div className="form-grid">
-            <label>
-              <span>Cliente</span>
-              <input
-                value={draft.client}
-                onChange={event => update("client", event.target.value)}
-                placeholder="Razão social ou nome"
-              />
-            </label>
-            <label>
-              <span>Valor (R$)</span>
-              <input
-                value={draft.amount}
-                onChange={event => update("amount", event.target.value)}
-                placeholder="1.280,50"
-                inputMode="decimal"
-              />
-            </label>
-          </div>
-
-          <div className="form-grid">
-            <label>
-              <span>Caso / processo</span>
-              <input
-                value={draft.caseRef}
-                onChange={event => update("caseRef", event.target.value)}
-                placeholder="Número do processo ou projeto"
-              />
-            </label>
-            <label>
-              <span>Solicitante</span>
-              <input
-                value={draft.requester}
-                onChange={event => update("requester", event.target.value)}
-                placeholder="Quem pediu o serviço"
-              />
-            </label>
-          </div>
-
-          <label>
-            <span>Descrição do serviço</span>
-            <textarea
-              value={draft.description}
-              onChange={event => update("description", event.target.value)}
-              placeholder="Descreva o que foi executado, onde e para quem."
-            />
-          </label>
-
-          <label className="file-field">
-            <span>Comprovante (NF, boleto ou recibo)</span>
-            <div className="file-select">
-              <input type="file" onChange={handleFile} />
-              <Paperclip size={14} />
-              {draft.attachmentName ?? "Selecionar arquivo — PDF, JPG ou PNG"}
-            </div>
-          </label>
-
-          {firstError ? <p className="form-error">{firstError}</p> : null}
-
-          <div className="modal-footer">
+          <div className="modal-panel-footer">
             <button
               type="button"
-              className="secondary-button"
+              className="button-secondary"
               onClick={onClose}
             >
               Cancelar
             </button>
-            <button type="submit" className="primary-button">
+            <button type="submit" className="button-primary">
               {receipt ? "Salvar alterações" : "Salvar rascunho"}
             </button>
           </div>

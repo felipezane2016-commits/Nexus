@@ -14,13 +14,11 @@ import {
   summarizeReceipts,
 } from "@/lib/portal";
 import {
+  AlertTriangle,
   ArrowRight,
   BadgeCheck,
   Check,
-  ChevronRight,
-  CircleAlert,
   Clock3,
-  FileUp,
   Plus,
   Receipt as ReceiptIcon,
   Wallet,
@@ -28,276 +26,290 @@ import {
 import { useLocation } from "wouter";
 
 export default function Dashboard() {
-  const { receipts, currentCompetencia, closingFor } = usePortal();
+  const { receipts, currentCompetencia, closingFor, provider } = usePortal();
   const [, navigate] = useLocation();
 
   const monthReceipts = receiptsOfCompetencia(receipts, currentCompetencia);
   const summary = summarizeReceipts(monthReceipts);
   const closing = closingFor(currentCompetencia);
   const statuses = monthReceipts.map(receipt => receipt.status);
+  const hasDocument = Boolean(closing.documentName);
   const progress = calculateClosingProgress(
     statuses,
-    Boolean(closing.documentName),
+    hasDocument,
     closing.submitted
   );
-  const steps = closingSteps(
-    statuses,
-    Boolean(closing.documentName),
-    closing.submitted
-  );
+  const steps = closingSteps(statuses, hasDocument, closing.submitted);
   const rejected = monthReceipts.filter(
     receipt => receipt.status === "Rejeitado"
   );
   const recent = [...receipts]
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .slice(0, 5);
+  const firstName = provider.name.split(" ")[0];
 
-  const metrics = [
+  const stepDetails = [
+    `${summary.count} recibo(s) na competência`,
+    summary.byStatus.Aprovado > 0
+      ? `${summary.byStatus.Aprovado} aprovado(s) pelo escritório`
+      : "Aguardando a primeira aprovação",
+    closing.documentName ?? "Nota fiscal ou recibo consolidado",
+    closing.submitted
+      ? "Recebido pelo escritório"
+      : "Libera a conferência final",
+  ];
+
+  // O bloco escuro aponta uma única ação: a que destrava o fechamento primeiro.
+  const nextAction = rejected.length
+    ? {
+        title:
+          rejected.length === 1
+            ? "Corrija o recibo devolvido"
+            : `Corrija os ${rejected.length} recibos devolvidos`,
+        text:
+          rejected[0]?.reviewNote ??
+          "Revise os dados e reenvie para conferência.",
+        label: "Abrir recibos",
+        path: "/recibos",
+      }
+    : !hasDocument
+      ? {
+          title: "Anexe o documento de faturamento",
+          text: `O valor deve bater com ${formatBRL(closingTotal(monthReceipts))}.`,
+          label: "Abrir fechamento",
+          path: "/fechamento",
+        }
+      : !closing.submitted
+        ? {
+            title: "Envie o fechamento",
+            text: "Tudo pronto: os rascunhos da competência seguem junto.",
+            label: "Abrir fechamento",
+            path: "/fechamento",
+          }
+        : {
+            title: "Fechamento enviado",
+            text: "Aguarde a conferência final do escritório.",
+            label: "Ver recibos",
+            path: "/recibos",
+          };
+
+  const kpis = [
     {
-      tone: "violet",
       icon: ReceiptIcon,
       label: "Recibos na competência",
       value: String(summary.count),
       detail: `${receiptsIncludedInClosing(statuses)} entram no fechamento`,
     },
     {
-      tone: "green",
       icon: BadgeCheck,
-      label: "Aprovado pelo escritório",
+      label: "Aprovado",
       value: formatBRL(summary.approvedAmount),
       detail: `${summary.byStatus.Aprovado} recibo(s) conferido(s)`,
     },
     {
-      tone: "blue",
       icon: Clock3,
       label: "Em análise",
       value: formatBRL(summary.sentAmount),
       detail: `${summary.byStatus.Enviado} aguardando conferência`,
     },
     {
-      tone: "orange",
       icon: Wallet,
       label: "Total do fechamento",
       value: formatBRL(closingTotal(monthReceipts)),
       detail: "Exclui recibos rejeitados",
     },
-  ] as const;
+  ];
 
   return (
-    <PortalShell title="Dashboard">
-      <div className="page-header">
+    <PortalShell title="Visão geral">
+      <header className="page-heading">
         <div>
           <span className="eyebrow">
             Competência {formatMonth(currentCompetencia)}
           </span>
-          <h1>Olá, Marina</h1>
+          <h1>Olá, {firstName}</h1>
           <p>
             Acompanhe os recibos da competência e feche o mês sem pendências.
           </p>
         </div>
-        <button
-          type="button"
-          className="primary-button"
-          onClick={() => navigate("/recibos")}
-        >
-          <Plus size={15} /> Lançar recibo
-        </button>
-      </div>
+        <div className="heading-actions">
+          <button
+            type="button"
+            className="button-primary"
+            onClick={() => navigate("/recibos")}
+          >
+            <Plus size={15} strokeWidth={2.2} /> Lançar recibo
+          </button>
+        </div>
+      </header>
 
       {rejected.length > 0 ? (
-        <div className="notice-banner">
-          <span className="notice-icon">
-            <CircleAlert size={17} />
+        <div className="risk-card" role="status">
+          <span className="risk-icon">
+            <AlertTriangle size={16} strokeWidth={2} />
           </span>
-          <div>
+          <div className="risk-card-head">
             <strong>
               {rejected.length} recibo{rejected.length > 1 ? "s" : ""} devolvido
               {rejected.length > 1 ? "s" : ""} pelo escritório
             </strong>
-            <span>
+            <p>
               {rejected[0]?.reviewNote ??
                 "Revise os dados e reenvie para conferência."}
-            </span>
-          </div>
-          <button type="button" onClick={() => navigate("/recibos")}>
-            Revisar <ArrowRight size={13} />
-          </button>
-        </div>
-      ) : null}
-
-      <div className="metric-grid">
-        {metrics.map(metric => {
-          const Icon = metric.icon;
-          return (
-            <div className="metric-card" key={metric.label}>
-              <span className={`metric-icon ${metric.tone}`}>
-                <Icon size={16} />
-              </span>
-              <p className="metric-label">{metric.label}</p>
-              <p className="metric-value">{metric.value}</p>
-              <p className="metric-detail">{metric.detail}</p>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="dashboard-grid">
-        <div className="card">
-          <div className="card-heading">
-            <div>
-              <h3>Fechamento de {formatMonth(currentCompetencia)}</h3>
-              <p>Quatro etapas para o escritório liberar o pagamento.</p>
-            </div>
-            <span className="progress-percent">{progress}%</span>
-          </div>
-          <div className="progress-track">
-            <span style={{ width: `${progress}%` }} />
-          </div>
-          <div className="progress-steps">
-            {CLOSING_STEPS.map((label, index) => (
-              <div
-                className={
-                  steps[index] ? "progress-step done" : "progress-step"
-                }
-                key={label}
-              >
-                <span>{steps[index] ? <Check size={9} /> : <span />}</span>
-                {label}
-              </div>
-            ))}
-          </div>
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={() => navigate("/fechamento")}
-          >
-            Abrir fechamento <ArrowRight size={14} />
-          </button>
-        </div>
-
-        <div className="card quick-card">
-          <div className="card-heading">
-            <div>
-              <h3>Ações rápidas</h3>
-              <p>O caminho mais curto do serviço ao pagamento.</p>
-            </div>
-          </div>
-          <button
-            type="button"
-            className="quick-action"
-            onClick={() => navigate("/recibos")}
-          >
-            <span className="quick-action-icon">
-              <Plus size={15} />
-            </span>
-            <span>
-              <strong>Lançar novo recibo</strong>
-              <small>Registre um serviço prestado nesta competência</small>
-            </span>
-            <ChevronRight size={15} />
-          </button>
-          <button
-            type="button"
-            className="quick-action"
-            onClick={() => navigate("/fechamento")}
-          >
-            <span className="quick-action-icon">
-              <FileUp size={15} />
-            </span>
-            <span>
-              <strong>Anexar documento de faturamento</strong>
-              <small>
-                {closing.documentName ?? "Nenhum documento anexado ainda"}
-              </small>
-            </span>
-            <ChevronRight size={15} />
-          </button>
-          <button
-            type="button"
-            className="quick-action"
-            onClick={() => navigate("/recibos")}
-          >
-            <span className="quick-action-icon">
-              <CircleAlert size={15} />
-            </span>
-            <span>
-              <strong>Resolver devoluções</strong>
-              <small>
-                {rejected.length > 0
-                  ? `${rejected.length} recibo(s) aguardando correção`
-                  : "Nenhuma devolução aberta"}
-              </small>
-            </span>
-            <ChevronRight size={15} />
-          </button>
-        </div>
-      </div>
-
-      <div className="card recent-card">
-        <div className="card-heading">
-          <div>
-            <h3>Últimos lançamentos</h3>
-            <p>Os cinco recibos mais recentes, de todas as competências.</p>
+            </p>
           </div>
           <button
             type="button"
             className="text-button"
             onClick={() => navigate("/recibos")}
           >
-            Ver todos
+            Revisar <ArrowRight size={13} strokeWidth={2.2} />
+          </button>
+        </div>
+      ) : null}
+
+      <div className="kpi-grid">
+        {kpis.map(kpi => {
+          const Icon = kpi.icon;
+          return (
+            <div className="kpi-card" key={kpi.label}>
+              <div className="kpi-card-head">
+                <span className="kpi-label">{kpi.label}</span>
+                <span className="kpi-icon" aria-hidden="true">
+                  <Icon size={16} strokeWidth={1.9} />
+                </span>
+              </div>
+              <p className="kpi-value">{kpi.value}</p>
+              <p className="kpi-detail">{kpi.detail}</p>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="grid-main">
+        <section className="operations-surface">
+          <div className="section-header">
+            <div>
+              <span className="eyebrow">Fechamento</span>
+              <h3>{formatMonth(currentCompetencia)}</h3>
+              <p>Quatro etapas para o escritório liberar o pagamento.</p>
+            </div>
+            <button
+              type="button"
+              className="button-secondary"
+              onClick={() => navigate("/fechamento")}
+            >
+              Abrir
+            </button>
+          </div>
+          <div className="progress-meter">
+            <div
+              className="progress-track"
+              role="progressbar"
+              aria-valuenow={progress}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Progresso do fechamento"
+            >
+              <span style={{ width: `${progress}%` }} />
+            </div>
+            <span className="progress-value">{progress}%</span>
+          </div>
+          <ol className="next-step-list">
+            {CLOSING_STEPS.map((label, index) => (
+              <li
+                className={
+                  steps[index] ? "next-step next-step-done" : "next-step"
+                }
+                key={label}
+              >
+                <span className="step-number">
+                  {steps[index] ? (
+                    <Check size={13} strokeWidth={2.6} />
+                  ) : (
+                    index + 1
+                  )}
+                </span>
+                <span className="next-step-copy">
+                  <strong>{label}</strong>
+                  <span>{stepDetails[index]}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <aside className="attention-card">
+          <span className="eyebrow">Próximo passo</span>
+          <h3>{nextAction.title}</h3>
+          <p>{nextAction.text}</p>
+          <button
+            type="button"
+            className="button-primary"
+            onClick={() => navigate(nextAction.path)}
+          >
+            {nextAction.label} <ArrowRight size={14} strokeWidth={2.2} />
+          </button>
+        </aside>
+      </div>
+
+      <section className="operations-surface" style={{ marginTop: 18 }}>
+        <div className="section-header">
+          <div>
+            <span className="eyebrow">Atividade</span>
+            <h3>Últimos lançamentos</h3>
+          </div>
+          <button
+            type="button"
+            className="text-button"
+            onClick={() => navigate("/recibos")}
+          >
+            Ver todos <ArrowRight size={13} strokeWidth={2.2} />
           </button>
         </div>
 
         {recent.length === 0 ? (
           <div className="empty-state">
+            <ReceiptIcon size={22} strokeWidth={1.8} />
             <strong>Nenhum recibo lançado</strong>
             <span>Comece registrando o primeiro serviço da competência.</span>
           </div>
         ) : (
-          <>
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Recibo</th>
-                    <th>Serviço</th>
-                    <th>Data</th>
-                    <th>Valor</th>
-                    <th>Status</th>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Recibo</th>
+                  <th>Serviço</th>
+                  <th>Data</th>
+                  <th>Valor</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recent.map(receipt => (
+                  <tr key={receipt.id}>
+                    <td>
+                      <span className="cell-code">{receipt.id}</span>
+                    </td>
+                    <td className="cell-main">
+                      <strong>{receipt.client}</strong>
+                      <span>
+                        {receipt.category} · {receipt.caseRef || "sem processo"}
+                      </span>
+                    </td>
+                    <td>{formatDate(receipt.serviceDate)}</td>
+                    <td className="money">{formatBRL(receipt.amount)}</td>
+                    <td>
+                      <StatusPill status={receipt.status} />
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {recent.map(receipt => (
-                    <tr key={receipt.id}>
-                      <td>
-                        <span className="receipt-id">{receipt.id}</span>
-                      </td>
-                      <td className="service-cell">
-                        <strong>{receipt.client}</strong>
-                        <span>
-                          {receipt.category} ·{" "}
-                          {receipt.caseRef || "sem processo"}
-                        </span>
-                      </td>
-                      <td>{formatDate(receipt.serviceDate)}</td>
-                      <td>{formatBRL(receipt.amount)}</td>
-                      <td>
-                        <StatusPill status={receipt.status} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div className="table-footnote">
-              <span>
-                <i className="green-dot" /> Atualizado agora
-              </span>
-              <span>{receipts.length} recibo(s) no total</span>
-            </div>
-          </>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
-      </div>
+      </section>
     </PortalShell>
   );
 }

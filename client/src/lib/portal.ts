@@ -19,12 +19,16 @@ export const RECEIPT_STATUSES: PrototypeReceiptStatus[] = [
   "Rejeitado",
 ];
 
-/** Classe do design system (index.css) para cada status. */
+/**
+ * Classe de selo do design system para cada status. Segue o significado do
+ * modelo: neutro é rascunho, azul é em andamento, verde é aprovado e vermelho é
+ * bloqueado — nunca a cor sozinha, o selo sempre leva o nome do status.
+ */
 export const STATUS_CLASS: Record<PrototypeReceiptStatus, string> = {
-  Rascunho: "status-draft",
-  Enviado: "status-sent",
-  Aprovado: "status-approved",
-  Rejeitado: "status-rejected",
+  Rascunho: "status-neutral",
+  Enviado: "status-blue",
+  Aprovado: "status-green",
+  Rejeitado: "status-red",
 };
 
 export const RECEIPT_CATEGORIES = [

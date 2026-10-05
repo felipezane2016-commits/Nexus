@@ -49,8 +49,8 @@ function Router() {
   );
 }
 
-// O protótipo usa o design system em client/src/index.css, que é claro por
-// definição — por isso o tema não é alternável aqui.
+// Tema alternável: o ThemeContext põe a classe .dark na raiz e guarda a
+// escolha na chave "theme"; o index.css só redefine os tokens semânticos.
 
 // Builds estáticos publicados fora de um servidor com fallback de SPA (preview
 // por link, GitHub Pages) não conseguem servir /recibos direto. Com
@@ -61,7 +61,7 @@ const hashRouting = import.meta.env.VITE_HASH_ROUTER === "1";
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="light">
+      <ThemeProvider defaultTheme="light" switchable>
         <TooltipProvider>
           <Toaster />
           <PortalProvider>

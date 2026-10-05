@@ -15,6 +15,7 @@ import {
   DEMO_PROVIDER,
   DEMO_RECEIPTS,
 } from "@/lib/portalSeed";
+import { gravar, ler } from "@/_core/armazenamento/deposito";
 import {
   createContext,
   useCallback,
@@ -27,11 +28,12 @@ import {
 
 /**
  * Estado do protótipo. Não há servidor: os dados são semeados a partir de
- * `portalSeed` e persistidos em localStorage para que a navegação e o reload
- * pareçam reais durante a demonstração.
+ * `portalSeed` e gravados pelo depósito (`_core/armazenamento`), hoje sobre o
+ * localStorage. O estado é lido uma única vez, na montagem — ler de novo do
+ * depósito devolveria uma cópia desligada do estado do React.
  */
 
-const STORAGE_KEY = "nexus-portal-prototipo-v1";
+const CHAVE_ESTADO = "portal";
 
 type PersistedState = {
   signedIn: boolean;
@@ -75,18 +77,14 @@ function emptyClosing(competencia: string): Closing {
 }
 
 function readPersisted(): PersistedState | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as PersistedState;
-    if (!Array.isArray(parsed.receipts) || !Array.isArray(parsed.closings))
-      return null;
-    return parsed;
-  } catch {
-    // localStorage indisponível (navegação privada, storage bloqueado) — o
-    // protótipo segue funcionando apenas em memória.
+  const salvo = ler<PersistedState>(CHAVE_ESTADO);
+  if (
+    !salvo ||
+    !Array.isArray(salvo.receipts) ||
+    !Array.isArray(salvo.closings)
+  )
     return null;
-  }
+  return salvo;
 }
 
 function draftToFields(draft: ReceiptDraft) {
@@ -114,18 +112,7 @@ export function PortalProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({
-          signedIn,
-          receipts,
-          closings,
-        } satisfies PersistedState)
-      );
-    } catch {
-      // Persistência é conveniência, não requisito.
-    }
+    gravar<PersistedState>(CHAVE_ESTADO, { signedIn, receipts, closings });
   }, [signedIn, receipts, closings]);
 
   const signIn = useCallback((code: string, password: string) => {

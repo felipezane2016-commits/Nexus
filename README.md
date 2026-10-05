@@ -59,25 +59,44 @@ client/src/
 server/                  scaffold tRPC/Drizzle do template + testes
 ```
 
-## Paleta
+## Design e arquitetura
 
-Fiel à logo do PNST, que tem exatamente três cores: laranja **#F16122**, branco e
-preto. O sistema não usa nenhuma outra matiz — todos os neutros são cinzas puros.
+O portal segue o modelo "Design e Arquitetura" (Horizon + Ivory). Os valores
+vivem em `client/src/index.css`, a folha única do app.
 
-| Cor             | Valor                 | Uso                                                                       |
-| --------------- | --------------------- | ------------------------------------------------------------------------- |
-| Laranja da logo | `#f16122`             | botão primário, foco, marcadores, sublinhado de links, barra de progresso |
-| Preto           | `#141414`             | texto, superfícies escuras (login, marca, ícones, avatar)                 |
-| Branco          | `#ffffff`             | cartões e texto sobre preto                                               |
-| Cinzas neutros  | `#f4f4f4` … `#5c5c5c` | fundo da página, bordas, texto secundário                                 |
+**Paleta.** Duas cores de marca, Horizon `#67a4bf` e Ivory `#f3f1e2`. O Horizon
+puro é superfície e acento, nunca texto nem fundo de botão (branco sobre ele dá
+2,75:1); ação primária e link usam `--horizon-700` `#2c596d`. Neutros quentes
+(`--warm-*`) no lugar de cinza frio, para não brigar com o fundo creme.
 
-Laranja nunca é usado como cor de texto pequeno sobre branco (contraste de 3,2:1).
-Nesses casos ele vira sublinhado, marcador ou fundo com texto preto (5,7:1).
+| Status               | Classe            | Significado  |
+| -------------------- | ----------------- | ------------ |
+| Rascunho             | `.status-neutral` | sem estado   |
+| Enviado              | `.status-blue`    | em andamento |
+| Aprovado             | `.status-green`   | concluído    |
+| Rejeitado            | `.status-red`     | bloqueado    |
+| Fechamento em aberto | `.status-amber`   | atenção      |
 
-Os status são diferenciados por preenchimento, sem cores fora da logo:
-rascunho em cinza, enviado com contorno, aprovado em preto e rejeitado em laranja.
+**Tipografia.** DM Sans fala (títulos, botões, números), Source Sans 3 explica
+(corpo e campos), IBM Plex Mono etiqueta (rótulos, códigos, selos).
 
-As regras de marca ficam num bloco no final de `client/src/index.css`.
+**Modo escuro.** Botão na barra superior; o `ThemeContext` põe `.dark` na raiz e
+guarda a escolha na chave `theme`. O CSS só redefine os tokens semânticos.
+
+**Componentes.** As telas usam o vocabulário do modelo: `.app-shell`,
+`.sidebar`, `.page-heading`, `.operations-surface`, `.kpi-card`, `.risk-card`,
+`.attention-card`, `.next-step-list`, `.ged-line`, `.status-pill`,
+`.button-primary`, `.field-group`, `.filter-chip`, `.inline-search` e, no login,
+`.acesso`/`.acesso-cartao`.
+
+**Dados.** Toda leitura e gravação passa por
+`client/src/_core/armazenamento/deposito.ts`: interface `Motor`, hoje sobre o
+localStorage com prefixo `nexus:v1:`, e motor de memória quando o navegador
+recusa armazenamento. Ligar um backend é trocar o motor. O estado é lido uma vez
+na montagem — o depósito devolve cópias, e alterar uma cópia não grava nada.
+
+**Responsividade.** Barra de 258px; 218px até 1080px; vira gaveta até 760px. Nenhuma
+tela rola para o lado em 390px, no claro e no escuro.
 
 ## Build estático para preview
 

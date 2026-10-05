@@ -15,10 +15,11 @@ import {
   type ReceiptDraft,
 } from "@/lib/portal";
 import {
-  CircleAlert,
+  AlertCircle,
   Paperclip,
   Plus,
   Search,
+  SearchX,
   Send,
   Trash2,
 } from "lucide-react";
@@ -53,26 +54,48 @@ export default function Receipts() {
     setModalOpen(true);
   }
 
-  function handleSave(draft: ReceiptDraft) {
-    if (editing) updateReceipt(editing.id, draft);
-    else createReceipt(draft);
+  function closeModal() {
     setModalOpen(false);
     setEditing(null);
   }
 
-  const strip = [
-    { label: "Recibos lançados", value: String(summary.count) },
-    { label: "Valor bruto", value: formatBRL(summary.gross) },
-    { label: "Aprovado", value: formatBRL(summary.approvedAmount) },
-    { label: "Em rascunho", value: formatBRL(summary.draftAmount) },
+  function handleSave(draft: ReceiptDraft) {
+    if (editing) updateReceipt(editing.id, draft);
+    else createReceipt(draft);
+    closeModal();
+  }
+
+  const kpis = [
+    {
+      label: "Recibos lançados",
+      value: String(summary.count),
+      detail: "todas as competências",
+    },
+    {
+      label: "Valor bruto",
+      value: formatBRL(summary.gross),
+      detail: "inclui rejeitados",
+    },
+    {
+      label: "Aprovado",
+      value: formatBRL(summary.approvedAmount),
+      detail: `${summary.byStatus.Aprovado} recibo(s)`,
+    },
+    {
+      label: "Em rascunho",
+      value: formatBRL(summary.draftAmount),
+      detail: `${summary.byStatus.Rascunho} a enviar`,
+    },
   ];
+
+  const filters: StatusFilter[] = ["Todos", ...RECEIPT_STATUSES];
 
   return (
     <PortalShell title="Meus recibos">
-      <div className="page-header">
+      <header className="page-heading">
         <div>
           <span className="eyebrow">
-            Competência aberta {formatMonth(currentCompetencia)}
+            Competência aberta · {formatMonth(currentCompetencia)}
           </span>
           <h1>Meus recibos</h1>
           <p>
@@ -80,58 +103,89 @@ export default function Receipts() {
             escritório.
           </p>
         </div>
-        <button type="button" className="primary-button" onClick={openNew}>
-          <Plus size={15} /> Lançar recibo
-        </button>
-      </div>
+        <div className="heading-actions">
+          <button type="button" className="button-primary" onClick={openNew}>
+            <Plus size={15} strokeWidth={2.2} /> Lançar recibo
+          </button>
+        </div>
+      </header>
 
-      <div className="summary-strip">
-        {strip.map(item => (
-          <div key={item.label}>
-            <span>{item.label}</span>
-            <strong>{item.value}</strong>
+      <div className="kpi-grid">
+        {kpis.map(kpi => (
+          <div className="kpi-card" key={kpi.label}>
+            <span className="kpi-label">{kpi.label}</span>
+            <p className="kpi-value">{kpi.value}</p>
+            <p className="kpi-detail">{kpi.detail}</p>
           </div>
         ))}
       </div>
 
-      <div className="card list-card">
-        <div className="list-toolbar">
-          <div className="search-input">
-            <Search size={14} />
+      <section className="operations-surface">
+        <div className="surface-toolbar">
+          <label className="inline-search">
+            <Search size={15} strokeWidth={1.9} />
             <input
               value={search}
               onChange={event => setSearch(event.target.value)}
-              placeholder="Buscar por cliente, processo, categoria ou nº do recibo"
+              placeholder="Buscar por cliente, processo, categoria ou nº"
               aria-label="Buscar recibos"
             />
-          </div>
-          <div className="filter-group">
-            {(["Todos", ...RECEIPT_STATUSES] as StatusFilter[]).map(option => (
-              <button
-                key={option}
-                type="button"
-                className={status === option ? "selected" : undefined}
-                aria-pressed={status === option}
-                onClick={() => setStatus(option)}
-              >
-                {option}
-              </button>
-            ))}
+          </label>
+          <div
+            className="filter-chips"
+            role="group"
+            aria-label="Filtrar por status"
+          >
+            {filters.map(option => {
+              const count =
+                option === "Todos" ? summary.count : summary.byStatus[option];
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  className={
+                    status === option
+                      ? "filter-chip filter-chip-active"
+                      : "filter-chip"
+                  }
+                  aria-pressed={status === option}
+                  onClick={() => setStatus(option)}
+                >
+                  {option}
+                  <span className="filter-chip-count" aria-hidden="true">
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {visible.length === 0 ? (
           <div className="empty-state">
+            <SearchX size={22} strokeWidth={1.8} />
             <strong>Nenhum recibo encontrado</strong>
             <span>
               {receipts.length === 0
                 ? "Lance o primeiro serviço da competência."
                 : "Ajuste a busca ou o filtro de status."}
             </span>
+            {receipts.length > 0 ? (
+              <button
+                type="button"
+                className="button-secondary"
+                onClick={() => {
+                  setSearch("");
+                  setStatus("Todos");
+                }}
+              >
+                Limpar filtros
+              </button>
+            ) : null}
           </div>
         ) : (
           <>
-            <div className="table-wrap">
+            <div className="table-scroll">
               <table>
                 <thead>
                   <tr>
@@ -139,47 +193,52 @@ export default function Receipts() {
                     <th>Serviço</th>
                     <th>Competência</th>
                     <th>Data</th>
-                    <th>Comprovante</th>
+                    <th>Anexo</th>
                     <th>Valor</th>
                     <th>Status</th>
-                    <th aria-label="Ações" />
+                    <th>
+                      <span className="sr-only">Ações</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {visible.map(receipt => (
                     <tr key={receipt.id}>
                       <td>
-                        <span className="receipt-id">{receipt.id}</span>
+                        <span className="cell-code">{receipt.id}</span>
                       </td>
-                      <td className="service-cell">
+                      <td className="cell-main">
                         <strong>{receipt.client}</strong>
                         <span>
                           {receipt.category} ·{" "}
                           {receipt.caseRef || "sem processo"}
                         </span>
                         {receipt.reviewNote ? (
-                          <span>
-                            <CircleAlert size={10} /> {receipt.reviewNote}
+                          <span className="cell-note">
+                            <AlertCircle size={13} strokeWidth={2} />
+                            {receipt.reviewNote}
                           </span>
                         ) : null}
                       </td>
                       <td>{formatMonth(receipt.competencia)}</td>
                       <td>{formatDate(receipt.serviceDate)}</td>
                       <td>
-                        {receipt.attachmentName ? <Paperclip size={13} /> : "—"}
+                        {receipt.attachmentName ? (
+                          <Paperclip
+                            size={14}
+                            strokeWidth={1.9}
+                            aria-label={`Anexo: ${receipt.attachmentName}`}
+                          />
+                        ) : (
+                          "—"
+                        )}
                       </td>
-                      <td>{formatBRL(receipt.amount)}</td>
+                      <td className="money">{formatBRL(receipt.amount)}</td>
                       <td>
                         <StatusPill status={receipt.status} />
                       </td>
                       <td>
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: 4,
-                            justifyContent: "flex-end",
-                          }}
-                        >
+                        <div className="cell-actions">
                           {canEditReceipt(receipt) ? (
                             <button
                               type="button"
@@ -193,21 +252,23 @@ export default function Receipts() {
                           receipt.status === "Rejeitado" ? (
                             <button
                               type="button"
-                              className="table-more"
+                              className="icon-button"
                               aria-label={`Enviar ${receipt.id} para conferência`}
+                              title="Enviar para conferência"
                               onClick={() => submitReceipt(receipt.id)}
                             >
-                              <Send size={14} />
+                              <Send size={15} strokeWidth={1.9} />
                             </button>
                           ) : null}
                           {receipt.status === "Rascunho" ? (
                             <button
                               type="button"
-                              className="table-more"
+                              className="icon-button icon-button-danger"
                               aria-label={`Excluir ${receipt.id}`}
+                              title="Excluir rascunho"
                               onClick={() => removeReceipt(receipt.id)}
                             >
-                              <Trash2 size={14} />
+                              <Trash2 size={15} strokeWidth={1.9} />
                             </button>
                           ) : null}
                         </div>
@@ -217,25 +278,21 @@ export default function Receipts() {
                 </tbody>
               </table>
             </div>
-            <div className="table-footnote">
+            <div className="surface-footnote">
               <span>
-                <i className="green-dot" /> {visible.length} de{" "}
-                {receipts.length} recibo(s)
+                {visible.length} de {receipts.length} recibo(s)
               </span>
-              <span>Recibos aprovados não podem mais ser editados.</span>
+              <span>Recibos aprovados não podem mais ser editados</span>
             </div>
           </>
         )}
-      </div>
+      </section>
 
       {modalOpen ? (
         <ReceiptModal
           receipt={editing}
           competencia={currentCompetencia}
-          onClose={() => {
-            setModalOpen(false);
-            setEditing(null);
-          }}
+          onClose={closeModal}
           onSave={handleSave}
         />
       ) : null}

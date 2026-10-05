@@ -1,9 +1,23 @@
 import { usePortal } from "@/contexts/PortalContext";
 import { DEMO_CREDENTIALS } from "@/lib/portalSeed";
-import logoBranca from "@/assets/pnst-logo-branca.webp";
-import { ShieldCheck } from "lucide-react";
+import { AlertCircle, CheckCircle2, Eye, EyeOff, Info } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { useLocation } from "wouter";
+
+const GARANTIAS = [
+  {
+    titulo: "Cada recibo com seu histórico",
+    texto: "Quem lançou, quando foi enviado e o que o escritório decidiu.",
+  },
+  {
+    titulo: "Fechamento em quatro etapas",
+    texto: "Recibos, revisão, documento e envio — o progresso fica à vista.",
+  },
+  {
+    titulo: "Acesso por contrato",
+    texto: "Cada prestador vê apenas os próprios recibos.",
+  },
+];
 
 export default function Login() {
   const { signIn } = usePortal();
@@ -31,112 +45,132 @@ export default function Login() {
   }
 
   return (
-    <div className="login-page">
-      <section className="login-artwork">
-        <div className="art-grid" />
-        <div className="art-orbit orbit-one" />
-        <div className="art-orbit orbit-two" />
-        <div className="login-art-copy">
-          <img
-            className="art-logo"
-            src={logoBranca}
-            alt="Pacheco Neto Sanden Teisseire Advogados"
-          />
+    <div className="acesso">
+      <section className="acesso-painel">
+        <div className="brand-row">
+          <span className="brand-mark" aria-hidden="true">
+            N
+          </span>
+          <span className="brand-copy">Nexus Portal do Prestador</span>
+        </div>
+
+        <div>
+          <span className="eyebrow">Recibos e fechamento mensal</span>
           <h1>
             Seus recibos, <em>fechados no prazo</em>.
           </h1>
           <p>
             Lance cada serviço prestado, acompanhe a conferência do escritório e
-            envie o fechamento mensal sem trocar um único e-mail.
+            envie o fechamento sem trocar e-mails.
           </p>
-          <div className="trust-line">
-            <ShieldCheck size={15} />
-            Acesso individual por contrato — cada prestador vê apenas os
-            próprios recibos.
-          </div>
         </div>
+
+        <ul className="acesso-pontos">
+          {GARANTIAS.map(item => (
+            <li key={item.titulo}>
+              <CheckCircle2 size={17} strokeWidth={2} />
+              <div>
+                <strong>{item.titulo}</strong>
+                {item.texto}
+              </div>
+            </li>
+          ))}
+        </ul>
       </section>
 
-      <section className="login-panel">
-        <div className="login-panel-inner">
-          <div className="login-heading">
-            <span className="eyebrow">Portal do Prestador · Entrar</span>
-            <h2>Bem-vinda de volta</h2>
-            <p>
-              Use o código de acesso enviado pelo escritório na assinatura do
-              contrato.
-            </p>
-          </div>
+      <section className="acesso-palco">
+        <div className="acesso-cartao">
+          <span className="accent-eyebrow">Entrar</span>
+          <h2>Bem-vinda de volta</h2>
+          <p>
+            Use o código de acesso enviado pelo escritório na assinatura do
+            contrato.
+          </p>
 
-          <form className="login-form" onSubmit={handleSubmit}>
-            <label>
-              <span>Código de acesso</span>
+          <form className="acesso-form" onSubmit={handleSubmit} noValidate>
+            <div className="field-group">
+              <label className="field-label" htmlFor="login-codigo">
+                Código de acesso
+              </label>
               <input
+                id="login-codigo"
+                className="field-input"
                 value={code}
                 onChange={event => setCode(event.target.value)}
                 placeholder="PNST-0000"
                 autoComplete="username"
                 autoCapitalize="characters"
+                aria-invalid={error ? true : undefined}
+                aria-describedby={error ? "login-erro" : undefined}
                 required
               />
-            </label>
+            </div>
 
-            <label>
-              <span>Senha</span>
-              <div className="password-wrap">
+            <div className="field-group">
+              <label className="field-label" htmlFor="login-senha">
+                Senha
+              </label>
+              <div className="campo-senha">
                 <input
+                  id="login-senha"
+                  className="field-input"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={event => setPassword(event.target.value)}
-                  placeholder="••••••••"
                   autoComplete="current-password"
+                  aria-invalid={error ? true : undefined}
+                  aria-describedby={error ? "login-erro" : undefined}
                   required
                 />
-                <span
-                  role="button"
-                  tabIndex={0}
+                <button
+                  type="button"
+                  className="icon-button"
                   aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                  aria-pressed={showPassword}
                   onClick={() => setShowPassword(current => !current)}
-                  onKeyDown={event => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      setShowPassword(current => !current);
-                    }
-                  }}
                 >
-                  {showPassword ? "OCULTAR" : "VER"}
-                </span>
+                  {showPassword ? (
+                    <EyeOff size={16} strokeWidth={1.9} />
+                  ) : (
+                    <Eye size={16} strokeWidth={1.9} />
+                  )}
+                </button>
               </div>
-            </label>
+            </div>
 
-            <div className="login-options">
+            <div className="acesso-opcoes">
               <label className="check-label">
                 <input type="checkbox" defaultChecked />
-                Manter conectado neste dispositivo
+                Manter conectado
               </label>
               <button type="button" className="text-button" onClick={fillDemo}>
                 Preencher credenciais demo
               </button>
             </div>
 
-            {error ? <p className="form-error">{error}</p> : null}
+            {error ? (
+              <div id="login-erro" className="acesso-alerta-erro" role="alert">
+                <AlertCircle size={15} strokeWidth={2} />
+                <span>{error}</span>
+              </div>
+            ) : null}
 
-            <button type="submit" className="primary-button login-submit">
+            <button type="submit" className="button-primary button-block">
               Entrar no portal
             </button>
+
+            <div className="acesso-alerta-info">
+              <Info size={15} strokeWidth={2} />
+              <span>
+                <strong>Ambiente de demonstração.</strong> Código{" "}
+                <code>{DEMO_CREDENTIALS.code}</code>, senha{" "}
+                <code>{DEMO_CREDENTIALS.password}</code>. Os dados ficam só
+                neste navegador.
+              </span>
+            </div>
           </form>
 
-          <div className="demo-note">
-            <span className="demo-dot" />
-            <div>
-              <strong>Protótipo navegável.</strong> Acesse com{" "}
-              <code>{DEMO_CREDENTIALS.code}</code> e senha{" "}
-              <code>{DEMO_CREDENTIALS.password}</code>. Nenhum dado é enviado a
-              servidores.
-            </div>
-          </div>
-
-          <p className="login-legal">
+          <p className="acesso-rodape">
             Nexus · Plataforma de inteligência operacional
           </p>
         </div>
