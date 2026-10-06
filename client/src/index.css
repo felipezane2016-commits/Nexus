@@ -40,15 +40,16 @@
   --ring: var(--laranja);
   /* Ação = preenchimento laranja com texto preto; no hover vira preto. */
   --action: var(--laranja);
-  --on-action: var(--preto);
-  --action-pressed: var(--preto);
-  --on-action-pressed: var(--branco);
+  --on-action: var(--branco);
+  --action-pressed: var(--branco);
+  --on-action-pressed: var(--laranja);
   /* Texto de link/acento: preto no claro (sublinhado laranja), laranja no escuro. */
   --link: var(--preto);
   --highlight: var(--tinta-08);
   --highlight-border: var(--tinta-20);
-  --sidebar-bg: var(--preto);
-  --sidebar-fg: rgba(255, 255, 255, 0.72);
+  /* Barra lateral e painéis de destaque em laranja com branco, como a logo. */
+  --sidebar-bg: var(--laranja);
+  --sidebar-fg: var(--branco);
   --risk-bg: var(--branco);
   --risk-border: var(--laranja);
 
@@ -102,7 +103,6 @@
   --foreground: var(--branco);
   --card: var(--preto);
   --link: var(--laranja);
-  --sidebar-bg: var(--preto);
   --risk-bg: var(--preto);
   --status-green-fg: var(--branco);
   --status-green-mark: var(--branco);
@@ -213,14 +213,14 @@ code {
   opacity: 1;
 }
 .button-primary:hover:not(:disabled) {
-  border-color: var(--action-pressed);
+  border-color: var(--laranja);
   color: var(--on-action-pressed);
   background: var(--action-pressed);
 }
 /* No escuro o hover preto sumiria no fundo: inverte para branco. */
 .dark {
-  --action-pressed: var(--branco);
-  --on-action-pressed: var(--preto);
+  --action-pressed: var(--preto);
+  --on-action-pressed: var(--laranja);
 }
 .button-secondary {
   border: 1px solid var(--border);
@@ -459,12 +459,12 @@ textarea.field-input {
   opacity: 0.7;
 }
 :root {
-  --chip-ativo-bg: var(--preto);
+  --chip-ativo-bg: var(--laranja);
   --chip-ativo-fg: var(--branco);
 }
 .dark {
-  --chip-ativo-bg: var(--branco);
-  --chip-ativo-fg: var(--preto);
+  --chip-ativo-bg: var(--laranja);
+  --chip-ativo-fg: var(--branco);
 }
 /* Texto solto que pede atenção: preto com sublinhado laranja no claro,
    laranja no escuro. */
@@ -526,22 +526,22 @@ textarea.field-input {
   height: 40px;
 }
 .brand-copy {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--branco);
   font: 600 9.5px/1.25 var(--font-mono);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 .sidebar-close {
   display: none;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--branco);
 }
 .sidebar-close:hover {
   color: var(--branco);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.2);
 }
 .sidebar-section-label {
   margin: 14px 10px 8px;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.85);
   font: 600 9px/1 var(--font-mono);
   letter-spacing: 0.13em;
   text-transform: uppercase;
@@ -574,12 +574,12 @@ textarea.field-input {
 }
 .nav-item:hover {
   color: var(--branco);
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.14);
 }
 .nav-active,
 .nav-active:hover {
-  color: var(--branco);
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--laranja);
+  background: var(--branco);
 }
 .nav-active::before {
   content: "";
@@ -589,11 +589,15 @@ textarea.field-input {
   bottom: 9px;
   width: 3px;
   border-radius: 0 3px 3px 0;
-  background: var(--laranja);
+  background: var(--branco);
 }
 .nav-active svg {
   color: var(--laranja);
   opacity: 1;
+}
+.nav-active .nav-count {
+  color: var(--branco);
+  background: var(--laranja);
 }
 .nav-count {
   min-width: 20px;
@@ -601,16 +605,16 @@ textarea.field-input {
   border-radius: 6px;
   padding: 3px 6px;
   text-align: center;
-  color: var(--preto);
-  background: var(--laranja);
-  font: 600 10px/1 var(--font-mono);
+  color: var(--laranja);
+  background: var(--branco);
+  font: 700 10px/1 var(--font-mono);
 }
 .sidebar-footer {
   margin-top: auto;
   display: grid;
   gap: 10px;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
 }
 .sidebar-account {
   display: flex;
@@ -629,7 +633,7 @@ textarea.field-input {
 .sidebar-account span {
   display: block;
   margin-top: 2px;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.85);
   font: 500 10px/1.2 var(--font-mono);
 }
 .sidebar-account > div {
@@ -642,7 +646,7 @@ textarea.field-input {
   place-items: center;
   flex: 0 0 auto;
   border-radius: 50%;
-  color: var(--preto);
+  color: var(--laranja);
   background: var(--branco);
   font: 800 11px/1 var(--font-display);
 }
@@ -878,8 +882,8 @@ textarea.field-input {
 .attention-card {
   border-radius: 9px;
   padding: 24px;
-  color: rgba(255, 255, 255, 0.78);
-  background: var(--preto);
+  color: var(--branco);
+  background: var(--laranja);
 }
 .attention-card h3 {
   margin-top: 8px;
@@ -892,18 +896,18 @@ textarea.field-input {
   font-size: 14px;
 }
 .attention-card .eyebrow {
-  color: var(--laranja);
+  color: var(--branco);
 }
 .attention-card .button-primary {
   margin-top: 18px;
-  border-color: var(--laranja);
-  color: var(--preto);
-  background: var(--laranja);
+  border-color: var(--branco);
+  color: var(--laranja);
+  background: var(--branco);
 }
 .attention-card .button-primary:hover:not(:disabled) {
   border-color: var(--branco);
-  color: var(--preto);
-  background: var(--branco);
+  color: var(--branco);
+  background: transparent;
 }
 
 .empty-state {
@@ -1299,8 +1303,8 @@ textarea.field-input {
   justify-content: space-between;
   gap: 40px;
   padding: 44px clamp(32px, 5vw, 72px);
-  color: rgba(255, 255, 255, 0.76);
-  background: var(--preto);
+  color: var(--branco);
+  background: var(--laranja);
 }
 .acesso-painel .brand-row {
   padding: 0;
@@ -1314,8 +1318,11 @@ textarea.field-input {
   letter-spacing: -0.052em;
 }
 .acesso-painel h1 em {
-  color: var(--laranja);
+  color: var(--branco);
   font-style: normal;
+  text-decoration: underline;
+  text-decoration-thickness: 4px;
+  text-underline-offset: 8px;
 }
 .acesso-painel > div > p {
   max-width: 430px;
@@ -1323,7 +1330,7 @@ textarea.field-input {
   font-size: 16px;
 }
 .acesso-painel .eyebrow {
-  color: var(--laranja);
+  color: var(--branco);
 }
 .acesso-pontos {
   display: grid;
@@ -1341,7 +1348,7 @@ textarea.field-input {
 .acesso-pontos svg {
   margin-top: 2px;
   flex: 0 0 auto;
-  color: var(--laranja);
+  color: var(--branco);
 }
 .acesso-pontos strong {
   display: block;
@@ -1609,7 +1616,7 @@ textarea.field-input {
   align-items: center;
   gap: 8px;
   margin: 0 0 6px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.85);
 }
 .sidebar-module-title {
   margin: 4px 11px 2px;
