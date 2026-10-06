@@ -45,6 +45,8 @@ export type ReceiptCategory = (typeof RECEIPT_CATEGORIES)[number];
 
 export type Receipt = {
   id: string;
+  /** Dono do recibo. O portal mostra só os do prestador logado; o admin, todos. */
+  prestadorId: string;
   /** Competência no formato `YYYY-MM`, derivada da data do serviço. */
   competencia: string;
   /** Data do serviço no formato `YYYY-MM-DD`. */
@@ -62,11 +64,17 @@ export type Receipt = {
   createdAt: string;
 };
 
+/** Andamento do fechamento do lado do escritório, depois do envio. */
+export type ClosingReview = "Aguardando conferência" | "Conferido" | "Pago";
+
 export type Closing = {
+  prestadorId: string;
   competencia: string;
   documentName: string | null;
   submitted: boolean;
   submittedAt: string | null;
+  /** null enquanto o prestador não envia; o escritório avança daí em diante. */
+  review: ClosingReview | null;
 };
 
 export type Provider = {

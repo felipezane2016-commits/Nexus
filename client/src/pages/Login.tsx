@@ -2,7 +2,7 @@ import { usePortal } from "@/contexts/PortalContext";
 import { DEMO_CREDENTIALS } from "@/lib/portalSeed";
 import { AlertCircle, CheckCircle2, Eye, EyeOff, Info } from "lucide-react";
 import { useState, type FormEvent } from "react";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 
 const GARANTIAS = [
   {
@@ -171,7 +171,7 @@ export default function Login() {
           </form>
 
           <p className="acesso-rodape">
-            Nexus · Plataforma de inteligência operacional
+            É do escritório? <Link href="~/login">Entrar no Nexus Escritório</Link>
           </p>
         </div>
       </section>

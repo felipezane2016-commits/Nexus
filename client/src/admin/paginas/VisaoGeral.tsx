@@ -1,0 +1,205 @@
+import { useColecao } from "@/_core/armazenamento/colecao";
+import { veModulo } from "@/_core/identidade/permissoes";
+import { useUsuarioAtual } from "@/_core/identidade/sessao";
+import { formatarData, HOJE, somarDias } from "@/_core/tempo";
+import Cabecalho from "@/admin/componentes/Cabecalho";
+import Kpi from "@/admin/componentes/Kpi";
+import Selo, { type Tom } from "@/admin/componentes/Selo";
+import Vazio from "@/admin/componentes/Vazio";
+import { formatBRL } from "@/lib/portal";
+import { tarefasContas } from "@/modulos/contas/colecoes";
+import { eventosDoDia, montarAgenda, vencendoEmBreve, type TipoEvento } from "@/modulos/escritorio/agenda";
+import { reunioes } from "@/modulos/escritorio/colecoes";
+import { useDadosLegal } from "@/modulos/legal/colecoes";
+import { alertas } from "@/modulos/legal/regras";
+import { montarLotes } from "@/modulos/prestadores/regras";
+import { useDadosPrestadores } from "@/modulos/prestadores/usarDados";
+import { AlertTriangle, ArrowRight, CalendarCheck, CalendarDays, ClipboardCheck, Clock3, Scale } from "lucide-react";
+import { useLocation } from "wouter";
+
+export const TOM_EVENTO: Record<TipoEvento, Tom> = { Reunião: "blue", Pagamento: "amber", Procuração: "red" };
+
+function saudacao(nome: string) {
+  return `Bom dia, ${nome.split(" ")[0]}`;
+}
+
+export default function VisaoGeral() {
+  const usuario = useUsuarioAtual();
+  const [, navegar] = useLocation();
+  const listaReunioes = useColecao(reunioes);
+  const contas = useColecao(tarefasContas);
+  const legal = useDadosLegal();
+  const prestadores = useDadosPrestadores();
+
+  if (!usuario) return null;
+  const agenda = montarAgenda({ reunioes: listaReunioes, tarefasContas: contas, processos: legal.processos, clientesLegal: legal.clientes });
+  const hoje = eventosDoDia(agenda, HOJE);
+  const emBreve = vencendoEmBreve(contas, HOJE, somarDias(HOJE, 7));
+  const avisosLegal = alertas(legal.processos, legal.clientes, HOJE);
+  const lotes = montarLotes(prestadores.recibos, prestadores.fechamentos, prestadores.prestadores).filter(
+    (lote) => lote.situacao === "Aguardando conferência" || lote.pendentes > 0,
+  );
+
+  const veContas = veModulo(usuario, "contas");
+  const veLegal = veModulo(usuario, "legal");
+  const vePrestadores = veModulo(usuario, "prestadores");
+  const veCalendario = veModulo(usuario, "calendario");
+
+  return (
+    <>
+      <Cabecalho
+        rotulo={`Hoje · ${formatarData(HOJE)}`}
+        titulo={saudacao(usuario.nome)}
+        descricao="O que vence, o que espera decisão e a agenda do dia — de todos os módulos que você acompanha."
+      />
+
+      <div className="kpi-grid">
+        {veContas ? (
+          <Kpi rotulo="Vencendo em 7 dias" valor={String(emBreve.length)} detalhe="contas e tributos pendentes" icone={Clock3} aoClicar={() => navegar("/contas")} />
+        ) : null}
+        {veCalendario ? (
+          <Kpi rotulo="Eventos hoje" valor={String(hoje.length)} detalhe="reuniões e vencimentos" icone={CalendarDays} aoClicar={() => navegar("/calendario")} />
+        ) : null}
+        {veLegal ? (
+          <Kpi rotulo="Alertas do Legal" valor={String(avisosLegal.length)} detalhe="processos pedem atenção" icone={Scale} aoClicar={() => navegar("/legal")} />
+        ) : null}
+        {vePrestadores ? (
+          <Kpi
+            rotulo="Conferência pendente"
+            valor={String(lotes.length)}
+            detalhe={formatBRL(lotes.reduce((soma, lote) => soma + lote.total, 0))}
+            icone={ClipboardCheck}
+            aoClicar={() => navegar("/prestadores/conferencia")}
+          />
+        ) : null}
+      </div>
+
+      <div className="grid-2">
+        {veCalendario ? (
+          <section className="operations-surface">
+            <div className="section-header">
+              <div>
+                <span className="eyebrow">Agenda</span>
+                <h3>Hoje</h3>
+              </div>
+              <button type="button" className="text-button" onClick={() => navegar("/calendario")}>
+                Calendário <ArrowRight size={13} strokeWidth={2.2} />
+              </button>
+            </div>
+            {hoje.length === 0 ? (
+              <Vazio icone={CalendarCheck} titulo="Nada agendado para hoje" />
+            ) : (
+              <ul className="item-list">
+                {hoje.map((evento) => (
+                  <li className="item-row" key={`${evento.tipo}-${evento.id}`}>
+                    <Selo tom={TOM_EVENTO[evento.tipo]}>{evento.hora ?? evento.tipo}</Selo>
+                    <div className="item-row-copy">
+                      <strong>{evento.titulo}</strong>
+                      <span>{evento.detalhe}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        ) : null}
+
+        {veContas ? (
+          <section className="operations-surface">
+            <div className="section-header">
+              <div>
+                <span className="eyebrow">Account Management</span>
+                <h3>Vencendo nos próximos 7 dias</h3>
+              </div>
+              <button type="button" className="text-button" onClick={() => navegar("/contas")}>
+                Ver todas <ArrowRight size={13} strokeWidth={2.2} />
+              </button>
+            </div>
+            {emBreve.length === 0 ? (
+              <Vazio icone={CalendarCheck} titulo="Nada vencendo esta semana" />
+            ) : (
+              <ul className="item-list">
+                {emBreve.slice(0, 6).map((tarefa) => (
+                  <li className="item-row" key={tarefa.id}>
+                    <Selo tom={tarefa.vencimento === HOJE ? "red" : "amber"}>{formatarData(tarefa.vencimento)}</Selo>
+                    <div className="item-row-copy">
+                      <strong>{tarefa.nome}</strong>
+                      <span>{tarefa.categoria}</span>
+                    </div>
+                  </li>
+                ))}
+                {emBreve.length > 6 ? (
+                  <li className="item-row">
+                    <span className="field-hint">e mais {emBreve.length - 6}</span>
+                  </li>
+                ) : null}
+              </ul>
+            )}
+          </section>
+        ) : null}
+
+        {veLegal ? (
+          <section className="operations-surface">
+            <div className="section-header">
+              <div>
+                <span className="eyebrow">Legal Workflow</span>
+                <h3>Alertas ativos</h3>
+              </div>
+              <button type="button" className="text-button" onClick={() => navegar("/legal")}>
+                Abrir painel <ArrowRight size={13} strokeWidth={2.2} />
+              </button>
+            </div>
+            {avisosLegal.length === 0 ? (
+              <Vazio icone={Scale} titulo="Nenhum alerta no momento" />
+            ) : (
+              <ul className="item-list">
+                {avisosLegal.slice(0, 5).map((alerta, indice) => (
+                  <li className="item-row" key={indice}>
+                    <span className="risk-icon" style={{ width: 26, height: 26 }}>
+                      <AlertTriangle size={14} strokeWidth={2} />
+                    </span>
+                    <div className="item-row-copy">
+                      <strong>{alerta.titulo}</strong>
+                      <span>{alerta.descricao}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        ) : null}
+
+        {vePrestadores ? (
+          <section className="operations-surface">
+            <div className="section-header">
+              <div>
+                <span className="eyebrow">Prestadores</span>
+                <h3>Aguardando conferência</h3>
+              </div>
+              <button type="button" className="text-button" onClick={() => navegar("/prestadores/conferencia")}>
+                Conferir <ArrowRight size={13} strokeWidth={2.2} />
+              </button>
+            </div>
+            {lotes.length === 0 ? (
+              <Vazio icone={ClipboardCheck} titulo="Nenhum lote pendente" />
+            ) : (
+              <ul className="item-list">
+                {lotes.map((lote) => (
+                  <li className="item-row" key={lote.chave}>
+                    <div className="item-row-copy">
+                      <strong>{lote.prestador.nome}</strong>
+                      <span>
+                        {lote.pendentes} recibo(s) a decidir · {formatBRL(lote.total)}
+                      </span>
+                    </div>
+                    <Selo tom={lote.situacao === "Aguardando conferência" ? "amber" : "neutral"}>{lote.situacao}</Selo>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        ) : null}
+      </div>
+    </>
+  );
+}

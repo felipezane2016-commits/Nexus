@@ -3,6 +3,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Redirect, Route, Router as WouterRouter, Switch } from "wouter";
 import { useHashLocation } from "wouter/use-hash-location";
+import RotasAdmin from "./admin/RotasAdmin";
+import Entrar from "./admin/paginas/Entrar";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { PortalProvider, usePortal } from "./contexts/PortalContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -12,39 +14,54 @@ import Login from "./pages/Login";
 import Receipts from "./pages/Receipts";
 
 /**
- * Rotas do protótipo. A sessão é local (ver PortalContext) — quem não está
- * autenticado é levado para /login.
+ * Zonas da plataforma, no modelo do documento de arquitetura:
+ *   /portal/*  Portal do Prestador (zona do prestador) — aninhado, então as
+ *              telas do portal navegam com caminhos relativos ("/recibos").
+ *   /login     acesso do escritório
+ *   /*         admin do escritório (casca própria, rotas em RotasAdmin)
  */
-function PrivateRoute({ children }: { children: React.ReactNode }) {
+
+function RotaPrivadaPortal({ children }: { children: React.ReactNode }) {
   const { signedIn } = usePortal();
   if (!signedIn) return <Redirect to="/login" />;
   return <>{children}</>;
 }
 
-function Router() {
+function RotasPortal() {
   const { signedIn } = usePortal();
-
   return (
     <Switch>
       <Route path="/login">{signedIn ? <Redirect to="/" /> : <Login />}</Route>
       <Route path="/">
-        <PrivateRoute>
+        <RotaPrivadaPortal>
           <Dashboard />
-        </PrivateRoute>
+        </RotaPrivadaPortal>
       </Route>
       <Route path="/recibos">
-        <PrivateRoute>
+        <RotaPrivadaPortal>
           <Receipts />
-        </PrivateRoute>
+        </RotaPrivadaPortal>
       </Route>
       <Route path="/fechamento">
-        <PrivateRoute>
+        <RotaPrivadaPortal>
           <Closing />
-        </PrivateRoute>
+        </RotaPrivadaPortal>
       </Route>
-      <Route path="/404" component={NotFound} />
-      {/* Final fallback route */}
       <Route component={NotFound} />
+    </Switch>
+  );
+}
+
+function Rotas() {
+  return (
+    <Switch>
+      <Route path="/portal" nest>
+        <RotasPortal />
+      </Route>
+      <Route path="/login" component={Entrar} />
+      <Route>
+        <RotasAdmin />
+      </Route>
     </Switch>
   );
 }
@@ -53,9 +70,9 @@ function Router() {
 // escolha na chave "theme"; o index.css só redefine os tokens semânticos.
 
 // Builds estáticos publicados fora de um servidor com fallback de SPA (preview
-// por link, GitHub Pages) não conseguem servir /recibos direto. Com
-// VITE_HASH_ROUTER=1 as rotas passam a viver no hash (#/recibos) e funcionam em
-// qualquer caminho. O dev e o build normal seguem com rotas em path.
+// por link, GitHub Pages) não conseguem servir /portal/recibos direto. Com
+// VITE_HASH_ROUTER=1 as rotas passam a viver no hash (#/portal/recibos) e
+// funcionam em qualquer caminho. O dev e o build normal seguem com rotas em path.
 const hashRouting = import.meta.env.VITE_HASH_ROUTER === "1";
 
 function App() {
@@ -67,10 +84,10 @@ function App() {
           <PortalProvider>
             {hashRouting ? (
               <WouterRouter hook={useHashLocation}>
-                <Router />
+                <Rotas />
               </WouterRouter>
             ) : (
-              <Router />
+              <Rotas />
             )}
           </PortalProvider>
         </TooltipProvider>

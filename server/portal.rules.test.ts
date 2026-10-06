@@ -27,6 +27,7 @@ function receipt(
 ): Receipt {
   return {
     id,
+    prestadorId: "prest-teste",
     competencia,
     serviceDate: `${competencia}-10`,
     category: "Diligência",

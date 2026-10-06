@@ -1,0 +1,228 @@
+import { gravarItem, restaurarDemonstracao, useColecao } from "@/_core/armazenamento/colecao";
+import { iniciais, MODULOS, PAPEIS, type Modulo, type Papel, type Usuario } from "@/_core/identidade/permissoes";
+import { sessaoAdmin, useUsuarioAtual, usuarios } from "@/_core/identidade/sessao";
+import { formatarDataHora, gerarId } from "@/_core/tempo";
+import Cabecalho from "@/admin/componentes/Cabecalho";
+import Campo from "@/admin/componentes/Campo";
+import Painel from "@/admin/componentes/Painel";
+import Selo from "@/admin/componentes/Selo";
+import { Plus, RotateCcw, Search } from "lucide-react";
+import { useState } from "react";
+
+const DEPARTAMENTOS = ["Jurídico", "Operações", "Financeiro", "TI", "RH", "Administrativo"];
+
+export default function Usuarios() {
+  const lista = useColecao(usuarios);
+  const atual = useUsuarioAtual();
+  const [busca, setBusca] = useState("");
+  const [editando, setEditando] = useState<Usuario | "novo" | null>(null);
+  const [confirmandoRestauro, setConfirmandoRestauro] = useState(false);
+  const termo = busca.trim().toLowerCase();
+  const visiveis = lista.filter((usuario) => !termo || `${usuario.nome} ${usuario.email} ${usuario.departamento}`.toLowerCase().includes(termo));
+  const ativos = lista.filter((usuario) => usuario.ativo).length;
+
+  return (
+    <>
+      <Cabecalho
+        rotulo="Administração"
+        titulo="Usuários e acessos"
+        descricao={`${ativos} usuário(s) ativo(s). O papel define o que a pessoa pode fazer; os módulos, onde ela entra.`}
+        acoes={
+          <>
+            <button
+              type="button"
+              className="button-secondary"
+              onClick={() => {
+                if (!confirmandoRestauro) return setConfirmandoRestauro(true);
+                // Volta todas as coleções à semente, mas mantém quem está logado.
+                const usuarioId = sessaoAdmin.ler().usuarioId;
+                restaurarDemonstracao();
+                sessaoAdmin.atualizar(() => ({ usuarioId }));
+                setConfirmandoRestauro(false);
+              }}
+              onBlur={() => setConfirmandoRestauro(false)}
+            >
+              <RotateCcw size={15} strokeWidth={2.2} /> {confirmandoRestauro ? "Confirmar: apagar alterações" : "Restaurar demonstração"}
+            </button>
+            <button type="button" className="button-primary" onClick={() => setEditando("novo")}>
+              <Plus size={15} strokeWidth={2.2} /> Novo usuário
+            </button>
+          </>
+        }
+      />
+      <section className="operations-surface">
+        <div className="surface-toolbar">
+          <label className="inline-search">
+            <Search size={15} strokeWidth={1.9} />
+            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por nome, e-mail ou departamento" aria-label="Buscar usuários" />
+          </label>
+        </div>
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Usuário</th>
+                <th>Departamento</th>
+                <th>Papel</th>
+                <th>Módulos</th>
+                <th>Status</th>
+                <th>Último acesso</th>
+                <th>
+                  <span className="sr-only">Ações</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {visiveis.map((usuario) => (
+                <tr key={usuario.id}>
+                  <td>
+                    <div className="inline-row" style={{ flexWrap: "nowrap" }}>
+                      <span className="avatar" aria-hidden="true">
+                        {iniciais(usuario.nome)}
+                      </span>
+                      <div className="cell-main">
+                        <strong>{usuario.nome}</strong>
+                        <span>{usuario.email}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{usuario.departamento}</td>
+                  <td>{PAPEIS[usuario.papel].nome}</td>
+                  <td style={{ whiteSpace: "normal", minWidth: 220 }}>
+                    <div className="inline-row" style={{ gap: 4 }}>
+                      {usuario.modulos.map((modulo) => (
+                        <span key={modulo} className="status-pill status-neutral">
+                          {MODULOS[modulo]}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td>{usuario.ativo ? <Selo tom="green">Ativo</Selo> : <Selo tom="neutral">Inativo</Selo>}</td>
+                  <td>{usuario.ultimoAcesso ? formatarDataHora(usuario.ultimoAcesso) : "—"}</td>
+                  <td>
+                    <div className="cell-actions">
+                      <button type="button" className="text-button" onClick={() => setEditando(usuario)}>
+                        Editar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+      {editando ? (
+        <FormularioUsuario usuario={editando === "novo" ? null : editando} todos={lista} euId={atual?.id ?? ""} aoFechar={() => setEditando(null)} />
+      ) : null}
+    </>
+  );
+}
+
+type Erros = Partial<Record<"nome" | "email" | "senha" | "modulos" | "papel", string>>;
+
+function FormularioUsuario({ usuario, todos, euId, aoFechar }: { usuario: Usuario | null; todos: Usuario[]; euId: string; aoFechar: () => void }) {
+  const [dados, setDados] = useState<Usuario>(
+    usuario ?? { id: gerarId("usr"), nome: "", email: "", senha: "", departamento: "Operações", papel: "operador", modulos: ["visao"], ativo: true, ultimoAcesso: null },
+  );
+  const [novaSenha, setNovaSenha] = useState("");
+  const [erros, setErros] = useState<Erros>({});
+  const souEu = usuario?.id === euId;
+
+  function alternarModulo(modulo: Modulo) {
+    setDados((atual) => ({
+      ...atual,
+      modulos: atual.modulos.includes(modulo) ? atual.modulos.filter((item) => item !== modulo) : [...atual.modulos, modulo],
+    }));
+    setErros((atual) => ({ ...atual, modulos: undefined }));
+  }
+
+  function salvar() {
+    const encontrados: Erros = {};
+    if (!dados.nome.trim()) encontrados.nome = "Informe o nome.";
+    if (!/^\S+@\S+\.\S+$/.test(dados.email)) encontrados.email = "E-mail inválido.";
+    else if (todos.some((item) => item.id !== dados.id && item.email.toLowerCase() === dados.email.toLowerCase()))
+      encontrados.email = "Já existe um usuário com este e-mail.";
+    if ((!usuario || novaSenha) && novaSenha.length < 6) encontrados.senha = "Mínimo de 6 caracteres.";
+    if (dados.modulos.length === 0) encontrados.modulos = "Libere ao menos um módulo.";
+    // Quem edita a si mesmo não pode se rebaixar nem se desativar: ficaria sem
+    // ninguém para desfazer o erro.
+    if (souEu && (dados.papel !== "admin" || !dados.ativo)) encontrados.papel = "Você não pode tirar o próprio acesso de administrador.";
+    if (Object.values(encontrados).some(Boolean)) {
+      setErros(encontrados);
+      return;
+    }
+    usuarios.atualizar((lista) => gravarItem(lista, { ...dados, nome: dados.nome.trim(), email: dados.email.trim(), senha: novaSenha || dados.senha }));
+    aoFechar();
+  }
+
+  return (
+    <Painel rotulo="Usuários e acessos" titulo={usuario ? usuario.nome : "Novo usuário"} aoFechar={aoFechar} aoEnviar={salvar}>
+      <div className="field-grid">
+        <Campo id="us-nome" rotulo="Nome completo" erro={erros.nome}>
+          {(aria) => <input {...aria} className="field-input" value={dados.nome} onChange={(e) => setDados({ ...dados, nome: e.target.value })} />}
+        </Campo>
+        <Campo id="us-email" rotulo="E-mail" erro={erros.email}>
+          {(aria) => <input {...aria} className="field-input" type="email" value={dados.email} onChange={(e) => setDados({ ...dados, email: e.target.value })} />}
+        </Campo>
+      </div>
+      <div className="field-grid">
+        <Campo id="us-senha" rotulo="Senha" erro={erros.senha} dica={usuario ? "Em branco mantém a atual" : "Mínimo de 6 caracteres"}>
+          {(aria) => <input {...aria} className="field-input" type="password" value={novaSenha} onChange={(e) => setNovaSenha(e.target.value)} autoComplete="new-password" />}
+        </Campo>
+        <Campo id="us-departamento" rotulo="Departamento">
+          {(aria) => (
+            <select {...aria} className="field-input" value={dados.departamento} onChange={(e) => setDados({ ...dados, departamento: e.target.value })}>
+              {DEPARTAMENTOS.map((departamento) => (
+                <option key={departamento}>{departamento}</option>
+              ))}
+            </select>
+          )}
+        </Campo>
+      </div>
+      <Campo id="us-papel" rotulo="Papel" erro={erros.papel} dica={PAPEIS[dados.papel].descricao}>
+        {(aria) => (
+          <select {...aria} className="field-input" value={dados.papel} onChange={(e) => setDados({ ...dados, papel: e.target.value as Papel })}>
+            {(Object.keys(PAPEIS) as Papel[]).map((papel) => (
+              <option key={papel} value={papel}>
+                {PAPEIS[papel].nome}
+              </option>
+            ))}
+          </select>
+        )}
+      </Campo>
+      <fieldset className="field-group" style={{ border: 0, padding: 0, margin: 0 }} aria-describedby={erros.modulos ? "us-modulos-erro" : undefined}>
+        <legend className="field-label" style={{ marginBottom: 6 }}>
+          Módulos liberados
+        </legend>
+        <div className="filter-chips">
+          {(Object.keys(MODULOS) as Modulo[]).map((modulo) => (
+            <button
+              key={modulo}
+              type="button"
+              className={dados.modulos.includes(modulo) ? "filter-chip filter-chip-active" : "filter-chip"}
+              aria-pressed={dados.modulos.includes(modulo)}
+              onClick={() => alternarModulo(modulo)}
+            >
+              {MODULOS[modulo]}
+            </button>
+          ))}
+        </div>
+        {erros.modulos ? (
+          <span id="us-modulos-erro" className="field-error" role="alert">
+            {erros.modulos}
+          </span>
+        ) : null}
+      </fieldset>
+      <div className="toggle-row">
+        <div>
+          <strong className="field-label" id="us-ativo-rotulo">
+            Usuário ativo
+          </strong>
+          <p className="field-hint">Inativo perde o acesso na hora, mesmo com sessão aberta.</p>
+        </div>
+        <button type="button" className="switch" role="switch" aria-checked={dados.ativo} aria-labelledby="us-ativo-rotulo" onClick={() => setDados({ ...dados, ativo: !dados.ativo })} />
+      </div>
+    </Painel>
+  );
+}

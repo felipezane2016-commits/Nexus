@@ -1,9 +1,11 @@
 import type { Closing, Provider, Receipt } from "./portal";
 
 /**
- * Dados de demonstração do protótipo. Não há backend: o estado vive no cliente
- * e é persistido em localStorage pelo PortalProvider.
+ * Dados de demonstração da prestadora Marina, a conta do portal usada na
+ * demonstração. Os demais prestadores ficam em `modulos/prestadores/dadosMock`.
  */
+
+export const MARINA_ID = "prest-marina";
 
 export const DEMO_CREDENTIALS = { code: "PNST-2481", password: "nexus2026" };
 
@@ -21,6 +23,7 @@ export const DEMO_COMPETENCIA = "2026-06";
 export const DEMO_RECEIPTS: Receipt[] = [
   {
     id: "REC-0148",
+    prestadorId: MARINA_ID,
     competencia: "2026-06",
     serviceDate: "2026-06-18",
     category: "Diligência",
@@ -37,6 +40,7 @@ export const DEMO_RECEIPTS: Receipt[] = [
   },
   {
     id: "REC-0147",
+    prestadorId: MARINA_ID,
     competencia: "2026-06",
     serviceDate: "2026-06-16",
     category: "Cartório",
@@ -53,6 +57,7 @@ export const DEMO_RECEIPTS: Receipt[] = [
   },
   {
     id: "REC-0146",
+    prestadorId: MARINA_ID,
     competencia: "2026-06",
     serviceDate: "2026-06-11",
     category: "Honorários",
@@ -68,6 +73,7 @@ export const DEMO_RECEIPTS: Receipt[] = [
   },
   {
     id: "REC-0145",
+    prestadorId: MARINA_ID,
     competencia: "2026-06",
     serviceDate: "2026-06-09",
     category: "Transporte",
@@ -84,6 +90,7 @@ export const DEMO_RECEIPTS: Receipt[] = [
   },
   {
     id: "REC-0144",
+    prestadorId: MARINA_ID,
     competencia: "2026-06",
     serviceDate: "2026-06-04",
     category: "Postagem",
@@ -100,6 +107,7 @@ export const DEMO_RECEIPTS: Receipt[] = [
   },
   {
     id: "REC-0141",
+    prestadorId: MARINA_ID,
     competencia: "2026-05",
     serviceDate: "2026-05-27",
     category: "Diligência",
@@ -116,6 +124,7 @@ export const DEMO_RECEIPTS: Receipt[] = [
   },
   {
     id: "REC-0139",
+    prestadorId: MARINA_ID,
     competencia: "2026-05",
     serviceDate: "2026-05-20",
     category: "Custas",
@@ -133,15 +142,19 @@ export const DEMO_RECEIPTS: Receipt[] = [
 
 export const DEMO_CLOSINGS: Closing[] = [
   {
+    prestadorId: MARINA_ID,
     competencia: "2026-06",
     documentName: null,
     submitted: false,
     submittedAt: null,
+    review: null,
   },
   {
+    prestadorId: MARINA_ID,
     competencia: "2026-05",
     documentName: "nf-maio-2026.pdf",
     submitted: true,
     submittedAt: "2026-06-02T12:30:00.000Z",
+    review: "Pago",
   },
 ];

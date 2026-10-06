@@ -1,7 +1,17 @@
-# Nexus — Portal do Prestador (protótipo)
+# Nexus — Sistema administrativo + Portal do Prestador (protótipo)
 
-Protótipo navegável do portal em que prestadores de serviço do escritório lançam
-recibos, acompanham a conferência e enviam o fechamento mensal.
+Protótipo navegável do Nexus em duas zonas que compartilham os mesmos dados:
+
+- **Admin (escritório)**: visão geral, calendário, tarefas, documentos,
+  notificações, usuários e os módulos Legal Workflow, Prestadores, Account
+  Management, Consultoria e Particular. É a reconstrução do app legado
+  (`operational-intelligence-platform/index.html`) no modelo "Design e
+  Arquitetura".
+- **Portal do Prestador**: o prestador lança recibos e envia o fechamento
+  mensal. O escritório confere e paga no admin.
+
+O que o prestador envia aparece na conferência do admin. O que o escritório
+decide volta para o portal na hora.
 
 ## Rodando
 
@@ -10,112 +20,173 @@ pnpm install
 pnpm dev     # http://localhost:3000
 ```
 
-Credenciais de demonstração: código **PNST-2481**, senha **nexus2026** (o botão
-_Preencher credenciais demo_ na tela de login preenche os dois campos).
-
-Outros comandos:
-
 ```bash
 pnpm check   # typecheck
 pnpm test    # regras de domínio (vitest)
 pnpm build   # build de produção
 ```
 
-## Telas
+## Contas de demonstração
 
-| Rota          | Tela              | O que faz                                                                                       |
-| ------------- | ----------------- | ----------------------------------------------------------------------------------------------- |
-| `/login`      | Login             | Acesso por código de contrato + senha.                                                          |
-| `/`           | Dashboard         | Métricas da competência, progresso do fechamento, devoluções e últimos lançamentos.             |
-| `/recibos`    | Meus recibos      | Lista com busca e filtro por status, lançamento/edição em modal, envio e exclusão de rascunhos. |
-| `/fechamento` | Fechamento mensal | Consolidação por competência, anexo do documento de faturamento e envio ao escritório.          |
+**Admin** (`/login`). Todos usam a senha **nexus2026**.
 
-## Regras do protótipo
+| E-mail                | Papel         | Módulos                            |
+| --------------------- | ------------- | ---------------------------------- |
+| `fernanda@nexus.demo` | Administrador | todos                              |
+| `ricardo@nexus.demo`  | Gestor        | escritório, Prestadores e Contas   |
+| `helena@nexus.demo`   | Operador      | Legal Workflow + calendário        |
+| `caio@nexus.demo`     | Visualizador  | visão geral, Prestadores e Contas  |
+| `bianca@nexus.demo`   | —             | conta inativa (o login é recusado) |
 
-Um recibo percorre quatro status: **Rascunho → Enviado → Aprovado**, ou
-**Rejeitado** quando o escritório devolve.
+**Portal** (`/portal/login`):
 
-- Recibos **aprovados** não podem mais ser editados.
-- Editar um recibo **rejeitado** limpa a devolutiva e o devolve para rascunho.
-- Recibos **rejeitados** aparecem no fechamento, mas não somam no total.
-- O fechamento só pode ser enviado com o documento de faturamento anexado e ao
-  menos um recibo não rejeitado; ao enviar, os rascunhos da competência vão junto.
-- O progresso do fechamento tem quatro etapas — recibos lançados, revisão
-  aprovada, documento anexado e envio —, cada uma valendo 25%.
+| Código      | Senha        | Prestador                                    |
+| ----------- | ------------ | -------------------------------------------- |
+| `PNST-2481` | `nexus2026`  | Marina Corrêa Diligências                    |
+| `PNST-3107` | `rotaleve26` | Rota Leve Entregas                           |
+| `PNST-1180` | `apoio2026`  | Apoio Forense Paulista                       |
+| `PNST-2204` | `oficio2026` | Ofício Central de Notas                      |
+| `PNST-0942` | `postal2026` | Agência Postal Vila Nova (acesso desativado) |
 
-Essas regras vivem em `client/src/lib/portal.ts` como funções puras e são
-cobertas por `server/portal.test.ts` e `server/portal.rules.test.ts`.
+Senhas e acesso ao portal são editados em **Prestadores → Cadastro e acesso**.
 
-## Estrutura
+## Zonas e rotas
+
+| Zona   | Rotas                                                                   |
+| ------ | ----------------------------------------------------------------------- |
+| Portal | `/portal/login`, `/portal`, `/portal/recibos`, `/portal/fechamento`     |
+| Admin  | `/login` e tudo o mais (exige sessão; cada rota confere papel e módulo) |
+
+Rotas do admin, por ambiente:
+
+- **Escritório**:
+  - `/` visão geral
+  - `/notificacoes`
+  - `/calendario`
+  - `/tarefas`
+  - `/documentos`
+  - `/usuarios` (só com permissão `usuarios.gerenciar`)
+- **Legal Workflow**:
+  - `/legal` painel
+  - `/legal/pipeline` kanban de 10 etapas, com prazo em dias úteis
+  - `/legal/clientes`
+  - `/legal/templates`
+  - `/legal/slas`
+  - `/legal/agente`
+- **Prestadores**:
+  - `/prestadores` painel
+  - `/prestadores/conferencia`: lotes por prestador × competência. Aprovar ou
+    devolver cada recibo, depois finalizar e marcar como pago.
+  - `/prestadores/historico`
+  - `/prestadores/cadastro`
+  - `/prestadores/arquivos`
+- **Account Management**:
+  - `/contas` tarefas
+  - `/contas/banco` painel de câmbio
+  - `/contas/taxas` (com exportação CSV)
+  - `/contas/ordens`
+  - `/contas/tendencia`
+  - `/contas/economia`
+  - `/contas/calendario-economico`
+- **Consultoria**:
+  - `/consultoria`
+  - `/consultoria/painel`
+  - `/consultoria/cliente/:id`
+- **Particular**:
+  - `/particular` objetivos
+  - `/particular/financeiro`
+
+Ao entrar num módulo (Legal, Prestadores, Contas), a barra lateral troca para o
+menu dele e ganha o link "Voltar ao escritório". Ambientes são escolhidos em
+"Trocar ambiente" no rodapé da barra.
+
+## Arquitetura
 
 ```
 client/src/
-  lib/portal.ts          regras de domínio (puras, testadas)
-  lib/portalSeed.ts      dados de demonstração
-  contexts/PortalContext estado do protótipo + persistência em localStorage
-  components/            PortalShell (sidebar + topbar), ReceiptModal, StatusPill
-  pages/                 Login, Dashboard, Receipts, Closing
-  index.css              design system do protótipo (classes próprias, sem shadcn)
-server/                  scaffold tRPC/Drizzle do template + testes
+  _core/
+    armazenamento/deposito.ts  interface Motor (localStorage com prefixo nexus:v1:, ou memória)
+    armazenamento/colecao.ts   criarColecao / useColecao: coleção reativa e persistida
+    identidade/                papéis, permissões, módulos, sessão do admin
+    tempo.ts                   "hoje" da demonstração e utilitários de data
+  modulos/<módulo>/            tipos, dados de demonstração, coleções, regras puras, ações
+  admin/                       casca, menus, rotas, componentes e páginas do admin
+  pages/, components/          Portal do Prestador
+  contexts/PortalContext.tsx   portal sobre as coleções compartilhadas de Prestadores
+  index.css                    folha única do design system
 ```
 
-## Design e arquitetura
+- **Coleções.** Cada conjunto de dados é uma coleção, como `recibos`,
+  `fechamentos`, `processos` ou `usuarios`:
+  - É lida do depósito uma vez.
+  - Fica num envelope `{versao, dados}`. Mudar a versão da semente reidrata a
+    demonstração.
+  - As gravações são agrupadas por microtarefa.
+  - As telas assinam com `useColecao` (`useSyncExternalStore`).
 
-O portal segue o modelo "Design e Arquitetura" (Horizon + Ivory). Os valores
-vivem em `client/src/index.css`, a folha única do app.
+  Portal e admin usam as mesmas coleções, e é isso que os integra. Ligar um
+  backend é trocar o `Motor`.
 
-**Paleta.** Duas cores de marca, Horizon `#67a4bf` e Ivory `#f3f1e2`. O Horizon
-puro é superfície e acento, nunca texto nem fundo de botão (branco sobre ele dá
-2,75:1); ação primária e link usam `--horizon-700` `#2c596d`. Neutros quentes
-(`--warm-*`) no lugar de cinza frio, para não brigar com o fundo creme.
+- **Regras puras.** Prazos, alertas, lotes de conferência, spreads e
+  rankings ficam em `modulos/*/regras.ts`, sem React. Os testes ficam em
+  `server/admin.regras.test.ts`, `server/colecao.test.ts` e
+  `server/portal*.test.ts`.
+- **Acesso efetivo = papel ∩ módulos.** O papel (admin, gestor, operador,
+  visualizador) dá as permissões (`registros.editar`, `registros.excluir`,
+  `usuarios.gerenciar`). Os módulos do usuário dizem o que ele vê. Visualizador
+  não edita nada.
+- **Data da demonstração.** "Hoje" é fixo em **30/06/2026** (`_core/tempo.ts`),
+  para que prazos, vencimentos e alertas da semente façam sentido em qualquer
+  data real.
+- **Restaurar demonstração.** Em Usuários e acessos, o administrador pode zerar
+  todos os dados para a semente original (o botão pede confirmação).
 
-| Status               | Classe            | Significado  |
-| -------------------- | ----------------- | ------------ |
-| Rascunho             | `.status-neutral` | sem estado   |
-| Enviado              | `.status-blue`    | em andamento |
-| Aprovado             | `.status-green`   | concluído    |
-| Rejeitado            | `.status-red`     | bloqueado    |
-| Fechamento em aberto | `.status-amber`   | atenção      |
+## Design
 
-**Tipografia.** DM Sans fala (títulos, botões, números), Source Sans 3 explica
-(corpo e campos), IBM Plex Mono etiqueta (rótulos, códigos, selos).
+Modelo "Design e Arquitetura":
 
-**Modo escuro.** Botão na barra superior; o `ThemeContext` põe `.dark` na raiz e
-guarda a escolha na chave `theme`. O CSS só redefine os tokens semânticos.
+- **Paleta.** Horizon `#67a4bf` e Ivory `#f3f1e2`. A ação primária usa
+  `--horizon-700`. Os neutros são quentes.
+- **Tipografia.** DM Sans, Source Sans 3 e IBM Plex Mono.
+- **Classes.** As telas usam o vocabulário de classes do modelo: `.page-heading`,
+  `.operations-surface`, `.kpi-card`, `.status-pill`, `.risk-card`,
+  `.ged-line` etc.
 
-**Componentes.** As telas usam o vocabulário do modelo: `.app-shell`,
-`.sidebar`, `.page-heading`, `.operations-surface`, `.kpi-card`, `.risk-card`,
-`.attention-card`, `.next-step-list`, `.ged-line`, `.status-pill`,
-`.button-primary`, `.field-group`, `.filter-chip`, `.inline-search` e, no login,
-`.acesso`/`.acesso-cartao`.
+O admin acrescenta:
 
-**Dados.** Toda leitura e gravação passa por
-`client/src/_core/armazenamento/deposito.ts`: interface `Motor`, hoje sobre o
-localStorage com prefixo `nexus:v1:`, e motor de memória quando o navegador
-recusa armazenamento. Ligar um backend é trocar o motor. O estado é lido uma vez
-na montagem — o depósito devolve cópias, e alterar uma cópia não grava nada.
+- **Componentes:**
+  - Gaveta lateral (`.drawer-*`).
+  - Abas (`.tab-row`).
+  - Kanban (`.board-*`).
+  - Calendário mensal (`.calendar-*`).
+  - Gráficos (`.chart-*`), cada um com "Ver como tabela".
+- **Cores de série:** `--serie-1` azul e `--serie-2` âmbar, validadas para
+  daltonismo no claro e no escuro.
 
-**Responsividade.** Barra de 258px; 218px até 1080px; vira gaveta até 760px. Nenhuma
-tela rola para o lado em 390px, no claro e no escuro.
+O modo escuro redefine só os tokens semânticos. Nenhuma tela rola para o lado
+em 390px.
 
 ## Build estático para preview
-
-Para publicar o protótipo em hosting estático sem fallback de SPA (link de
-preview, GitHub Pages), gere o build com rotas em hash e caminhos relativos:
 
 ```bash
 VITE_HASH_ROUTER=1 pnpm exec vite build --base=./
 ```
 
-As rotas passam a viver no hash (`#/recibos`), então qualquer caminho de
-publicação funciona. O `pnpm dev` e o `pnpm build` normais seguem com rotas em
-path.
+Com esse build, as rotas vivem no hash (`#/login`, `#/portal/login`), então
+qualquer hosting estático funciona.
 
-## Limites conhecidos
+## Fora do escopo / limites conhecidos
 
-Este é um protótipo de front-end: **não há backend nem banco**. O login compara
-as credenciais de demonstração no cliente e o estado é guardado em
-`localStorage` (chave `nexus-portal-prototipo-v1`), então os dados são por
-navegador e não saem da máquina. O scaffold de tRPC, Drizzle e OAuth que veio no
-template continua no repositório, ainda não ligado às telas — é o ponto de
-partida para a versão persistida.
+- **Não há backend.** Os dados ficam no `localStorage` do navegador, com o
+  prefixo `nexus:v1:`. O login compara as credenciais de demonstração no
+  cliente. O scaffold tRPC/Drizzle do template continua no repositório, ainda
+  não ligado às telas.
+- **Financeiro do escritório não foi portado.** O próprio app legado o marca
+  como removido. O "Financeiro" que existe é o pessoal, no ambiente Particular.
+- **Funções marcadas "em construção":**
+  - O Agente IA do Legal.
+  - O armazenamento do conteúdo dos arquivos (só os metadados são guardados).
+  - O envio real de e-mails (os templates geram a prévia e registram a
+    comunicação no processo).
+- **Os dados de demonstração são fictícios:** clientes, prestadores, taxas e
+  pessoas.

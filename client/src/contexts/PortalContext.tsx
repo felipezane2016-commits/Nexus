@@ -1,45 +1,27 @@
+import { criarColecao, useColecao } from "@/_core/armazenamento/colecao";
 import {
+  closingTotal,
   competenciaOf,
   nextReceiptId,
   parseAmount,
   type Closing,
-  type PrototypeReceiptStatus,
   type Provider,
   type Receipt,
   type ReceiptDraft,
 } from "@/lib/portal";
-import {
-  DEMO_CLOSINGS,
-  DEMO_COMPETENCIA,
-  DEMO_CREDENTIALS,
-  DEMO_PROVIDER,
-  DEMO_RECEIPTS,
-} from "@/lib/portalSeed";
-import { gravar, ler } from "@/_core/armazenamento/deposito";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { DEMO_COMPETENCIA } from "@/lib/portalSeed";
+import { autenticarPrestador, avisarFechamentoRecebido } from "@/modulos/prestadores/acoes";
+import { fechamentos, prestadores, recibos } from "@/modulos/prestadores/colecoes";
+import { createContext, useCallback, useContext, useMemo, type ReactNode } from "react";
 
 /**
- * Estado do protótipo. Não há servidor: os dados são semeados a partir de
- * `portalSeed` e gravados pelo depósito (`_core/armazenamento`), hoje sobre o
- * localStorage. O estado é lido uma única vez, na montagem — ler de novo do
- * depósito devolveria uma cópia desligada do estado do React.
+ * Estado do Portal do Prestador. Os dados não moram aqui: recibos, fechamentos
+ * e cadastro são coleções compartilhadas com o admin (`modulos/prestadores`).
+ * Este contexto só filtra pelo prestador logado e traduz as ações do portal.
  */
 
-const CHAVE_ESTADO = "portal";
-
-type PersistedState = {
-  signedIn: boolean;
-  receipts: Receipt[];
-  closings: Closing[];
-};
+type SessaoPortal = { prestadorId: string | null };
+const sessaoPortal = criarColecao<SessaoPortal>("sessao-portal", () => ({ prestadorId: null }));
 
 type PortalContextValue = {
   provider: Provider;
@@ -47,44 +29,23 @@ type PortalContextValue = {
   receipts: Receipt[];
   closings: Closing[];
   currentCompetencia: string;
-  signIn: (
-    code: string,
-    password: string
-  ) => { ok: true } | { ok: false; message: string };
+  signIn: (code: string, password: string) => { ok: true } | { ok: false; message: string };
   signOut: () => void;
-  resetPrototype: () => void;
   createReceipt: (draft: ReceiptDraft) => Receipt;
   updateReceipt: (id: string, draft: ReceiptDraft) => void;
   submitReceipt: (id: string) => void;
   removeReceipt: (id: string) => void;
   closingFor: (competencia: string) => Closing;
-  attachClosingDocument: (
-    competencia: string,
-    documentName: string | null
-  ) => void;
+  attachClosingDocument: (competencia: string, documentName: string | null) => void;
   submitClosing: (competencia: string) => void;
 };
 
 const PortalContext = createContext<PortalContextValue | null>(null);
 
-function emptyClosing(competencia: string): Closing {
-  return {
-    competencia,
-    documentName: null,
-    submitted: false,
-    submittedAt: null,
-  };
-}
+const SEM_PRESTADOR: Provider = { name: "", code: "", document: "", email: "", contract: "" };
 
-function readPersisted(): PersistedState | null {
-  const salvo = ler<PersistedState>(CHAVE_ESTADO);
-  if (
-    !salvo ||
-    !Array.isArray(salvo.receipts) ||
-    !Array.isArray(salvo.closings)
-  )
-    return null;
-  return salvo;
+function emptyClosing(prestadorId: string, competencia: string): Closing {
+  return { prestadorId, competencia, documentName: null, submitted: false, submittedAt: null, review: null };
 }
 
 function draftToFields(draft: ReceiptDraft) {
@@ -102,149 +63,156 @@ function draftToFields(draft: ReceiptDraft) {
 }
 
 export function PortalProvider({ children }: { children: ReactNode }) {
-  const persisted = useMemo(readPersisted, []);
-  const [signedIn, setSignedIn] = useState(persisted?.signedIn ?? false);
-  const [receipts, setReceipts] = useState<Receipt[]>(
-    persisted?.receipts ?? DEMO_RECEIPTS
-  );
-  const [closings, setClosings] = useState<Closing[]>(
-    persisted?.closings ?? DEMO_CLOSINGS
+  const sessao = useColecao(sessaoPortal);
+  const todosPrestadores = useColecao(prestadores);
+  const todosRecibos = useColecao(recibos);
+  const todosFechamentos = useColecao(fechamentos);
+
+  // Prestador desativado no admin perde o acesso mesmo com sessão aberta.
+  const prestador = todosPrestadores.find((item) => item.id === sessao.prestadorId && item.portalAtivo) ?? null;
+  const meuId = prestador?.id ?? "";
+
+  const receipts = useMemo(() => todosRecibos.filter((recibo) => recibo.prestadorId === meuId), [todosRecibos, meuId]);
+  const closings = useMemo(
+    () => todosFechamentos.filter((fechamento) => fechamento.prestadorId === meuId),
+    [todosFechamentos, meuId],
   );
 
-  useEffect(() => {
-    gravar<PersistedState>(CHAVE_ESTADO, { signedIn, receipts, closings });
-  }, [signedIn, receipts, closings]);
+  const provider = useMemo<Provider>(
+    () =>
+      prestador
+        ? {
+            name: prestador.nome,
+            code: prestador.codigoAcesso,
+            document: prestador.documento,
+            email: prestador.email,
+            contract: prestador.contrato,
+          }
+        : SEM_PRESTADOR,
+    [prestador],
+  );
 
   const signIn = useCallback((code: string, password: string) => {
-    const matches =
-      code.trim().toUpperCase() === DEMO_CREDENTIALS.code &&
-      password === DEMO_CREDENTIALS.password;
-    if (!matches) {
-      return {
-        ok: false as const,
-        message: "Código de acesso ou senha incorretos.",
-      };
-    }
-    setSignedIn(true);
+    const encontrado = autenticarPrestador(code, password);
+    if (!encontrado) return { ok: false as const, message: "Código de acesso ou senha incorretos, ou acesso desativado." };
+    sessaoPortal.atualizar(() => ({ prestadorId: encontrado.id }));
     return { ok: true as const };
   }, []);
 
-  const signOut = useCallback(() => setSignedIn(false), []);
+  const signOut = useCallback(() => sessaoPortal.atualizar(() => ({ prestadorId: null })), []);
 
-  const resetPrototype = useCallback(() => {
-    setReceipts(DEMO_RECEIPTS);
-    setClosings(DEMO_CLOSINGS);
-  }, []);
+  /** Só mexe em recibo do próprio prestador — a coleção é de todos. */
+  const meus = useCallback((recibo: Receipt) => recibo.prestadorId === meuId, [meuId]);
 
-  const createReceipt = useCallback((draft: ReceiptDraft) => {
-    const fields = draftToFields(draft);
-    let created!: Receipt;
-    setReceipts(current => {
-      created = {
-        id: nextReceiptId(current),
-        ...fields,
-        status: "Rascunho" as PrototypeReceiptStatus,
+  const createReceipt = useCallback(
+    (draft: ReceiptDraft) => {
+      // O número é global: dois prestadores nunca recebem o mesmo REC-xxxx.
+      const created: Receipt = {
+        id: nextReceiptId(recibos.ler()),
+        prestadorId: meuId,
+        ...draftToFields(draft),
+        status: "Rascunho",
         reviewNote: null,
         createdAt: new Date().toISOString(),
       };
-      return [created, ...current];
-    });
-    return created;
-  }, []);
+      recibos.atualizar((lista) => [created, ...lista]);
+      return created;
+    },
+    [meuId],
+  );
 
-  const updateReceipt = useCallback((id: string, draft: ReceiptDraft) => {
-    const fields = draftToFields(draft);
-    setReceipts(current =>
-      current.map(receipt =>
-        receipt.id === id
-          ? {
-              ...receipt,
-              ...fields,
-              // Reeditar um recibo devolvido volta a fila: limpa a devolutiva e
-              // reabre como rascunho para novo envio.
-              status:
-                receipt.status === "Rejeitado" ? "Rascunho" : receipt.status,
-              reviewNote:
-                receipt.status === "Rejeitado" ? null : receipt.reviewNote,
-            }
-          : receipt
-      )
-    );
-  }, []);
+  const updateReceipt = useCallback(
+    (id: string, draft: ReceiptDraft) => {
+      const fields = draftToFields(draft);
+      recibos.atualizar((lista) =>
+        lista.map((recibo) =>
+          recibo.id === id && meus(recibo)
+            ? {
+                ...recibo,
+                ...fields,
+                // Reeditar um recibo devolvido volta à fila: limpa a devolutiva
+                // e reabre como rascunho para novo envio.
+                status: recibo.status === "Rejeitado" ? "Rascunho" : recibo.status,
+                reviewNote: recibo.status === "Rejeitado" ? null : recibo.reviewNote,
+              }
+            : recibo,
+        ),
+      );
+    },
+    [meus],
+  );
 
-  const submitReceipt = useCallback((id: string) => {
-    setReceipts(current =>
-      current.map(receipt =>
-        receipt.id === id && receipt.status !== "Aprovado"
-          ? { ...receipt, status: "Enviado", reviewNote: null }
-          : receipt
-      )
-    );
-  }, []);
+  const submitReceipt = useCallback(
+    (id: string) => {
+      recibos.atualizar((lista) =>
+        lista.map((recibo) =>
+          recibo.id === id && meus(recibo) && recibo.status !== "Aprovado"
+            ? { ...recibo, status: "Enviado", reviewNote: null }
+            : recibo,
+        ),
+      );
+    },
+    [meus],
+  );
 
-  const removeReceipt = useCallback((id: string) => {
-    setReceipts(current => current.filter(receipt => receipt.id !== id));
-  }, []);
+  const removeReceipt = useCallback(
+    (id: string) => recibos.atualizar((lista) => lista.filter((recibo) => !(recibo.id === id && meus(recibo)))),
+    [meus],
+  );
 
   const closingFor = useCallback(
     (competencia: string) =>
-      closings.find(closing => closing.competencia === competencia) ??
-      emptyClosing(competencia),
-    [closings]
+      closings.find((closing) => closing.competencia === competencia) ?? emptyClosing(meuId, competencia),
+    [closings, meuId],
   );
 
   const upsertClosing = useCallback(
     (competencia: string, patch: Partial<Closing>) => {
-      setClosings(current => {
-        const existing = current.find(
-          closing => closing.competencia === competencia
-        );
-        if (!existing)
-          return [...current, { ...emptyClosing(competencia), ...patch }];
-        return current.map(closing =>
-          closing.competencia === competencia
-            ? { ...closing, ...patch }
-            : closing
-        );
+      fechamentos.atualizar((lista) => {
+        const existente = lista.find((item) => item.prestadorId === meuId && item.competencia === competencia);
+        if (!existente) return [...lista, { ...emptyClosing(meuId, competencia), ...patch }];
+        return lista.map((item) => (item === existente ? { ...item, ...patch } : item));
       });
     },
-    []
+    [meuId],
   );
 
   const attachClosingDocument = useCallback(
-    (competencia: string, documentName: string | null) =>
-      upsertClosing(competencia, { documentName }),
-    [upsertClosing]
+    (competencia: string, documentName: string | null) => upsertClosing(competencia, { documentName }),
+    [upsertClosing],
   );
 
   const submitClosing = useCallback(
     (competencia: string) => {
+      // Enviar o fechamento também encaminha os rascunhos da competência.
+      recibos.atualizar((lista) =>
+        lista.map((recibo) =>
+          meus(recibo) && recibo.competencia === competencia && recibo.status === "Rascunho"
+            ? { ...recibo, status: "Enviado" }
+            : recibo,
+        ),
+      );
       upsertClosing(competencia, {
         submitted: true,
         submittedAt: new Date().toISOString(),
+        review: "Aguardando conferência",
       });
-      // Enviar o fechamento também encaminha os rascunhos da competência.
-      setReceipts(current =>
-        current.map(receipt =>
-          receipt.competencia === competencia && receipt.status === "Rascunho"
-            ? { ...receipt, status: "Enviado" }
-            : receipt
-        )
-      );
+      const doMes = recibos.ler().filter((recibo) => meus(recibo) && recibo.competencia === competencia);
+      const validos = doMes.filter((recibo) => recibo.status !== "Rejeitado");
+      avisarFechamentoRecebido(meuId, competencia, validos.length, closingTotal(doMes));
     },
-    [upsertClosing]
+    [meus, meuId, upsertClosing],
   );
 
   const value = useMemo<PortalContextValue>(
     () => ({
-      provider: DEMO_PROVIDER,
-      signedIn,
+      provider,
+      signedIn: Boolean(prestador),
       receipts,
       closings,
       currentCompetencia: DEMO_COMPETENCIA,
       signIn,
       signOut,
-      resetPrototype,
       createReceipt,
       updateReceipt,
       submitReceipt,
@@ -254,12 +222,12 @@ export function PortalProvider({ children }: { children: ReactNode }) {
       submitClosing,
     }),
     [
-      signedIn,
+      provider,
+      prestador,
       receipts,
       closings,
       signIn,
       signOut,
-      resetPrototype,
       createReceipt,
       updateReceipt,
       submitReceipt,
@@ -267,17 +235,14 @@ export function PortalProvider({ children }: { children: ReactNode }) {
       closingFor,
       attachClosingDocument,
       submitClosing,
-    ]
+    ],
   );
 
-  return (
-    <PortalContext.Provider value={value}>{children}</PortalContext.Provider>
-  );
+  return <PortalContext.Provider value={value}>{children}</PortalContext.Provider>;
 }
 
 export function usePortal() {
   const context = useContext(PortalContext);
-  if (!context)
-    throw new Error("usePortal precisa estar dentro de <PortalProvider>.");
+  if (!context) throw new Error("usePortal precisa estar dentro de <PortalProvider>.");
   return context;
 }

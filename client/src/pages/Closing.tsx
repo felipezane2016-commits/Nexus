@@ -116,7 +116,11 @@ export default function Closing() {
           </strong>
           <p>
             {closing.submitted
-              ? "Aguarde a conferência final. Você será avisada se algum recibo precisar de ajuste."
+              ? closing.review === "Pago"
+                ? "Pagamento registrado pelo escritório. Nada mais a fazer nesta competência."
+                : closing.review === "Conferido"
+                  ? "Conferência concluída pelo escritório. O pagamento é o próximo passo."
+                  : "Aguarde a conferência final. Você será avisada se algum recibo precisar de ajuste."
               : `${included} de ${monthReceipts.length} recibos entram no fechamento.${
                   rejected.length === 1
                     ? " O rejeitado fica de fora até ser corrigido."
@@ -127,14 +131,16 @@ export default function Closing() {
           </p>
         </div>
         <span
-          className={
-            closing.submitted
-              ? "status-pill status-green"
-              : "status-pill status-amber"
-          }
+          className={`status-pill ${
+            !closing.submitted
+              ? "status-amber"
+              : closing.review === "Pago"
+                ? "status-green"
+                : "status-blue"
+          }`}
         >
           <span className="status-dot" aria-hidden="true" />
-          {closing.submitted ? "Enviado" : "Em aberto"}
+          {closing.submitted ? (closing.review ?? "Enviado") : "Em aberto"}
         </span>
       </div>
 
