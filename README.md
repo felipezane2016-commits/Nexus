@@ -146,8 +146,8 @@ nenhum cinza próprio e nenhum tom derivado do laranja.
   | Concluído    | `.status-green`   | preto cheio, texto branco  |
   | Bloqueado    | `.status-red`     | laranja cheio, texto preto |
   | Atenção      | `.status-amber`   | contorno laranja           |
-  | Em andamento | `.status-blue`    | contorno cinza             |
-  | Neutro       | `.status-neutral` | cinza claro                |
+  | Em andamento | `.status-blue`    | contorno preto translúcido |
+  | Neutro       | `.status-neutral` | fundo preto translúcido    |
 
 - **Gráficos.** `--serie-1` laranja e `--serie-2` preto (branco no
   escuro), que se separam pela luminosidade; a segunda série também é
