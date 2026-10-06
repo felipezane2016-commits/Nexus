@@ -66,14 +66,14 @@ export default function Arquivos() {
           </div>
         }
       />
-      <div className="acesso-alerta-info" style={{ marginBottom: 18 }}>
+      <div className="acesso-alerta-info espaco-abaixo">
         <FileText size={15} strokeWidth={2} />
         <span>
           <strong>Em construção.</strong> O protótipo guarda o nome dos arquivos, não o conteúdo — abrir e baixar entram com o armazenamento do backend.
         </span>
       </div>
       <section className="operations-surface">
-        <div className="filter-chips" role="group" aria-label="Filtrar por categoria" style={{ marginBottom: 18 }}>
+        <div className="filter-chips espaco-abaixo" role="group" aria-label="Filtrar por categoria">
           {(["Todas", ...CATEGORIAS_PRESTADOR] as const).map((opcao) => (
             <button
               key={opcao}
@@ -95,7 +95,7 @@ export default function Arquivos() {
               if (!arquivos.length) return null;
               return (
                 <div key={item}>
-                  <p className="eyebrow" style={{ marginBottom: 6 }}>
+                  <p className="eyebrow rotulo-acima">
                     {item} · {arquivos.length}
                   </p>
                   <div className="ged-list">

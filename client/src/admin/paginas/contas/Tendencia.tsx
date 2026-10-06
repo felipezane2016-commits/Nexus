@@ -59,7 +59,7 @@ export default function Tendencia() {
         titulo="Tendência"
         descricao="Médias móveis da cotação do BIB. Média curta acima da longa indica alta; abaixo, baixa."
       />
-      <div className="grid-2" style={{ marginBottom: 18 }}>
+      <div className="grid-2 espaco-abaixo">
         <Cartao moeda="USD" valores={usd} />
         <Cartao moeda="EUR" valores={ordenadas.map((taxa) => taxa.bibEur)} />
       </div>
@@ -80,7 +80,7 @@ export default function Tendencia() {
           formatar={formatarTaxa}
           rotulo="Médias móveis de 7 e 30 dias da cotação do dólar no BIB"
         />
-        <p className="field-hint" style={{ marginTop: 8 }}>
+        <p className="field-hint espaco-acima-curto">
           O gráfico começa no 30º dia: antes disso a média de 30 dias ainda não tem dados suficientes.
         </p>
       </section>

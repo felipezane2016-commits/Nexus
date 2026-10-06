@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { gravar, ler } from "./deposito";
+import { avisarRenovacao, VERSAO_DA_SEMENTE } from "./semente";
 
 /**
  * Coleção: um dado do app com dono único. Hidrata uma vez a partir do
@@ -14,9 +15,6 @@ import { gravar, ler } from "./deposito";
  * portal sem recarregar.
  */
 
-/** Trocar este número renova a demonstração de todas as coleções. */
-export const VERSAO_DA_SEMENTE = 3;
-
 type Envelope<T> = { versao: number; dados: T };
 
 export interface Colecao<T> {
@@ -26,11 +24,21 @@ export interface Colecao<T> {
   assinar(ouvinte: () => void): () => void;
   /** Volta à semente de demonstração. */
   restaurar(): void;
+  /** Esvazia, se a coleção sabe ficar vazia (ver `vazio` em criarColecao). */
+  zerar(): void;
 }
+
+type Opcoes<T> = {
+  /**
+   * Estado de "começar do zero". Sem ele a coleção atravessa o zeramento
+   * intacta — é o caso de usuários e sessões, que trancariam o admin fora.
+   */
+  vazio?: () => T;
+};
 
 const registradas: Colecao<unknown>[] = [];
 
-export function criarColecao<T>(nome: string, semente: () => T): Colecao<T> {
+export function criarColecao<T>(nome: string, semente: () => T, opcoes: Opcoes<T> = {}): Colecao<T> {
   let atual: T | undefined;
   const ouvintes = new Set<() => void>();
   let gravacaoAgendada = false;
@@ -39,6 +47,7 @@ export function criarColecao<T>(nome: string, semente: () => T): Colecao<T> {
     const salvo = ler<Envelope<T>>(nome);
     // Envelope de outra versão é dado de formato antigo: recomeça da semente.
     if (salvo && salvo.versao === VERSAO_DA_SEMENTE) return salvo.dados;
+    if (salvo) avisarRenovacao();
     const novo = semente();
     gravar<Envelope<T>>(nome, { versao: VERSAO_DA_SEMENTE, dados: novo });
     return novo;
@@ -76,6 +85,12 @@ export function criarColecao<T>(nome: string, semente: () => T): Colecao<T> {
       agendarGravacao();
       ouvintes.forEach((ouvinte) => ouvinte());
     },
+    zerar() {
+      if (!opcoes.vazio) return;
+      atual = opcoes.vazio();
+      agendarGravacao();
+      ouvintes.forEach((ouvinte) => ouvinte());
+    },
   };
   registradas.push(colecao as Colecao<unknown>);
   return colecao;
@@ -85,11 +100,10 @@ export function useColecao<T>(colecao: Colecao<T>): T {
   return useSyncExternalStore(colecao.assinar, colecao.ler, colecao.ler);
 }
 
-/** Volta todas as coleções à demonstração (usado pelo botão "Restaurar demonstração"). */
-export function restaurarDemonstracao() {
-  registradas.forEach((colecao) => colecao.restaurar());
+/** Todas as coleções criadas — quem restaura ou zera é o `semente.ts`. */
+export function colecoesRegistradas(): readonly Colecao<unknown>[] {
+  return registradas;
 }
-
 
 /** Substitui o registro de mesmo id ou o acrescenta no fim. */
 export function gravarItem<T extends { id: string }>(lista: T[], item: T): T[] {

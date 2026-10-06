@@ -50,7 +50,7 @@ export default function TarefasContas() {
         <Kpi rotulo="Concluídas" valor={String(tarefas.length - pendentes.length)} icone={CheckCircle2} aoClicar={() => setFiltro("concluidas")} />
       </div>
       <section className="operations-surface">
-        <div className="filter-chips" role="group" aria-label="Situação" style={{ marginBottom: 18 }}>
+        <div className="filter-chips espaco-abaixo" role="group" aria-label="Situação">
           {(
             [
               ["pendentes", "Pendentes"],
@@ -79,9 +79,9 @@ export default function TarefasContas() {
                   const atrasada = !tarefa.concluida && tarefa.vencimento !== null && tarefa.vencimento < HOJE;
                   return (
                     <div className="board-card" key={tarefa.id} style={tarefa.concluida ? { opacity: 0.6 } : undefined}>
-                      <label className="check-label" style={{ alignItems: "flex-start", color: "var(--foreground)" }}>
-                        <input type="checkbox" checked={tarefa.concluida} disabled={!podeEditar} onChange={() => alternar(tarefa)} style={{ marginTop: 3 }} />
-                        <strong style={{ textDecoration: tarefa.concluida ? "line-through" : undefined }}>{tarefa.nome}</strong>
+                      <label className="check-label check-label-tarefa">
+                        <input type="checkbox" checked={tarefa.concluida} disabled={!podeEditar} onChange={() => alternar(tarefa)} />
+                        <strong className={tarefa.concluida ? "riscado" : undefined}>{tarefa.nome}</strong>
                       </label>
                       <div className="board-card-meta">
                         <span style={atrasada ? { color: "var(--status-red-fg)" } : undefined}>
@@ -90,7 +90,7 @@ export default function TarefasContas() {
                         <span>{tarefa.periodo}</span>
                       </div>
                       {podeEditar ? (
-                        <button type="button" className="text-button" style={{ justifySelf: "start" }} onClick={() => setEditando(tarefa)}>
+                        <button type="button" className="text-button text-button-inicio" onClick={() => setEditando(tarefa)}>
                           Editar
                         </button>
                       ) : null}
@@ -130,8 +130,7 @@ function FormularioTarefaConta({ tarefa, podeExcluir, aoFechar }: { tarefa: Tare
         tarefa && podeExcluir ? (
           <button
             type="button"
-            className="text-button"
-            style={{ color: "var(--status-red-fg)" }}
+            className="text-button text-button-perigo"
             onClick={() => {
               tarefasContas.atualizar((lista) => lista.filter((item) => item.id !== tarefa.id));
               aoFechar();

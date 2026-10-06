@@ -62,13 +62,13 @@ export default function Ordens() {
             <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar cliente ou fatura" aria-label="Buscar ordens" />
           </label>
           <div className="inline-row">
-            <input className="field-input" style={{ width: "auto" }} type="month" value={mes} onChange={(e) => setMes(e.target.value)} aria-label="Mês" />
-            <select className="field-input" style={{ width: "auto" }} value={moeda} onChange={(e) => setMoeda(e.target.value as Moeda | "todas")} aria-label="Moeda">
+            <input className="field-input field-input-compacto" type="month" value={mes} onChange={(e) => setMes(e.target.value)} aria-label="Mês" />
+            <select className="field-input field-input-compacto" value={moeda} onChange={(e) => setMoeda(e.target.value as Moeda | "todas")} aria-label="Moeda">
               <option value="todas">Todas as moedas</option>
               <option>USD</option>
               <option>EUR</option>
             </select>
-            <select className="field-input" style={{ width: "auto" }} value={situacao} onChange={(e) => setSituacao(e.target.value as typeof situacao)} aria-label="Situação">
+            <select className="field-input field-input-compacto" value={situacao} onChange={(e) => setSituacao(e.target.value as typeof situacao)} aria-label="Situação">
               <option value="todas">Todas</option>
               <option value="pendentes">Pendentes</option>
               <option value="fechadas">Fechadas</option>

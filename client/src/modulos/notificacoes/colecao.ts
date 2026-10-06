@@ -53,7 +53,7 @@ const NOTIFICACOES_DEMO: Notificacao[] = [
   },
 ];
 
-export const notificacoes = criarColecao<Notificacao[]>("notificacoes", () => NOTIFICACOES_DEMO);
+export const notificacoes = criarColecao<Notificacao[]>("notificacoes", () => NOTIFICACOES_DEMO, { vazio: () => [] });
 
 /** Ponto único para qualquer módulo avisar o escritório. */
 export function notificar(aviso: Omit<Notificacao, "id" | "quando" | "lida">) {

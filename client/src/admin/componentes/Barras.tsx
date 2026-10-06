@@ -10,7 +10,7 @@ export default function Barras({ linhas, rotuloAcessivel }: { linhas: Linha[]; r
           <span className="bar-row-label">{linha.rotulo}</span>
           <span className="bar-row-value">{linha.texto}</span>
           <span className="bar-track" aria-hidden="true">
-            <span className="bar-fill" style={{ display: "block", width: maximo ? `${(linha.valor / maximo) * 100}%` : 0 }} />
+            <span className="bar-fill" style={{ width: maximo ? `${(linha.valor / maximo) * 100}%` : 0 }} />
           </span>
         </li>
       ))}

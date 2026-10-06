@@ -12,8 +12,8 @@ import {
 } from "recharts";
 
 /**
- * Gráficos do admin. Cores só de --serie-1/--serie-2 (laranja e preto da logo,
- * que se separam pela luminosidade); a 2ª série também é tracejada, para a
+ * Gráficos do admin. Cores só de --serie-1/--serie-2 (--chart-1 e --chart-2 da
+ * família laranja, como no modelo); a 2ª série também é tracejada, para a
  * identidade não depender só da cor. Texto sempre em token de texto, nunca na
  * cor da série; grade recessiva; uma escala só (nada de eixo duplo).
  */
@@ -52,7 +52,7 @@ type BarrasProps = {
 /** Uma série, magnitude por categoria. Sem legenda: o título nomeia a série. */
 export function GraficoBarras({ dados, chaveX, chaveY, nome, formatar, formatarEixo, rotulo }: BarrasProps) {
   return (
-    <figure style={{ margin: 0 }}>
+    <figure className="chart-figure">
       <div className="chart-box" role="img" aria-label={rotulo}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={dados} margin={{ top: 8, right: 4, bottom: 0, left: 0 }} barCategoryGap="28%">
@@ -86,13 +86,13 @@ export function GraficoLinhas({ dados, chaveX, series, formatar, rotulo, dominio
   const tracos = [undefined, "6 4"];
   const ultimo = dados.length - 1;
   return (
-    <figure style={{ margin: 0 }}>
+    <figure className="chart-figure">
       {series.length > 1 ? (
         <div className="chart-legend">
           {series.map((serie, indice) => (
             <span key={serie.chave}>
               <svg className="chart-swatch" viewBox="0 0 16 4" aria-hidden="true">
-                <line x1="0" y1="2" x2="16" y2="2" stroke={cores[indice]} strokeWidth={2.5} strokeDasharray={tracos[indice] ? "4 3" : undefined} />
+                <line x1="0" y1="2" x2="16" y2="2" stroke={cores[indice]} strokeWidth={2} strokeDasharray={tracos[indice] ? "4 3" : undefined} />
               </svg>
               {serie.nome}
             </span>
@@ -153,11 +153,11 @@ type Coluna = { chave: string; nome: string; formatar?: Formatador };
 /** A mesma informação em tabela, para quem não lê o gráfico. */
 function TabelaDoGrafico({ dados, colunas }: { dados: Ponto[]; colunas: Coluna[] }) {
   return (
-    <details style={{ marginTop: 10 }}>
-      <summary className="text-button" style={{ cursor: "pointer" }}>
+    <details className="chart-tabela">
+      <summary className="text-button">
         Ver como tabela
       </summary>
-      <div className="table-scroll" style={{ marginTop: 10 }}>
+      <div className="table-scroll espaco-acima-curto">
         <table>
           <thead>
             <tr>

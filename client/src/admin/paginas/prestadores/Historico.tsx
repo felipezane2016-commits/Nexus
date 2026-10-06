@@ -47,7 +47,7 @@ export default function Historico() {
             <input value={busca} onChange={(evento) => setBusca(evento.target.value)} placeholder="Buscar recibo, cliente ou prestador" aria-label="Buscar recibos" />
           </label>
           <div className="inline-row">
-            <select className="field-input" style={{ width: "auto" }} value={prestadorId} onChange={(evento) => setPrestadorId(evento.target.value)} aria-label="Prestador">
+            <select className="field-input field-input-compacto" value={prestadorId} onChange={(evento) => setPrestadorId(evento.target.value)} aria-label="Prestador">
               <option value="todos">Todos os prestadores</option>
               {prestadores.map((prestador) => (
                 <option key={prestador.id} value={prestador.id}>
@@ -55,7 +55,7 @@ export default function Historico() {
                 </option>
               ))}
             </select>
-            <select className="field-input" style={{ width: "auto" }} value={competencia} onChange={(evento) => setCompetencia(evento.target.value)} aria-label="Competência">
+            <select className="field-input field-input-compacto" value={competencia} onChange={(evento) => setCompetencia(evento.target.value)} aria-label="Competência">
               <option value="todas">Todas as competências</option>
               {listCompetencias(recibos).map((opcao) => (
                 <option key={opcao} value={opcao}>
@@ -65,7 +65,7 @@ export default function Historico() {
             </select>
           </div>
         </div>
-        <div className="filter-chips" role="group" aria-label="Filtrar por status" style={{ marginBottom: 18 }}>
+        <div className="filter-chips espaco-abaixo" role="group" aria-label="Filtrar por status">
           {(["Todos", ...RECEIPT_STATUSES] as FiltroStatus[]).map((opcao) => (
             <button
               key={opcao}

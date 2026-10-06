@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { criarColecao, VERSAO_DA_SEMENTE } from "../client/src/_core/armazenamento/colecao";
+import { criarColecao } from "../client/src/_core/armazenamento/colecao";
+import { comecarDoZero, dispensarAvisoDeRenovacao, restaurarDemonstracao, demonstracaoFoiRenovada, VERSAO_DA_SEMENTE } from "../client/src/_core/armazenamento/semente";
 import { criarMotorDeMemoria, PREFIXO, usarMotor, type Motor } from "../client/src/_core/armazenamento/deposito";
 
 /** Motor que conta gravações e guarda texto, como o localStorage. */
@@ -88,5 +89,33 @@ describe("Coleção", () => {
     await esperar();
     expect(avisos).toBe(0);
     expect(motor.gravacoes).toBe(antes);
+  });
+});
+
+describe("Semente", () => {
+  it("começar do zero esvazia quem tem estado vazio e preserva o resto", () => {
+    usarMotor(motorContado());
+    const dados = criarColecao(nome(), () => ["demo"], { vazio: () => [] });
+    const usuarios = criarColecao(nome(), () => ["fernanda"]);
+    dados.ler();
+    usuarios.ler();
+    comecarDoZero();
+    expect(dados.ler()).toEqual([]);
+    expect(usuarios.ler()).toEqual(["fernanda"]);
+    restaurarDemonstracao();
+    expect(dados.ler()).toEqual(["demo"]);
+  });
+
+  it("marca a demonstração como renovada quando acha dado de outra versão", () => {
+    const motor = motorContado();
+    usarMotor(motor);
+    dispensarAvisoDeRenovacao();
+    const chave = nome();
+    motor.bruto.set(PREFIXO + chave, JSON.stringify({ versao: VERSAO_DA_SEMENTE - 1, dados: ["velho"] }));
+    expect(demonstracaoFoiRenovada()).toBe(false);
+    criarColecao(chave, () => ["novo"]).ler();
+    expect(demonstracaoFoiRenovada()).toBe(true);
+    dispensarAvisoDeRenovacao();
+    expect(demonstracaoFoiRenovada()).toBe(false);
   });
 });

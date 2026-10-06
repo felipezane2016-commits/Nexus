@@ -94,8 +94,7 @@ export default function Tarefas() {
                     <div className="board-card" key={tarefa.id}>
                       <button
                         type="button"
-                        className="text-button"
-                        style={{ color: "var(--foreground)", textAlign: "left" }}
+                        className="text-button text-button-neutro"
                         onClick={() => setEditando(tarefa)}
                         disabled={!podeEditar}
                       >
@@ -115,7 +114,7 @@ export default function Tarefas() {
                           {prazo(tarefa)}
                         </span>
                         {podeEditar && coluna.chave !== "concluido" ? (
-                          <button type="button" className="icon-button" style={{ width: 28, height: 28 }} aria-label={`Avançar "${tarefa.titulo}"`} onClick={() => avancar(tarefa)}>
+                          <button type="button" className="icon-button icon-button-pequeno" aria-label={`Avançar "${tarefa.titulo}"`} onClick={() => avancar(tarefa)}>
                             <ArrowRight size={14} strokeWidth={2} />
                           </button>
                         ) : null}
@@ -142,7 +141,7 @@ export default function Tarefas() {
                 {visiveis.map((tarefa) => (
                   <tr key={tarefa.id}>
                     <td className="cell-main">
-                      <button type="button" className="text-button" style={{ color: "var(--foreground)" }} onClick={() => setEditando(tarefa)} disabled={!podeEditar}>
+                      <button type="button" className="text-button text-button-neutro" onClick={() => setEditando(tarefa)} disabled={!podeEditar}>
                         <strong>{tarefa.titulo}</strong>
                       </button>
                       <span>{tarefa.area}</span>
@@ -194,8 +193,7 @@ function FormularioTarefa({ tarefa, pessoas, podeExcluir, aoFechar }: { tarefa: 
         tarefa && podeExcluir ? (
           <button
             type="button"
-            className="text-button"
-            style={{ color: "var(--status-red-fg)" }}
+            className="text-button text-button-perigo"
             onClick={() => {
               tarefas.atualizar((lista) => lista.filter((item) => item.id !== tarefa.id));
               aoFechar();

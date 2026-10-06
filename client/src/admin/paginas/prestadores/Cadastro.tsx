@@ -62,7 +62,7 @@ export default function Cadastro() {
                     </div>
                   </td>
                   <td className="cell-main">
-                    <strong style={{ fontWeight: 600 }}>{prestador.email}</strong>
+                    <strong className="texto-medio">{prestador.email}</strong>
                     <span>{prestador.telefone}</span>
                   </td>
                   <td>{formatarData(prestador.desde)}</td>

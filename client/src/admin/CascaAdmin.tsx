@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useLocation } from "wouter";
 import { itemAtivo, MENU_ESCRITORIO, menuDaRota, type Contador, type Grupo, type ItemMenu } from "./menu";
 import Marca from "@/components/Marca";
+import AvisoRenovacao from "@/components/AvisoRenovacao";
 
 /** Primeira rota que a pessoa pode abrir no escritório. */
 export function rotaInicial(usuario: Usuario) {
@@ -182,7 +183,10 @@ export default function CascaAdmin({ usuario, titulo, children }: Props) {
             </button>
           </div>
         </header>
-        <main className="page-content">{children}</main>
+        <main className="page-content">
+          <AvisoRenovacao />
+          {children}
+        </main>
       </div>
     </div>
   );

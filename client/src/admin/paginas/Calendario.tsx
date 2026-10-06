@@ -61,7 +61,7 @@ export default function Calendario() {
             <button type="button" className="icon-button" aria-label="Mês anterior" onClick={() => mudarMes(-1)}>
               <ChevronLeft size={17} strokeWidth={2} />
             </button>
-            <strong style={{ minWidth: 150, textAlign: "center", fontFamily: "var(--font-display)" }} aria-live="polite">
+            <strong className="calendar-mes" aria-live="polite">
               {nomeMes(ano, mes)}
             </strong>
             <button type="button" className="icon-button" aria-label="Próximo mês" onClick={() => mudarMes(1)}>
@@ -78,7 +78,7 @@ export default function Calendario() {
 
       <div className="grid-main">
         <section className="operations-surface">
-          <div className="inline-row" style={{ marginBottom: 14 }}>
+          <div className="inline-row espaco-abaixo-curto">
             <Selo tom="blue">Reunião</Selo>
             <Selo tom="amber">Pagamento</Selo>
           </div>

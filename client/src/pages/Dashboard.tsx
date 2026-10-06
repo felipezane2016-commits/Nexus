@@ -225,7 +225,7 @@ export default function Dashboard() {
               >
                 <span className="step-number">
                   {steps[index] ? (
-                    <Check size={13} strokeWidth={2.6} />
+                    <Check size={13} strokeWidth={2.4} />
                   ) : (
                     index + 1
                   )}
@@ -253,7 +253,7 @@ export default function Dashboard() {
         </aside>
       </div>
 
-      <section className="operations-surface" style={{ marginTop: 18 }}>
+      <section className="operations-surface espaco-acima">
         <div className="section-header">
           <div>
             <span className="eyebrow">Atividade</span>
@@ -270,7 +270,7 @@ export default function Dashboard() {
 
         {recent.length === 0 ? (
           <div className="empty-state">
-            <ReceiptIcon size={22} strokeWidth={1.8} />
+            <ReceiptIcon size={19} strokeWidth={1.8} />
             <strong>Nenhum recibo lançado</strong>
             <span>Comece registrando o primeiro serviço da competência.</span>
           </div>

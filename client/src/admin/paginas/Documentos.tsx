@@ -56,14 +56,14 @@ export default function Documentos() {
         descricao={`${lista.length} arquivo(s) do escritório.`}
         acoes={
           pode(usuario, "registros.editar") ? (
-            <label className="button-primary" style={{ cursor: "pointer" }}>
+            <label className="button-primary">
               <Upload size={15} strokeWidth={2} /> Enviar arquivo
               <input type="file" multiple onChange={enviar} className="sr-only" />
             </label>
           ) : null
         }
       />
-      <div className="acesso-alerta-info" style={{ marginBottom: 18 }}>
+      <div className="acesso-alerta-info espaco-abaixo">
         <Info size={15} strokeWidth={2} />
         <span>
           <strong>Em construção.</strong> O protótipo registra nome, tamanho e categoria do arquivo — o conteúdo entra com o armazenamento do backend.

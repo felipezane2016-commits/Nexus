@@ -20,7 +20,7 @@ export default function Gaveta({ rotulo, titulo, subtitulo, aoFechar, rodape, ch
       <div className="drawer-backdrop" onMouseDown={aoFechar} />
       <aside ref={raiz} className="drawer-panel" role="dialog" aria-modal="true" aria-labelledby={tituloId}>
         <div className="modal-panel-header">
-          <div style={{ minWidth: 0 }}>
+          <div className="drawer-head-copy">
             <span className="eyebrow">{rotulo}</span>
             <h2 id={tituloId}>{titulo}</h2>
             {subtitulo ? <p>{subtitulo}</p> : null}

@@ -84,7 +84,7 @@ export default function Taxas() {
     <>
       <Cabecalho rotulo="Banco Industrial" titulo="Taxas diárias" descricao="Registre a cotação dos dois bancos; o spread sai calculado." />
       {podeEditar ? (
-        <section className="operations-surface" style={{ marginBottom: 18 }}>
+        <section className="operations-surface espaco-abaixo">
           <div className="section-header">
             <div>
               <span className="eyebrow">Registro</span>
@@ -113,7 +113,7 @@ export default function Taxas() {
                 <input id="tx-horario" className="field-input" type="time" value={horario} onChange={(e) => setHorario(e.target.value)} />
               </div>
             </div>
-            <div className="grid-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}>
+            <div className="grid-3 grid-fluido">
               {CAMPOS.map(([campo, nome]) => (
                 <div className="field-group" key={campo}>
                   <label className="field-label" htmlFor={`tx-${campo}`}>
@@ -162,7 +162,7 @@ export default function Taxas() {
                 Taxas registradas.
               </p>
             ) : null}
-            <div className="inline-row" style={{ justifyContent: "flex-end" }}>
+            <div className="inline-row inline-row-fim">
               <button type="submit" className="button-primary">
                 Registrar taxas
               </button>
@@ -177,7 +177,7 @@ export default function Taxas() {
             <h3>{doMes.length} leitura(s) no mês</h3>
           </div>
           <div className="inline-row">
-            <input className="field-input" style={{ width: "auto" }} type="month" value={mes} onChange={(e) => setMes(e.target.value)} aria-label="Mês" />
+            <input className="field-input field-input-compacto" type="month" value={mes} onChange={(e) => setMes(e.target.value)} aria-label="Mês" />
             <button type="button" className="button-secondary" onClick={exportar} disabled={!doMes.length}>
               <Download size={14} strokeWidth={2} /> Exportar CSV
             </button>

@@ -29,7 +29,7 @@ export default function Painel({ rotulo, titulo, descricao, aoFechar, aoEnviar, 
       {children}
       {aoEnviar ? (
         <div className="modal-panel-footer">
-          {rodapeExtra ? <div style={{ marginRight: "auto" }}>{rodapeExtra}</div> : null}
+          {rodapeExtra ? <div className="modal-rodape-extra">{rodapeExtra}</div> : null}
           <button type="button" className="button-secondary" onClick={aoFechar}>
             Cancelar
           </button>

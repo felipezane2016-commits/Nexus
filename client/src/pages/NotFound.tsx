@@ -8,7 +8,7 @@ export default function NotFound() {
     <main className="page-content">
       <section className="operations-surface">
         <div className="empty-state">
-          <Compass size={24} strokeWidth={1.8} />
+          <Compass size={19} strokeWidth={1.8} />
           <strong>Página não encontrada</strong>
           <span>O endereço acessado não existe no Portal do Prestador.</span>
           <button

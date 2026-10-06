@@ -129,7 +129,7 @@ function GavetaLote({ lote, podeAgir, aoFechar }: { lote: Lote; podeAgir: boolea
       aoFechar={aoFechar}
       rodape={
         <>
-          <span className="field-hint" style={{ alignSelf: "center" }}>
+          <span className="field-hint alinhar-centro">
             {!podeAgir
               ? "Seu papel só permite consultar."
               : lote.situacao === "Recibos avulsos"
@@ -174,7 +174,7 @@ function GavetaLote({ lote, podeAgir, aoFechar }: { lote: Lote; podeAgir: boolea
         </div>
       </dl>
 
-      <div className="section-header" style={{ marginTop: 26 }}>
+      <div className="section-header secao-seguinte">
         <div>
           <span className="eyebrow">Recibos</span>
           <h3>Decisão por recibo</h3>
@@ -206,7 +206,7 @@ function ReciboConferido({ recibo, podeAgir }: { recibo: Receipt; podeAgir: bool
   }
 
   return (
-    <div className="ged-line" style={{ alignItems: "flex-start", flexWrap: "wrap" }}>
+    <div className="ged-line ged-line-topo">
       <span className="doc-icon" aria-hidden="true">
         <FileText size={16} strokeWidth={1.9} />
       </span>
@@ -217,9 +217,9 @@ function ReciboConferido({ recibo, podeAgir }: { recibo: Receipt; podeAgir: bool
         <span>
           {recibo.id} · {formatarData(recibo.serviceDate)}
         </span>
-        <p style={{ margin: "6px 0 0", color: "var(--muted-foreground)", fontSize: 13 }}>{recibo.description}</p>
-        <p className="field-hint" style={{ marginTop: 4, display: "flex", alignItems: "center", gap: 5 }}>
-          <Paperclip size={12} strokeWidth={2} />
+        <p className="ged-line-descricao">{recibo.description}</p>
+        <p className="field-hint field-hint-icone">
+          <Paperclip size={13} strokeWidth={2} />
           {recibo.attachmentName ?? "Sem comprovante anexado"}
         </p>
         {recibo.reviewNote ? (
@@ -235,7 +235,7 @@ function ReciboConferido({ recibo, podeAgir }: { recibo: Receipt; podeAgir: bool
       </div>
 
       {decidir && !devolvendo ? (
-        <div className="inline-row" style={{ width: "100%", justifyContent: "flex-end" }}>
+        <div className="inline-row inline-row-fim">
           <button type="button" className="button-secondary" onClick={() => setDevolvendo(true)}>
             <Undo2 size={14} strokeWidth={2} /> Devolver
           </button>
@@ -246,7 +246,7 @@ function ReciboConferido({ recibo, podeAgir }: { recibo: Receipt; podeAgir: bool
       ) : null}
 
       {devolvendo ? (
-        <div className="field-group" style={{ width: "100%" }}>
+        <div className="field-group field-group-cheio">
           <label className="field-label" htmlFor={`nota-${recibo.id}`}>
             Motivo da devolução
           </label>
@@ -269,7 +269,7 @@ function ReciboConferido({ recibo, podeAgir }: { recibo: Receipt; podeAgir: bool
               {erro}
             </span>
           ) : null}
-          <div className="inline-row" style={{ justifyContent: "flex-end" }}>
+          <div className="inline-row inline-row-fim">
             <button type="button" className="button-secondary" onClick={() => setDevolvendo(false)}>
               Cancelar
             </button>

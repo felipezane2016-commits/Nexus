@@ -163,7 +163,7 @@ export default function Receipts() {
 
         {visible.length === 0 ? (
           <div className="empty-state">
-            <SearchX size={22} strokeWidth={1.8} />
+            <SearchX size={19} strokeWidth={1.8} />
             <strong>Nenhum recibo encontrado</strong>
             <span>
               {receipts.length === 0

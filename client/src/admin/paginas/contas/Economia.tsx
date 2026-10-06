@@ -34,8 +34,8 @@ export default function Economia() {
   return (
     <>
       <Cabecalho rotulo="Banco Industrial" titulo="Economia potencial" descricao="Quanto se ganha fechando o câmbio pelo banco que paga mais pela moeda recebida." />
-      <section className="operations-surface" style={{ marginBottom: 18 }}>
-        <div className="field-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))" }}>
+      <section className="operations-surface espaco-abaixo">
+        <div className="field-grid field-grid-fluido">
           <div className="field-group">
             <label className="field-label" htmlFor="eco-valor">
               Valor da operação (R$)
@@ -84,7 +84,7 @@ export default function Economia() {
           formatarEixo={(valorEixo) => `R$ ${Math.round(valorEixo)}`}
           rotulo={`Economia diária escolhendo o melhor banco numa operação de R$ 100 mil em ${moeda}`}
         />
-        <p className="field-hint" style={{ marginTop: 8 }}>
+        <p className="field-hint espaco-acima-curto">
           Total no mês, se cada dia tivesse uma operação de R$ 100 mil: {formatBRL(diario.reduce((soma, ponto) => soma + ponto.economia, 0))}.
         </p>
       </section>

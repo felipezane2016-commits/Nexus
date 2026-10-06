@@ -19,7 +19,7 @@ export default function Kpi({ rotulo, valor, detalhe, icone: Icone, aoClicar }: 
   );
   if (!aoClicar) return <div className="kpi-card">{conteudo}</div>;
   return (
-    <button type="button" className="kpi-card" style={{ textAlign: "left" }} onClick={aoClicar}>
+    <button type="button" className="kpi-card" onClick={aoClicar}>
       {conteudo}
     </button>
   );

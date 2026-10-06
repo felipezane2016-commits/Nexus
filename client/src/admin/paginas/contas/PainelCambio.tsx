@@ -80,10 +80,10 @@ export default function PainelCambio() {
         <Kpi rotulo="Itaú · EUR" valor={formatarTaxa(atual.itauEur)} detalhe={variacao(atual.itauEur, anterior?.itauEur)} icone={LineChart} />
       </div>
 
-      <div className="grid-3" style={{ marginBottom: 18 }}>
+      <div className="grid-3 espaco-abaixo">
         <section className="operations-surface">
           <span className="eyebrow">Spread de hoje · BIB − Itaú</span>
-          <dl className="data-list" style={{ marginTop: 14 }}>
+          <dl className="data-list espaco-acima-curto">
             <div>
               <dt>USD</dt>
               <dd className="money">{formatarDelta(spread(atual, "USD"))}</dd>
@@ -98,7 +98,7 @@ export default function PainelCambio() {
         </section>
         <section className="operations-surface">
           <span className="eyebrow">Análise do mês · {doMes.length} leituras</span>
-          <dl className="data-list" style={{ marginTop: 14 }}>
+          <dl className="data-list espaco-acima-curto">
             <div>
               <dt>Média USD · BIB</dt>
               <dd>{doMes.length ? formatarTaxa(media(doMes.map((taxa) => taxa.bibUsd))) : "—"}</dd>
@@ -123,10 +123,10 @@ export default function PainelCambio() {
         </section>
         <section className="operations-surface">
           <span className="eyebrow">Ordens fechadas no mês · em R$</span>
-          <dl className="data-list" style={{ marginTop: 14 }}>
-            <div style={{ gridColumn: "1 / -1" }}>
+          <dl className="data-list espaco-acima-curto">
+            <div className="data-list-cheio">
               <dt>Volume total</dt>
-              <dd className="money" style={{ fontSize: 22 }}>
+              <dd className="money money-destaque">
                 {formatBRL(volume("USD") + volume("EUR"))}
               </dd>
             </div>
@@ -142,7 +142,7 @@ export default function PainelCambio() {
         </section>
       </div>
 
-      <section className="operations-surface" style={{ marginBottom: 18 }}>
+      <section className="operations-surface espaco-abaixo">
         <div className="section-header">
           <div>
             <span className="eyebrow">Tendência</span>

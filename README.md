@@ -92,6 +92,7 @@ client/src/
   _core/
     armazenamento/deposito.ts  interface Motor (localStorage com prefixo nexus:v1:, ou memória)
     armazenamento/colecao.ts   criarColecao / useColecao: coleção reativa e persistida
+    armazenamento/semente.ts   VERSAO_DA_SEMENTE, restaurarDemonstracao(), comecarDoZero()
     identidade/                papéis, permissões, módulos, sessão do admin
     tempo.ts                   "hoje" da demonstração e utilitários de data
   modulos/<módulo>/            tipos, dados de demonstração, coleções, regras puras, ações
@@ -123,8 +124,11 @@ client/src/
 - **Data da demonstração.** "Hoje" é fixo em **30/06/2026** (`_core/tempo.ts`),
   para que prazos, vencimentos e alertas da semente façam sentido em qualquer
   data real.
-- **Restaurar demonstração.** Em Usuários e acessos, o administrador pode zerar
-  todos os dados para a semente original (o botão pede confirmação).
+- **Semente.** Em Usuários e acessos o administrador tem "Restaurar
+  demonstração" (volta tudo à semente) e "Começar do zero" (esvazia os dados de
+  trabalho; usuários e sessões ficam). Os dois pedem um segundo clique.
+  Trocar `VERSAO_DA_SEMENTE` renova a demonstração na próxima leitura, e o
+  sistema avisa uma vez no topo da página.
 
 ## Design
 
@@ -148,8 +152,14 @@ trocando só as cores de marca pelas do PNST:
   vermelho bloqueado, neutro rascunho — sempre com texto.
 - **Logo.** `client/src/assets/pnst-logo.webp`, recortada do arquivo original
   com as cores exatas, sobre o grafite — como no site.
-- **Gráficos.** O laranja abre a série (como o Horizon no modelo) e o grafite
-  é a segunda, tracejada; cada gráfico tem "Ver como tabela".
+- **Gráficos.** A família laranja abre a série, como o Horizon no modelo:
+  `--chart-1` (700) e `--chart-2` (a marca). O par passa no validador de
+  paleta no claro e no escuro; a segunda série também é tracejada e cada
+  gráfico tem "Ver como tabela".
+- **Convenções.** Uma folha de estilo só; `style={{}}` apenas para valor
+  calculado em tempo de execução (largura de barra, progresso). Ícones
+  `lucide-react` de 13 a 19px, traço entre 1.7 e 2.4. Nenhum componente declara
+  cor só no `.dark`: o texto sobre a ação é o token `--on-action`.
 - **Tipografia.** DM Sans fala, Source Sans 3 explica, IBM Plex Mono etiqueta.
 
 O modo escuro redefine só os tokens semânticos. Nenhuma tela rola para o lado

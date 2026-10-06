@@ -40,7 +40,7 @@ export default function CalendarioEconomico() {
         }
       />
       <section className="operations-surface">
-        <div className="filter-chips" role="group" aria-label="Filtrar" style={{ marginBottom: 18 }}>
+        <div className="filter-chips espaco-abaixo" role="group" aria-label="Filtrar">
           {(["Todos", ...REGIOES, "Alto impacto"] as Filtro[]).map((opcao) => (
             <button key={opcao} type="button" className={filtro === opcao ? "filter-chip filter-chip-active" : "filter-chip"} aria-pressed={filtro === opcao} onClick={() => setFiltro(opcao)}>
               {opcao}
@@ -53,7 +53,7 @@ export default function CalendarioEconomico() {
           <div className="stack">
             {datas.map((data) => (
               <div key={data}>
-                <p className="eyebrow" style={{ marginBottom: 4 }}>
+                <p className="eyebrow rotulo-acima">
                   {formatarData(data)}
                   {data === HOJE ? " · hoje" : ""}
                 </p>
@@ -62,7 +62,7 @@ export default function CalendarioEconomico() {
                     .filter((evento) => evento.data === data)
                     .map((evento) => (
                       <li className="item-row" key={evento.id}>
-                        <span className="cell-code" style={{ minWidth: 42 }}>
+                        <span className="cell-code cell-code-hora">
                           {evento.hora}
                         </span>
                         <div className="item-row-copy">

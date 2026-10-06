@@ -47,7 +47,7 @@ const PAGINAS: Pagina[] = [
 function Carregando() {
   return (
     <div className="empty-state" role="status">
-      <Loader2 size={22} strokeWidth={1.8} className="animate-spin" />
+      <Loader2 size={19} strokeWidth={1.8} className="animate-spin" />
       <span>Carregando…</span>
     </div>
   );

@@ -6,7 +6,7 @@ type Props = { icone: LucideIcon; titulo: string; texto?: string; acao?: ReactNo
 export default function Vazio({ icone: Icone, titulo, texto, acao }: Props) {
   return (
     <div className="empty-state">
-      <Icone size={22} strokeWidth={1.8} />
+      <Icone size={19} strokeWidth={1.8} />
       <strong>{titulo}</strong>
       {texto ? <span>{texto}</span> : null}
       {acao}

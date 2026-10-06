@@ -47,7 +47,7 @@ export default function Notificacoes() {
         }
       />
       <section className="operations-surface">
-        <div className="filter-chips" role="group" aria-label="Filtrar" style={{ marginBottom: 14 }}>
+        <div className="filter-chips espaco-abaixo-curto" role="group" aria-label="Filtrar">
           <button type="button" className={!soNaoLidas ? "filter-chip filter-chip-active" : "filter-chip"} aria-pressed={!soNaoLidas} onClick={() => setSoNaoLidas(false)}>
             Todas
           </button>

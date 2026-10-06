@@ -156,7 +156,7 @@ export default function Closing() {
 
           {monthReceipts.length === 0 ? (
             <div className="empty-state">
-              <FileText size={22} strokeWidth={1.8} />
+              <FileText size={19} strokeWidth={1.8} />
               <strong>Nenhum recibo nesta competência</strong>
               <span>Lance os serviços prestados para montar o fechamento.</span>
             </div>
@@ -212,9 +212,9 @@ export default function Closing() {
               aria-label="Documento de faturamento"
             />
             {hasDocument ? (
-              <CheckCircle2 size={22} strokeWidth={1.9} />
+              <CheckCircle2 size={19} strokeWidth={1.9} />
             ) : (
-              <Upload size={22} strokeWidth={1.9} />
+              <Upload size={19} strokeWidth={1.9} />
             )}
             <strong>{closing.documentName ?? "Selecionar arquivo"}</strong>
             <span>
@@ -229,7 +229,7 @@ export default function Closing() {
             O valor do documento deve bater com {formatBRL(total)}.
           </p>
 
-          <div className="progress-meter" style={{ marginTop: 20 }}>
+          <div className="progress-meter espaco-acima">
             <div
               className="progress-track"
               role="progressbar"
@@ -252,7 +252,7 @@ export default function Closing() {
               >
                 <span className="step-number">
                   {steps[index] ? (
-                    <Check size={13} strokeWidth={2.6} />
+                    <Check size={13} strokeWidth={2.4} />
                   ) : (
                     index + 1
                   )}
@@ -266,8 +266,7 @@ export default function Closing() {
 
           <button
             type="button"
-            className="button-primary button-block"
-            style={{ marginTop: 16 }}
+            className="button-primary button-block espaco-acima"
             disabled={!canSubmit}
             onClick={() => submitClosing(competencia)}
           >
@@ -277,8 +276,7 @@ export default function Closing() {
               : "Enviar para conferência"}
           </button>
           <p
-            className="field-hint"
-            style={{ marginTop: 9, textAlign: "center" }}
+            className="field-hint field-hint-centro"
           >
             {closing.submitted
               ? "Este fechamento já foi enviado ao escritório."

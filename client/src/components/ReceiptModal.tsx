@@ -299,9 +299,9 @@ export default function ReceiptModal({
                 aria-labelledby="recibo-anexo-rotulo"
               />
               {draft.attachmentName ? (
-                <CheckCircle2 size={20} strokeWidth={1.9} />
+                <CheckCircle2 size={19} strokeWidth={1.9} />
               ) : (
-                <Paperclip size={20} strokeWidth={1.9} />
+                <Paperclip size={19} strokeWidth={1.9} />
               )}
               <strong>{draft.attachmentName ?? "Selecionar arquivo"}</strong>
               <span>

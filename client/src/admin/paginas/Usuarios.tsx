@@ -1,4 +1,5 @@
-import { gravarItem, restaurarDemonstracao, useColecao } from "@/_core/armazenamento/colecao";
+import { gravarItem, useColecao } from "@/_core/armazenamento/colecao";
+import { comecarDoZero, restaurarDemonstracao } from "@/_core/armazenamento/semente";
 import { iniciais, MODULOS, PAPEIS, type Modulo, type Papel, type Usuario } from "@/_core/identidade/permissoes";
 import { sessaoAdmin, useUsuarioAtual, usuarios } from "@/_core/identidade/sessao";
 import { formatarDataHora, gerarId } from "@/_core/tempo";
@@ -6,7 +7,7 @@ import Cabecalho from "@/admin/componentes/Cabecalho";
 import Campo from "@/admin/componentes/Campo";
 import Painel from "@/admin/componentes/Painel";
 import Selo from "@/admin/componentes/Selo";
-import { Plus, RotateCcw, Search } from "lucide-react";
+import { Eraser, Plus, RotateCcw, Search } from "lucide-react";
 import { useState } from "react";
 
 const DEPARTAMENTOS = ["Jurídico", "Operações", "Financeiro", "TI", "RH", "Administrativo"];
@@ -16,7 +17,18 @@ export default function Usuarios() {
   const atual = useUsuarioAtual();
   const [busca, setBusca] = useState("");
   const [editando, setEditando] = useState<Usuario | "novo" | null>(null);
-  const [confirmandoRestauro, setConfirmandoRestauro] = useState(false);
+  // Ações que apagam dados pedem um segundo clique: o primeiro só arma.
+  const [confirmando, setConfirmando] = useState<"restaurar" | "zerar" | null>(null);
+
+  function executar(acao: "restaurar" | "zerar") {
+    if (confirmando !== acao) return setConfirmando(acao);
+    // A sessão é uma coleção também: guarda quem está logado e devolve.
+    const usuarioId = sessaoAdmin.ler().usuarioId;
+    if (acao === "restaurar") restaurarDemonstracao();
+    else comecarDoZero();
+    sessaoAdmin.atualizar(() => ({ usuarioId }));
+    setConfirmando(null);
+  }
   const termo = busca.trim().toLowerCase();
   const visiveis = lista.filter((usuario) => !termo || `${usuario.nome} ${usuario.email} ${usuario.departamento}`.toLowerCase().includes(termo));
   const ativos = lista.filter((usuario) => usuario.ativo).length;
@@ -29,20 +41,11 @@ export default function Usuarios() {
         descricao={`${ativos} usuário(s) ativo(s). O papel define o que a pessoa pode fazer; os módulos, onde ela entra.`}
         acoes={
           <>
-            <button
-              type="button"
-              className="button-secondary"
-              onClick={() => {
-                if (!confirmandoRestauro) return setConfirmandoRestauro(true);
-                // Volta todas as coleções à semente, mas mantém quem está logado.
-                const usuarioId = sessaoAdmin.ler().usuarioId;
-                restaurarDemonstracao();
-                sessaoAdmin.atualizar(() => ({ usuarioId }));
-                setConfirmandoRestauro(false);
-              }}
-              onBlur={() => setConfirmandoRestauro(false)}
-            >
-              <RotateCcw size={15} strokeWidth={2.2} /> {confirmandoRestauro ? "Confirmar: apagar alterações" : "Restaurar demonstração"}
+            <button type="button" className="button-secondary" onClick={() => executar("zerar")} onBlur={() => setConfirmando(null)}>
+              <Eraser size={15} strokeWidth={2.2} /> {confirmando === "zerar" ? "Confirmar: esvaziar tudo" : "Começar do zero"}
+            </button>
+            <button type="button" className="button-secondary" onClick={() => executar("restaurar")} onBlur={() => setConfirmando(null)}>
+              <RotateCcw size={15} strokeWidth={2.2} /> {confirmando === "restaurar" ? "Confirmar: apagar alterações" : "Restaurar demonstração"}
             </button>
             <button type="button" className="button-primary" onClick={() => setEditando("novo")}>
               <Plus size={15} strokeWidth={2.2} /> Novo usuário
@@ -76,7 +79,7 @@ export default function Usuarios() {
               {visiveis.map((usuario) => (
                 <tr key={usuario.id}>
                   <td>
-                    <div className="inline-row" style={{ flexWrap: "nowrap" }}>
+                    <div className="inline-row inline-row-fixo">
                       <span className="avatar" aria-hidden="true">
                         {iniciais(usuario.nome)}
                       </span>
@@ -88,8 +91,8 @@ export default function Usuarios() {
                   </td>
                   <td>{usuario.departamento}</td>
                   <td>{PAPEIS[usuario.papel].nome}</td>
-                  <td style={{ whiteSpace: "normal", minWidth: 220 }}>
-                    <div className="inline-row" style={{ gap: 4 }}>
+                  <td className="celula-quebra">
+                    <div className="inline-row inline-row-justo">
                       {usuario.modulos.map((modulo) => (
                         <span key={modulo} className="status-pill status-neutral">
                           {MODULOS[modulo]}
@@ -191,8 +194,8 @@ function FormularioUsuario({ usuario, todos, euId, aoFechar }: { usuario: Usuari
           </select>
         )}
       </Campo>
-      <fieldset className="field-group" style={{ border: 0, padding: 0, margin: 0 }} aria-describedby={erros.modulos ? "us-modulos-erro" : undefined}>
-        <legend className="field-label" style={{ marginBottom: 6 }}>
+      <fieldset className="field-group field-group-fieldset" aria-describedby={erros.modulos ? "us-modulos-erro" : undefined}>
+        <legend className="field-label rotulo-acima">
           Módulos liberados
         </legend>
         <div className="filter-chips">

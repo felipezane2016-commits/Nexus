@@ -14,6 +14,7 @@ import {
 import { useEffect, useState, type ReactNode } from "react";
 import { useLocation } from "wouter";
 import Marca from "@/components/Marca";
+import AvisoRenovacao from "@/components/AvisoRenovacao";
 
 const NAV_ITEMS = [
   { path: "/", label: "Visão geral", icon: LayoutDashboard },
@@ -182,7 +183,10 @@ export default function PortalShell({
           </div>
         </header>
 
-        <main className="page-content">{children}</main>
+        <main className="page-content">
+          <AvisoRenovacao />
+          {children}
+        </main>
       </div>
     </div>
   );

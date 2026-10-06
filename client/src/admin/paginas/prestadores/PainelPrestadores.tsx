@@ -104,7 +104,7 @@ export default function PainelPrestadores() {
         </section>
       </div>
 
-      <div className="grid-2" style={{ marginTop: 18 }}>
+      <div className="grid-2 espaco-acima">
         <section className="operations-surface">
           <div className="section-header">
             <div>
@@ -154,7 +154,7 @@ export default function PainelPrestadores() {
               </tbody>
             </table>
           </div>
-          <p className="field-hint" style={{ marginTop: 12 }}>
+          <p className="field-hint espaco-acima-curto">
             Considera só recibos aprovados, de {evolucao.length ? formatMonth(evolucaoMensal(recibos)[0].competencia) : "—"} em diante.
           </p>
         </section>

@@ -43,6 +43,8 @@
   --ring: var(--laranja-600);
   --action: var(--laranja-700);
   --action-pressed: var(--laranja-800);
+  /* Texto sobre a cor de ação: branco no claro, grafite no escuro. */
+  --on-action: #ffffff;
   --highlight: var(--laranja-50);
   --highlight-border: var(--laranja-200);
   --sidebar-bg: var(--laranja-900);
@@ -95,6 +97,7 @@
   --ring: var(--laranja);
   --action: var(--laranja);
   --action-pressed: var(--laranja-300);
+  --on-action: var(--laranja-900);
   --highlight: #48362d;
   --highlight-border: #6b4a3a;
   --sidebar-bg: #1a1a1a;
@@ -202,11 +205,8 @@ code {
 }
 .button-primary {
   border: 1px solid var(--action);
-  color: #fff;
+  color: var(--on-action);
   background: var(--action);
-}
-.dark .button-primary {
-  color: var(--laranja-900);
 }
 .button-primary:hover:not(:disabled) {
   border-color: var(--action-pressed);
@@ -896,11 +896,8 @@ textarea.field-input {
 }
 .next-step-done .step-number {
   border-color: var(--action);
-  color: #fff;
+  color: var(--on-action);
   background: var(--action);
-}
-.dark .next-step-done .step-number {
-  color: var(--laranja-900);
 }
 .next-step-copy {
   min-width: 0;
@@ -1525,16 +1522,16 @@ textarea.field-input {
 /* ══ Admin ════════════════════════════════════════════════════════════════
    Peças que só o admin usa. Mesmos tokens; nenhuma cor nova fora das séries. */
 
-/* Séries de gráfico: o laranja abre a série, como o Horizon no modelo; a 2ª é
-   o grafite. Separam-se pela luminosidade, e a 2ª também é tracejada — a
-   identidade nunca depende só da cor. */
+/* Séries de gráfico: a família laranja abre a série, como o Horizon no
+   modelo (--chart-1 = 700, --chart-2 = a marca). O par passa no validador de
+   paleta no claro e no escuro (ΔE 16,1; contraste ≥ 3:1 nas duas
+   superfícies); a 2ª série também é tracejada e cada gráfico tem tabela. */
 :root {
-  --serie-1: var(--laranja);
-  --serie-2: var(--laranja-900);
+  --serie-1: var(--chart-1);
+  --serie-2: var(--chart-2);
   --grade: var(--grafite-200);
 }
 .dark {
-  --serie-2: #d0d0ce;
   --grade: #444443;
 }
 
@@ -1716,11 +1713,8 @@ button.board-card:hover {
 .calendar-day-today .calendar-day-number {
   border-radius: 5px;
   padding: 1px 5px;
-  color: #fff;
+  color: var(--on-action);
   background: var(--action);
-}
-.dark .calendar-day-today .calendar-day-number {
-  color: var(--laranja-900);
 }
 .calendar-day-selected {
   border-color: var(--action);
@@ -1777,6 +1771,7 @@ button.board-card:hover {
   background: var(--divider);
 }
 .bar-fill {
+  display: block;
   height: 100%;
   min-width: 4px;
   border-radius: 4px;
@@ -1995,3 +1990,144 @@ button.board-card:hover {
   }
 }
 
+
+/* ── Ajustes de composição ─────────────────────────────────────────────────
+   Espaçamentos e variações que antes viviam em style={{}} nas páginas. O
+   modelo pede uma folha só, com estilo embutido apenas para valor calculado
+   em tempo de execução (largura de barra, progresso). */
+.espaco-acima {
+  margin-top: 18px;
+}
+.espaco-acima-curto {
+  margin-top: 10px;
+}
+.espaco-abaixo {
+  margin-bottom: 18px;
+}
+.espaco-abaixo-curto {
+  margin-bottom: 14px;
+}
+.rotulo-acima {
+  margin-bottom: 6px;
+}
+.secao-seguinte {
+  margin-top: 26px;
+}
+.alinhar-centro {
+  align-self: center;
+}
+.texto-medio {
+  font-weight: 600;
+}
+.riscado {
+  text-decoration: line-through;
+}
+.inline-row-fim {
+  width: 100%;
+  justify-content: flex-end;
+}
+.inline-row-fixo {
+  flex-wrap: nowrap;
+}
+.inline-row-justo {
+  gap: 4px;
+}
+.field-input-compacto {
+  width: auto;
+}
+.field-group-cheio {
+  width: 100%;
+}
+.field-group-fieldset {
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+.field-hint-icone {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+}
+.field-hint-centro {
+  margin-top: 9px;
+  text-align: center;
+}
+.field-grid-fluido {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+.grid-3.grid-fluido {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.ged-line-topo {
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.ged-line-descricao {
+  margin: 6px 0 0;
+  color: var(--muted-foreground);
+  font-size: 13px;
+}
+.data-list-cheio {
+  grid-column: 1 / -1;
+}
+.money-destaque {
+  font-size: 22px;
+}
+.cell-code-hora {
+  min-width: 42px;
+}
+.check-label-tarefa {
+  align-items: flex-start;
+  color: var(--foreground);
+}
+.check-label-tarefa input {
+  margin-top: 3px;
+}
+.text-button-inicio {
+  justify-self: start;
+}
+/* Ação terciária que não é link: título de cartão clicável. */
+.text-button-neutro {
+  color: var(--foreground);
+  text-align: left;
+}
+.text-button-perigo {
+  color: var(--status-red-fg);
+}
+.icon-button-pequeno {
+  width: 28px;
+  height: 28px;
+}
+.calendar-mes {
+  min-width: 150px;
+  text-align: center;
+  font-family: var(--font-display);
+}
+.celula-quebra {
+  min-width: 220px;
+  white-space: normal;
+}
+.drawer-head-copy {
+  min-width: 0;
+}
+.modal-rodape-extra {
+  margin-right: auto;
+}
+.chart-figure {
+  margin: 0;
+}
+.chart-tabela {
+  margin-top: 10px;
+}
+label.button-primary,
+summary {
+  cursor: pointer;
+}
+button.kpi-card {
+  text-align: left;
+}
+.aviso-texto {
+  flex: 1;
+  min-width: 0;
+}
