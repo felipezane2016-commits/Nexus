@@ -128,15 +128,17 @@ client/src/
 
 ## Design
 
-Estrutura do modelo "Design e Arquitetura", com a paleta da logo do escritório
-(PNST): o laranja **#F16122**, o branco e o preto. Não existe nenhuma outra
-cor com matiz — os neutros são cinzas puros e não há tons derivados do laranja.
+Estrutura do modelo "Design e Arquitetura", com as cores idênticas às da logo
+do escritório (PNST): laranja **#F16122**, branco **#FFFFFF** e preto
+**#000000**. Toda cor sólida da interface é uma das três. Fios, divisórias e
+texto secundário são o próprio preto (ou branco, no escuro) com transparência —
+nenhum cinza próprio e nenhum tom derivado do laranja.
 
 - **Contraste.** Sobre branco o laranja dá 3,2:1, então nunca é texto pequeno.
-  Ele vira preenchimento com texto preto (5,7:1), borda, marcador ou
-  sublinhado. No escuro ele também pode ser texto (5,4:1).
+  Ele vira preenchimento com texto preto (6,8:1), borda, marcador ou
+  sublinhado. No escuro ele também pode ser texto (6,8:1).
 - **Ação primária.** Botão laranja com texto preto; no hover fica preto.
-  Desabilitado é cinza.
+  Desabilitado fica translúcido.
 - **Status.** Diferenciados pelo preenchimento, não pela matiz:
 
   | Estado       | Classe            | Aparência                  |
@@ -147,7 +149,7 @@ cor com matiz — os neutros são cinzas puros e não há tons derivados do lara
   | Em andamento | `.status-blue`    | contorno cinza             |
   | Neutro       | `.status-neutral` | cinza claro                |
 
-- **Gráficos.** `--serie-1` laranja e `--serie-2` preto (branco-gelo no
+- **Gráficos.** `--serie-1` laranja e `--serie-2` preto (branco no
   escuro), que se separam pela luminosidade; a segunda série também é
   tracejada, e cada gráfico tem rótulo direto e "Ver como tabela".
 - **Logo.** `client/src/assets/pnst-logo.webp`, recortada do arquivo original
