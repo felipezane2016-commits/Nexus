@@ -84,7 +84,7 @@ export default function TarefasContas() {
                         <strong style={{ textDecoration: tarefa.concluida ? "line-through" : undefined }}>{tarefa.nome}</strong>
                       </label>
                       <div className="board-card-meta">
-                        <span className={atrasada ? "texto-alerta" : undefined}>
+                        <span style={atrasada ? { color: "var(--status-red-fg)" } : undefined}>
                           {tarefa.vencimento ? `${atrasada ? "Venceu " : "Vence "}${formatarData(tarefa.vencimento)}` : "Sem data"}
                         </span>
                         <span>{tarefa.periodo}</span>
@@ -131,6 +131,7 @@ function FormularioTarefaConta({ tarefa, podeExcluir, aoFechar }: { tarefa: Tare
           <button
             type="button"
             className="text-button"
+            style={{ color: "var(--status-red-fg)" }}
             onClick={() => {
               tarefasContas.atualizar((lista) => lista.filter((item) => item.id !== tarefa.id));
               aoFechar();

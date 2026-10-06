@@ -35,7 +35,7 @@ export default function Tarefas() {
 
   const prazo = (tarefa: Tarefa) =>
     tarefa.prazo ? (
-      <span className={tarefa.prazo < HOJE && tarefa.coluna !== "concluido" ? "texto-alerta" : undefined}>
+      <span style={tarefa.prazo < HOJE && tarefa.coluna !== "concluido" ? { color: "var(--status-red-fg)" } : undefined}>
         {formatarData(tarefa.prazo)}
       </span>
     ) : (
@@ -195,6 +195,7 @@ function FormularioTarefa({ tarefa, pessoas, podeExcluir, aoFechar }: { tarefa: 
           <button
             type="button"
             className="text-button"
+            style={{ color: "var(--status-red-fg)" }}
             onClick={() => {
               tarefas.atualizar((lista) => lista.filter((item) => item.id !== tarefa.id));
               aoFechar();

@@ -128,40 +128,29 @@ client/src/
 
 ## Design
 
-Estrutura do modelo "Design e Arquitetura", com as cores da marca como
-aparecem no site do escritório (PNST): o grafite **#303030** (fundo da logo no
-site), o laranja **#F16122** e o branco **#FFFFFF**. Toda cor sólida da
-interface é uma das três. Barra lateral, painéis de login e cartão de destaque
-são grafite com a logo original; páginas e cartões são brancos; o texto é
-grafite. Fios, divisórias e texto secundário são o grafite (ou o branco, no
-escuro) com transparência — nenhum outro cinza e nenhum tom derivado do
-laranja.
+Segue o modelo "Design e Arquitetura" na mesma estrutura — famílias de cor,
+tokens semânticos, status, tipografia, forma e vocabulário de componentes —,
+trocando só as cores de marca pelas do PNST:
 
-- **Contraste.** Branco sobre grafite e grafite sobre branco dão 12,6:1;
-  laranja sobre grafite 4,0:1 (títulos, ícones, marcadores). Sobre branco o
-  laranja dá 3,2:1, então nunca é texto pequeno: vira preenchimento, borda,
-  marcador ou sublinhado.
-- **Ação primária.** Botão laranja com texto branco; no hover inverte para
-  branco com texto laranja. Desabilitado fica translúcido.
-- **Status.** Diferenciados pelo preenchimento, não pela matiz:
+| Modelo                | PNST                    | Valor     |
+| --------------------- | ----------------------- | --------- |
+| `--horizon` (a marca) | `--laranja`             | `#F16122` |
+| `--horizon-900`       | `--laranja-900` grafite | `#303030` |
+| `--ivory` (página)    | `--papel`               | `#F6F5F3` |
+| `--warm-*` (neutros)  | `--grafite-*`           | 50 a 700  |
 
-  | Estado       | Classe            | Aparência                    |
-  | ------------ | ----------------- | ---------------------------- |
-  | Concluído    | `.status-green`   | grafite cheio, texto branco  |
-  | Bloqueado    | `.status-red`     | laranja cheio                |
-  | Atenção      | `.status-amber`   | contorno laranja             |
-  | Em andamento | `.status-blue`    | contorno grafite translúcido |
-  | Neutro       | `.status-neutral` | fundo grafite translúcido    |
-
-- **Gráficos.** `--serie-1` laranja e `--serie-2` grafite (branco no
-  escuro), que se separam pela luminosidade; a segunda série também é
-  tracejada, e cada gráfico tem rótulo direto e "Ver como tabela".
+- **Família laranja.** 50–300 são tintas para realce e bordas; o `--laranja`
+  puro é superfície e acento, nunca texto nem fundo de botão (branco sobre ele
+  dá 3,24:1). Ação primária e link usam o `--laranja-700` `#AD3C0B` (6,13:1),
+  ação secundária o 600 `#C9460D` (4,81:1). O 900 é o grafite do site:
+  texto forte e barra lateral.
+- **Status.** Os do modelo: verde concluído, azul em andamento, âmbar atenção,
+  vermelho bloqueado, neutro rascunho — sempre com texto.
 - **Logo.** `client/src/assets/pnst-logo.webp`, recortada do arquivo original
-  com as cores exatas, sempre sobre o grafite — como no site.
-- **Tipografia.** DM Sans, Source Sans 3 e IBM Plex Mono.
-- **Classes.** O vocabulário do modelo: `.page-heading`, `.operations-surface`,
-  `.kpi-card`, `.status-pill`, `.risk-card`, `.ged-line`, gaveta (`.drawer-*`),
-  quadro (`.board-*`), calendário (`.calendar-*`) e gráficos (`.chart-*`).
+  com as cores exatas, sobre o grafite — como no site.
+- **Gráficos.** O laranja abre a série (como o Horizon no modelo) e o grafite
+  é a segunda, tracejada; cada gráfico tem "Ver como tabela".
+- **Tipografia.** DM Sans fala, Source Sans 3 explica, IBM Plex Mono etiqueta.
 
 O modo escuro redefine só os tokens semânticos. Nenhuma tela rola para o lado
 em 390px.
