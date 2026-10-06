@@ -3,28 +3,29 @@
 
 /*
  * Folha única do PNST Administrativo (admin + Portal do Prestador), no modelo
- * "Design e Arquitetura", com as cores idênticas às da logo do escritório:
- * laranja #F16122, branco #FFFFFF e preto #000000. Toda cor sólida é uma das
- * três. Fios, divisórias e texto secundário são o próprio preto (ou branco, no
- * escuro) com transparência — nenhum cinza, nenhum tom derivado do laranja.
+ * "Design e Arquitetura", com as cores da marca como aparecem no site do
+ * escritório: o grafite #303030 (fundo da logo), o laranja #F16122 e o branco.
+ * Toda cor sólida é uma das três. Fios, divisórias e texto secundário são o
+ * grafite (ou o branco, no escuro) com transparência — nenhum outro cinza e
+ * nenhum tom derivado do laranja.
  *
- * Contraste: sobre branco o laranja dá 3,2:1, então nunca é texto pequeno;
- * vira preenchimento com texto preto (6,8:1), borda, marcador ou sublinhado.
- * Sobre preto ele também pode ser texto (6,8:1).
+ * Contraste: branco sobre grafite 12,6:1; grafite sobre branco 12,6:1; laranja
+ * sobre grafite 4,0:1 (títulos, ícones, marcadores). Sobre branco o laranja
+ * dá 3,2:1, então nunca é texto pequeno: vira preenchimento, borda ou marcador.
  */
 :root {
   --laranja: #f16122;
-  --preto: #000000;
+  --preto: #303030; /* grafite do site — o "escuro" da marca */
   --branco: #ffffff;
   /* Preto translúcido sobre branco. */
-  --tinta-04: rgba(0, 0, 0, 0.04);
-  --tinta-08: rgba(0, 0, 0, 0.08);
-  --tinta-12: rgba(0, 0, 0, 0.12);
-  --tinta-20: rgba(0, 0, 0, 0.2);
-  --tinta-35: rgba(0, 0, 0, 0.35);
-  --tinta-48: rgba(0, 0, 0, 0.48);
-  --tinta-62: rgba(0, 0, 0, 0.62);
-  --tinta-70: rgba(0, 0, 0, 0.7);
+  --tinta-04: rgba(48, 48, 48, 0.04);
+  --tinta-08: rgba(48, 48, 48, 0.08);
+  --tinta-12: rgba(48, 48, 48, 0.12);
+  --tinta-20: rgba(48, 48, 48, 0.2);
+  --tinta-35: rgba(48, 48, 48, 0.35);
+  --tinta-48: rgba(48, 48, 48, 0.48);
+  --tinta-62: rgba(48, 48, 48, 0.62);
+  --tinta-70: rgba(48, 48, 48, 0.7);
 
   --background: var(--branco);
   --foreground: var(--preto);
@@ -47,9 +48,9 @@
   --link: var(--preto);
   --highlight: var(--tinta-08);
   --highlight-border: var(--tinta-20);
-  /* Barra lateral e painéis de destaque em laranja com branco, como a logo. */
-  --sidebar-bg: var(--laranja);
-  --sidebar-fg: var(--branco);
+  /* Barra lateral e painéis em grafite, como o fundo da logo no site. */
+  --sidebar-bg: var(--preto);
+  --sidebar-fg: rgba(255, 255, 255, 0.86);
   --risk-bg: var(--branco);
   --risk-border: var(--laranja);
 
@@ -75,7 +76,7 @@
   --texto-alerta: var(--preto);
 
   --shadow-card: none;
-  --shadow-float: 0 22px 60px rgba(0, 0, 0, 0.2);
+  --shadow-float: 0 22px 60px rgba(48, 48, 48, 0.2);
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 
   --font-display: "DM Sans", system-ui, sans-serif;
@@ -111,7 +112,7 @@
   --status-amber-fg: var(--branco);
   --status-amber-bg: var(--preto);
   --texto-alerta: var(--laranja);
-  --shadow-float: 0 22px 60px rgba(0, 0, 0, 0.6);
+  --shadow-float: 0 22px 60px rgba(48, 48, 48, 0.6);
 }
 
 *,
@@ -526,7 +527,7 @@ textarea.field-input {
   height: 40px;
 }
 .brand-copy {
-  color: var(--branco);
+  color: rgba(255, 255, 255, 0.7);
   font: 600 9.5px/1.25 var(--font-mono);
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -541,7 +542,7 @@ textarea.field-input {
 }
 .sidebar-section-label {
   margin: 14px 10px 8px;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.6);
   font: 600 9px/1 var(--font-mono);
   letter-spacing: 0.13em;
   text-transform: uppercase;
@@ -574,12 +575,12 @@ textarea.field-input {
 }
 .nav-item:hover {
   color: var(--branco);
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.07);
 }
 .nav-active,
 .nav-active:hover {
-  color: var(--laranja);
-  background: var(--branco);
+  color: var(--branco);
+  background: rgba(255, 255, 255, 0.1);
 }
 .nav-active::before {
   content: "";
@@ -589,15 +590,11 @@ textarea.field-input {
   bottom: 9px;
   width: 3px;
   border-radius: 0 3px 3px 0;
-  background: var(--branco);
+  background: var(--laranja);
 }
 .nav-active svg {
   color: var(--laranja);
   opacity: 1;
-}
-.nav-active .nav-count {
-  color: var(--branco);
-  background: var(--laranja);
 }
 .nav-count {
   min-width: 20px;
@@ -605,8 +602,8 @@ textarea.field-input {
   border-radius: 6px;
   padding: 3px 6px;
   text-align: center;
-  color: var(--laranja);
-  background: var(--branco);
+  color: var(--branco);
+  background: var(--laranja);
   font: 700 10px/1 var(--font-mono);
 }
 .sidebar-footer {
@@ -614,7 +611,7 @@ textarea.field-input {
   display: grid;
   gap: 10px;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.35);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
 }
 .sidebar-account {
   display: flex;
@@ -633,7 +630,7 @@ textarea.field-input {
 .sidebar-account span {
   display: block;
   margin-top: 2px;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.6);
   font: 500 10px/1.2 var(--font-mono);
 }
 .sidebar-account > div {
@@ -882,8 +879,8 @@ textarea.field-input {
 .attention-card {
   border-radius: 9px;
   padding: 24px;
-  color: var(--branco);
-  background: var(--laranja);
+  color: rgba(255, 255, 255, 0.86);
+  background: var(--preto);
 }
 .attention-card h3 {
   margin-top: 8px;
@@ -896,18 +893,10 @@ textarea.field-input {
   font-size: 14px;
 }
 .attention-card .eyebrow {
-  color: var(--branco);
+  color: var(--laranja);
 }
 .attention-card .button-primary {
   margin-top: 18px;
-  border-color: var(--branco);
-  color: var(--laranja);
-  background: var(--branco);
-}
-.attention-card .button-primary:hover:not(:disabled) {
-  border-color: var(--branco);
-  color: var(--branco);
-  background: transparent;
 }
 
 .empty-state {
@@ -1237,7 +1226,7 @@ textarea.field-input {
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(48, 48, 48, 0.5);
   backdrop-filter: blur(3px);
 }
 .modal-panel {
@@ -1303,8 +1292,8 @@ textarea.field-input {
   justify-content: space-between;
   gap: 40px;
   padding: 44px clamp(32px, 5vw, 72px);
-  color: var(--branco);
-  background: var(--laranja);
+  color: rgba(255, 255, 255, 0.86);
+  background: var(--preto);
 }
 .acesso-painel .brand-row {
   padding: 0;
@@ -1318,11 +1307,8 @@ textarea.field-input {
   letter-spacing: -0.052em;
 }
 .acesso-painel h1 em {
-  color: var(--branco);
+  color: var(--laranja);
   font-style: normal;
-  text-decoration: underline;
-  text-decoration-thickness: 4px;
-  text-underline-offset: 8px;
 }
 .acesso-painel > div > p {
   max-width: 430px;
@@ -1330,7 +1316,7 @@ textarea.field-input {
   font-size: 16px;
 }
 .acesso-painel .eyebrow {
-  color: var(--branco);
+  color: var(--laranja);
 }
 .acesso-pontos {
   display: grid;
@@ -1348,7 +1334,7 @@ textarea.field-input {
 .acesso-pontos svg {
   margin-top: 2px;
   flex: 0 0 auto;
-  color: var(--branco);
+  color: var(--laranja);
 }
 .acesso-pontos strong {
   display: block;
@@ -1512,7 +1498,7 @@ textarea.field-input {
     z-index: 35;
     inset: 0;
     border: 0;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(48, 48, 48, 0.45);
   }
   .breadcrumbs {
     display: none;
@@ -1616,7 +1602,7 @@ textarea.field-input {
   align-items: center;
   gap: 8px;
   margin: 0 0 6px;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.7);
 }
 .sidebar-module-title {
   margin: 4px 11px 2px;
@@ -1637,7 +1623,7 @@ textarea.field-input {
   position: fixed;
   z-index: 30;
   inset: 0;
-  background: rgba(0, 0, 0, 0.42);
+  background: rgba(48, 48, 48, 0.42);
 }
 .drawer-panel {
   position: fixed;

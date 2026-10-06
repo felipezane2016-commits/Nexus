@@ -128,37 +128,36 @@ client/src/
 
 ## Design
 
-Estrutura do modelo "Design e Arquitetura", com as cores da logo do escritório
-(PNST): laranja **#F16122** e branco **#FFFFFF**. As áreas grandes usam só as
-duas — barra lateral, painéis de login e cartão de destaque em laranja com
-texto e logo brancos; páginas e cartões em branco. O preto **#000000** fica
-restrito ao texto do conteúdo (laranja ou branco sobre branco não se lê) e a
-detalhes pequenos. Fios, divisórias e texto secundário são esse preto com
-transparência — nenhum cinza próprio e nenhum tom derivado do laranja.
+Estrutura do modelo "Design e Arquitetura", com as cores da marca como
+aparecem no site do escritório (PNST): o grafite **#303030** (fundo da logo no
+site), o laranja **#F16122** e o branco **#FFFFFF**. Toda cor sólida da
+interface é uma das três. Barra lateral, painéis de login e cartão de destaque
+são grafite com a logo original; páginas e cartões são brancos; o texto é
+grafite. Fios, divisórias e texto secundário são o grafite (ou o branco, no
+escuro) com transparência — nenhum outro cinza e nenhum tom derivado do
+laranja.
 
-- **Contraste.** Branco sobre laranja dá 3,2:1, o mesmo da logo: serve para
-  texto em negrito e títulos (barra lateral, botões), não para texto corrido.
-  Sobre branco o laranja nunca é texto pequeno; vira preenchimento, borda,
-  marcador ou sublinhado. No escuro ele também pode ser texto (6,8:1).
+- **Contraste.** Branco sobre grafite e grafite sobre branco dão 12,6:1;
+  laranja sobre grafite 4,0:1 (títulos, ícones, marcadores). Sobre branco o
+  laranja dá 3,2:1, então nunca é texto pequeno: vira preenchimento, borda,
+  marcador ou sublinhado.
 - **Ação primária.** Botão laranja com texto branco; no hover inverte para
   branco com texto laranja. Desabilitado fica translúcido.
 - **Status.** Diferenciados pelo preenchimento, não pela matiz:
 
-  | Estado       | Classe            | Aparência                  |
-  | ------------ | ----------------- | -------------------------- |
-  | Concluído    | `.status-green`   | preto cheio, texto branco  |
-  | Bloqueado    | `.status-red`     | laranja cheio              |
-  | Atenção      | `.status-amber`   | contorno laranja           |
-  | Em andamento | `.status-blue`    | contorno preto translúcido |
-  | Neutro       | `.status-neutral` | fundo preto translúcido    |
+  | Estado       | Classe            | Aparência                    |
+  | ------------ | ----------------- | ---------------------------- |
+  | Concluído    | `.status-green`   | grafite cheio, texto branco  |
+  | Bloqueado    | `.status-red`     | laranja cheio                |
+  | Atenção      | `.status-amber`   | contorno laranja             |
+  | Em andamento | `.status-blue`    | contorno grafite translúcido |
+  | Neutro       | `.status-neutral` | fundo grafite translúcido    |
 
-- **Gráficos.** `--serie-1` laranja e `--serie-2` preto (branco no
+- **Gráficos.** `--serie-1` laranja e `--serie-2` grafite (branco no
   escuro), que se separam pela luminosidade; a segunda série também é
   tracejada, e cada gráfico tem rótulo direto e "Ver como tabela".
-- **Logo.** `client/src/assets/pnst-logo.webp` é o recorte do arquivo
-  original, com as cores exatas. Sobre o laranja da barra lateral e dos logins
-  entra `pnst-logo-branca.webp`, a versão monocromática branca (na original a
-  barra laranja sumiria nesse fundo).
+- **Logo.** `client/src/assets/pnst-logo.webp`, recortada do arquivo original
+  com as cores exatas, sempre sobre o grafite — como no site.
 - **Tipografia.** DM Sans, Source Sans 3 e IBM Plex Mono.
 - **Classes.** O vocabulário do modelo: `.page-heading`, `.operations-surface`,
   `.kpi-card`, `.status-pill`, `.risk-card`, `.ged-line`, gaveta (`.drawer-*`),
