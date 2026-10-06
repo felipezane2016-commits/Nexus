@@ -1,8 +1,8 @@
 /**
  * Identidade do admin. Permissões efetivas = o que o PAPEL concede ∩ os MÓDULOS
  * liberados para a pessoa. Papel responde "esta pessoa pode editar?"; módulo
- * responde "esta área existe para ela?". Uma operadora do jurídico continua
- * operadora, mas só enxerga o Legal — o antigo perfil "Jurídico".
+ * responde "esta área existe para ela?". Uma operadora de prestadores continua
+ * operadora, mas só enxerga as áreas liberadas para ela.
  */
 
 export type Papel = "admin" | "gestor" | "operador" | "viewer";
@@ -19,22 +19,16 @@ export type Modulo =
   | "calendario"
   | "tarefas"
   | "documentos"
-  | "legal"
   | "prestadores"
-  | "contas"
-  | "consultoria"
-  | "particular";
+  | "contas";
 
 export const MODULOS: Record<Modulo, string> = {
   visao: "Visão geral",
   calendario: "Calendário",
   tarefas: "Tarefas",
   documentos: "Documentos",
-  legal: "Legal Workflow",
   prestadores: "Prestadores",
   contas: "Account Management",
-  consultoria: "Consultoria",
-  particular: "Particular",
 };
 
 export type Permissao = "registros.editar" | "registros.excluir" | "usuarios.gerenciar";
@@ -72,22 +66,4 @@ export function iniciais(nome: string) {
   if (partes.length === 0) return "?";
   if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
   return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
-}
-
-/** Ambientes do admin: cada um mostra um conjunto de módulos na barra. */
-export type Ambiente = "escritorio" | "consultoria" | "particular";
-
-export const AMBIENTES: Record<Ambiente, { nome: string; modulos: Modulo[] }> = {
-  escritorio: {
-    nome: "Escritório",
-    modulos: ["visao", "calendario", "tarefas", "documentos", "legal", "prestadores", "contas"],
-  },
-  consultoria: { nome: "Consultoria Empresarial", modulos: ["consultoria"] },
-  particular: { nome: "Particular", modulos: ["particular"] },
-};
-
-export function ambientesDisponiveis(usuario: Usuario | null): Ambiente[] {
-  return (Object.keys(AMBIENTES) as Ambiente[]).filter((ambiente) =>
-    AMBIENTES[ambiente].modulos.some((modulo) => veModulo(usuario, modulo)),
-  );
 }

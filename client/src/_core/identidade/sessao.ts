@@ -6,11 +6,8 @@ const MODULOS_TODOS: Modulo[] = [
   "calendario",
   "tarefas",
   "documentos",
-  "legal",
   "prestadores",
   "contas",
-  "consultoria",
-  "particular",
 ];
 
 /** Pessoas fictícias: o link do protótipo é compartilhável. */
@@ -42,9 +39,9 @@ export const USUARIOS_DEMO: Usuario[] = [
     nome: "Helena Prado",
     email: "helena@nexus.demo",
     senha: "nexus2026",
-    departamento: "Jurídico",
+    departamento: "Operações",
     papel: "operador",
-    modulos: ["legal", "calendario"],
+    modulos: ["calendario", "tarefas", "prestadores"],
     ativo: true,
     ultimoAcesso: "2026-06-30T09:05:00.000Z",
   },
@@ -74,7 +71,6 @@ export const USUARIOS_DEMO: Usuario[] = [
 
 export const usuarios = criarColecao<Usuario[]>("usuarios", () => USUARIOS_DEMO);
 
-/** O ambiente não é guardado: sai da rota, então um link direto abre o ambiente certo. */
 type Sessao = { usuarioId: string | null };
 export const sessaoAdmin = criarColecao<Sessao>("sessao-admin", () => ({ usuarioId: null }));
 

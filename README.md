@@ -3,8 +3,8 @@
 Protótipo navegável do Nexus em duas zonas que compartilham os mesmos dados:
 
 - **Admin (escritório)**: visão geral, calendário, tarefas, documentos,
-  notificações, usuários e os módulos Legal Workflow, Prestadores, Account
-  Management, Consultoria e Particular. É a reconstrução do app legado
+  notificações, usuários e os módulos Prestadores e Account Management. É a
+  reconstrução do app legado
   (`operational-intelligence-platform/index.html`) no modelo "Design e
   Arquitetura".
 - **Portal do Prestador**: o prestador lança recibos e envia o fechamento
@@ -34,7 +34,7 @@ pnpm build   # build de produção
 | --------------------- | ------------- | ---------------------------------- |
 | `fernanda@nexus.demo` | Administrador | todos                              |
 | `ricardo@nexus.demo`  | Gestor        | escritório, Prestadores e Contas   |
-| `helena@nexus.demo`   | Operador      | Legal Workflow + calendário        |
+| `helena@nexus.demo`   | Operador      | calendário, tarefas e Prestadores  |
 | `caio@nexus.demo`     | Visualizador  | visão geral, Prestadores e Contas  |
 | `bianca@nexus.demo`   | —             | conta inativa (o login é recusado) |
 
@@ -57,7 +57,7 @@ Senhas e acesso ao portal são editados em **Prestadores → Cadastro e acesso**
 | Portal | `/portal/login`, `/portal`, `/portal/recibos`, `/portal/fechamento`     |
 | Admin  | `/login` e tudo o mais (exige sessão; cada rota confere papel e módulo) |
 
-Rotas do admin, por ambiente:
+Rotas do admin:
 
 - **Escritório**:
   - `/` visão geral
@@ -66,13 +66,6 @@ Rotas do admin, por ambiente:
   - `/tarefas`
   - `/documentos`
   - `/usuarios` (só com permissão `usuarios.gerenciar`)
-- **Legal Workflow**:
-  - `/legal` painel
-  - `/legal/pipeline` kanban de 10 etapas, com prazo em dias úteis
-  - `/legal/clientes`
-  - `/legal/templates`
-  - `/legal/slas`
-  - `/legal/agente`
 - **Prestadores**:
   - `/prestadores` painel
   - `/prestadores/conferencia`: lotes por prestador × competência. Aprovar ou
@@ -88,17 +81,9 @@ Rotas do admin, por ambiente:
   - `/contas/tendencia`
   - `/contas/economia`
   - `/contas/calendario-economico`
-- **Consultoria**:
-  - `/consultoria`
-  - `/consultoria/painel`
-  - `/consultoria/cliente/:id`
-- **Particular**:
-  - `/particular` objetivos
-  - `/particular/financeiro`
 
-Ao entrar num módulo (Legal, Prestadores, Contas), a barra lateral troca para o
-menu dele e ganha o link "Voltar ao escritório". Ambientes são escolhidos em
-"Trocar ambiente" no rodapé da barra.
+Ao entrar num módulo (Prestadores, Contas), a barra lateral troca para o menu
+dele e ganha o link "Voltar ao escritório".
 
 ## Arquitetura
 
@@ -117,7 +102,7 @@ client/src/
 ```
 
 - **Coleções.** Cada conjunto de dados é uma coleção, como `recibos`,
-  `fechamentos`, `processos` ou `usuarios`:
+  `fechamentos`, `taxas` ou `usuarios`:
   - É lida do depósito uma vez.
   - Fica num envelope `{versao, dados}`. Mudar a versão da semente reidrata a
     demonstração.
@@ -127,7 +112,7 @@ client/src/
   Portal e admin usam as mesmas coleções, e é isso que os integra. Ligar um
   backend é trocar o `Motor`.
 
-- **Regras puras.** Prazos, alertas, lotes de conferência, spreads e
+- **Regras puras.** Agenda, vencimentos, lotes de conferência, spreads e
   rankings ficam em `modulos/*/regras.ts`, sem React. Os testes ficam em
   `server/admin.regras.test.ts`, `server/colecao.test.ts` e
   `server/portal*.test.ts`.
@@ -181,12 +166,10 @@ qualquer hosting estático funciona.
   prefixo `nexus:v1:`. O login compara as credenciais de demonstração no
   cliente. O scaffold tRPC/Drizzle do template continua no repositório, ainda
   não ligado às telas.
-- **Financeiro do escritório não foi portado.** O próprio app legado o marca
-  como removido. O "Financeiro" que existe é o pessoal, no ambiente Particular.
-- **Funções marcadas "em construção":**
-  - O Agente IA do Legal.
-  - O armazenamento do conteúdo dos arquivos (só os metadados são guardados).
-  - O envio real de e-mails (os templates geram a prévia e registram a
-    comunicação no processo).
+- **Módulos que não fazem parte do sistema:** Legal Workflow, Consultoria e
+  Particular foram retirados. O Financeiro do escritório também não existe — o
+  próprio app legado o marca como removido.
+- **Em construção:** o armazenamento do conteúdo dos arquivos (Documentos e
+  Arquivos de prestadores guardam só os metadados).
 - **Os dados de demonstração são fictícios:** clientes, prestadores, taxas e
   pessoas.

@@ -1592,34 +1592,13 @@ textarea.field-input {
   }
 }
 
-/* Abas dentro de uma superfície (detalhe de caso, de cliente). */
-.tab-row {
-  display: flex;
-  gap: 4px;
-  margin: 0 0 18px;
-  border-bottom: 1px solid var(--divider);
-  overflow-x: auto;
-}
-.tab {
-  min-height: 38px;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  padding: 0 12px;
-  color: var(--muted-foreground);
-  background: transparent;
-  font: 700 12.5px/1 var(--font-display);
-  white-space: nowrap;
-}
-.tab:hover {
-  color: var(--foreground);
-}
-.tab-active,
-.tab-active:hover {
-  color: var(--action);
-  border-bottom-color: var(--action);
+/* KPIs em quantidade variável (dependem dos módulos da pessoa): as colunas
+   acompanham o número de cartões, sem buraco no fim da linha. */
+.kpi-grid.kpi-grid-fluido {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 
-/* Quadro em colunas (tarefas, pipeline, contas). Rola na horizontal dentro
+/* Quadro em colunas (tarefas, contas). Rola na horizontal dentro
    de si mesmo — a página nunca. */
 .board {
   display: grid;
@@ -1949,23 +1928,6 @@ button.board-card:hover {
 .switch[aria-checked="true"]::after {
   transform: translateX(16px);
 }
-.email-preview {
-  white-space: pre-wrap;
-  border: 1px solid var(--divider);
-  border-radius: 6px;
-  padding: 16px;
-  color: var(--foreground);
-  background: var(--subtle);
-  font-size: 13.5px;
-  line-height: 1.6;
-}
-.var-token {
-  border-radius: 4px;
-  padding: 0 4px;
-  color: var(--action);
-  background: var(--highlight);
-  font: 600 0.9em var(--font-mono);
-}
 .avatar-sm {
   width: 22px;
   height: 22px;
@@ -2021,12 +1983,3 @@ button.board-card:hover {
   }
 }
 
-/* Lista à esquerda, detalhe à direita (templates). */
-.grid-aside {
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
-}
-@media (max-width: 1080px) {
-  .grid-aside {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}

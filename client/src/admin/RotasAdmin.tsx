@@ -24,13 +24,6 @@ const PAGINAS: Pagina[] = [
   { padrao: "/documentos", titulo: "Documentos", Componente: lazy(() => import("./paginas/Documentos")) },
   { padrao: "/usuarios", titulo: "Usuários e acessos", Componente: lazy(() => import("./paginas/Usuarios")) },
 
-  { padrao: "/legal", titulo: "Painel", Componente: lazy(() => import("./paginas/legal/PainelLegal")) },
-  { padrao: "/legal/pipeline", titulo: "Pipeline", Componente: lazy(() => import("./paginas/legal/Pipeline")) },
-  { padrao: "/legal/clientes", titulo: "Clientes", Componente: lazy(() => import("./paginas/legal/ClientesLegal")) },
-  { padrao: "/legal/templates", titulo: "Templates de e-mail", Componente: lazy(() => import("./paginas/legal/Templates")) },
-  { padrao: "/legal/slas", titulo: "SLAs e automações", Componente: lazy(() => import("./paginas/legal/Slas")) },
-  { padrao: "/legal/agente", titulo: "Agente IA", Componente: lazy(() => import("./paginas/legal/Agente")) },
-
   { padrao: "/prestadores", titulo: "Painel", Componente: lazy(() => import("./paginas/prestadores/PainelPrestadores")) },
   { padrao: "/prestadores/conferencia", titulo: "Conferência", Componente: lazy(() => import("./paginas/prestadores/Conferencia")) },
   { padrao: "/prestadores/historico", titulo: "Histórico de recibos", Componente: lazy(() => import("./paginas/prestadores/Historico")) },
@@ -49,16 +42,6 @@ const PAGINAS: Pagina[] = [
     Componente: lazy(() => import("./paginas/contas/CalendarioEconomico")),
   },
 
-  { padrao: "/consultoria", titulo: "Clientes", Componente: lazy(() => import("./paginas/consultoria/ClientesConsultoria")) },
-  { padrao: "/consultoria/painel", titulo: "Painel", Componente: lazy(() => import("./paginas/consultoria/PainelConsultoria")) },
-  {
-    padrao: "/consultoria/cliente/:id",
-    titulo: "Cliente",
-    Componente: lazy(() => import("./paginas/consultoria/DetalheCliente")),
-  },
-
-  { padrao: "/particular", titulo: "Objetivos", Componente: lazy(() => import("./paginas/particular/Objetivos")) },
-  { padrao: "/particular/financeiro", titulo: "Financeiro", Componente: lazy(() => import("./paginas/particular/FinanceiroPessoal")) },
 ];
 
 function Carregando() {
@@ -82,7 +65,7 @@ export default function RotasAdmin() {
   const modulo = moduloDaRota(caminho);
 
   // A visão geral é o destino padrão; quem não a vê cai na primeira área que vê.
-  if (caminho === "/" && !veModulo(usuario, "visao")) return <Redirect to={rotaInicial(usuario, "escritorio")} />;
+  if (caminho === "/" && !veModulo(usuario, "visao")) return <Redirect to={rotaInicial(usuario)} />;
 
   const semAcesso =
     (modulo !== null && !veModulo(usuario, modulo)) ||

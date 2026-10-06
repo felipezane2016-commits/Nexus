@@ -1,8 +1,7 @@
-import type { ClienteLegal, Processo } from "@/modulos/legal/tipos";
 import type { TarefaConta } from "@/modulos/contas/tipos";
 import type { Reuniao } from "./tipos";
 
-export type TipoEvento = "Reunião" | "Pagamento" | "Procuração";
+export type TipoEvento = "Reunião" | "Pagamento";
 
 export type EventoAgenda = {
   id: string;
@@ -17,17 +16,14 @@ export type EventoAgenda = {
 type Fontes = {
   reunioes: Reuniao[];
   tarefasContas: TarefaConta[];
-  processos: Processo[];
-  clientesLegal: ClienteLegal[];
 };
 
 /**
  * A agenda não tem dono próprio: é o cruzamento das reuniões com os
- * vencimentos de contas a pagar e de procurações. Assim o calendário nunca
+ * vencimentos de contas a pagar. Assim o calendário nunca
  * fica desatualizado em relação aos módulos.
  */
-export function montarAgenda({ reunioes, tarefasContas, processos, clientesLegal }: Fontes): EventoAgenda[] {
-  const nomeCliente = new Map(clientesLegal.map((cliente) => [cliente.id, cliente.razaoBrasil]));
+export function montarAgenda({ reunioes, tarefasContas }: Fontes): EventoAgenda[] {
   const eventos: EventoAgenda[] = [
     ...reunioes.map((reuniao) => ({
       id: reuniao.id,
@@ -48,17 +44,6 @@ export function montarAgenda({ reunioes, tarefasContas, processos, clientesLegal
         titulo: tarefa.nome,
         detalhe: tarefa.categoria,
         destino: "/contas",
-      })),
-    ...processos
-      .filter((processo) => processo.vencimento && processo.etapa !== "finalizado")
-      .map((processo) => ({
-        id: processo.id,
-        data: processo.vencimento as string,
-        hora: null,
-        tipo: "Procuração" as const,
-        titulo: `Vence procuração — ${nomeCliente.get(processo.clienteId) ?? "cliente"}`,
-        detalhe: `${processo.id} · ${processo.tipo}`,
-        destino: "/legal/pipeline",
       })),
   ];
   return eventos.sort((a, b) => (a.data + (a.hora ?? "99")).localeCompare(b.data + (b.hora ?? "99")));

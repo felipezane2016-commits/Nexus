@@ -27,11 +27,11 @@ const NOTIFICACOES_DEMO: Notificacao[] = [
   {
     id: "not-2",
     tipo: "atencao",
-    titulo: "Procuração vence em 25 dias",
-    corpo: "Nordhaven Holdings — procuração societária vence em 31/07/2026.",
+    titulo: "Recibo devolvido sem correção",
+    corpo: "Marina Corrêa Diligências — REC-0144 foi devolvido e ainda não voltou corrigido.",
     quando: "2026-06-26T09:10:00.000Z",
     lida: false,
-    destino: "/legal",
+    destino: "/prestadores/historico",
   },
   {
     id: "not-3",

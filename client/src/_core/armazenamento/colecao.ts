@@ -15,7 +15,7 @@ import { gravar, ler } from "./deposito";
  */
 
 /** Trocar este número renova a demonstração de todas as coleções. */
-export const VERSAO_DA_SEMENTE = 2;
+export const VERSAO_DA_SEMENTE = 3;
 
 type Envelope<T> = { versao: number; dados: T };
 

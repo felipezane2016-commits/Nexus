@@ -63,7 +63,7 @@ export default function Economia() {
           </div>
         </div>
       </section>
-      <div className="kpi-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }} aria-live="polite">
+      <div className="kpi-grid kpi-grid-fluido" aria-live="polite">
         <Kpi rotulo="Melhor banco" valor={bibMelhor ? "BIB" : "Itaú"} detalhe={formatarTaxa(Math.max(bib, itau))} icone={Landmark} />
         <Kpi rotulo="Pior banco" valor={bibMelhor ? "Itaú" : "BIB"} detalhe={formatarTaxa(Math.min(bib, itau))} icone={Landmark} />
         <Kpi rotulo="Economia potencial" valor={formatBRL(resultado.valor)} detalhe={`${resultado.percentual.toFixed(2).replace(".", ",")}% da operação`} icone={PiggyBank} />

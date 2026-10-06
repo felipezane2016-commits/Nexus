@@ -10,7 +10,6 @@ import Vazio from "@/admin/componentes/Vazio";
 import { tarefasContas } from "@/modulos/contas/colecoes";
 import { eventosDoDia, montarAgenda } from "@/modulos/escritorio/agenda";
 import { reunioes } from "@/modulos/escritorio/colecoes";
-import { clientesLegal, processos } from "@/modulos/legal/colecoes";
 import { CalendarCheck, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
@@ -33,8 +32,6 @@ export default function Calendario() {
   const agenda = montarAgenda({
     reunioes: useColecao(reunioes),
     tarefasContas: useColecao(tarefasContas),
-    processos: useColecao(processos),
-    clientesLegal: useColecao(clientesLegal),
   });
   const [ano, setAno] = useState(Number(HOJE.slice(0, 4)));
   const [mes, setMes] = useState(Number(HOJE.slice(5, 7)) - 1);
@@ -58,7 +55,7 @@ export default function Calendario() {
       <Cabecalho
         rotulo="Escritório"
         titulo="Calendário"
-        descricao="Reuniões, vencimentos de contas e de procurações num só calendário."
+        descricao="Reuniões e vencimentos de contas num só calendário."
         acoes={
           <>
             <button type="button" className="icon-button" aria-label="Mês anterior" onClick={() => mudarMes(-1)}>
@@ -84,7 +81,6 @@ export default function Calendario() {
           <div className="inline-row" style={{ marginBottom: 14 }}>
             <Selo tom="blue">Reunião</Selo>
             <Selo tom="amber">Pagamento</Selo>
-            <Selo tom="red">Procuração</Selo>
           </div>
           <div className="calendar-grid">
             {DIAS_SEMANA.map((dia) => (

@@ -1,13 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { ambientesDisponiveis, pode, veModulo, type Usuario } from "../client/src/_core/identidade/permissoes";
-import { diasUteisEntre } from "../client/src/_core/tempo";
+import { pode, veModulo, type Usuario } from "../client/src/_core/identidade/permissoes";
 import type { Closing, Receipt } from "../client/src/lib/portal";
 import { economiaPotencial, mediaMovel, spread, tendencia } from "../client/src/modulos/contas/regras";
 import type { Taxa, TarefaConta } from "../client/src/modulos/contas/tipos";
 import { montarAgenda, vencendoEmBreve } from "../client/src/modulos/escritorio/agenda";
-import { SLA_DEMO } from "../client/src/modulos/legal/dadosMock";
-import { alertas, preencherTemplate, prazoRestante, situacaoPrazo } from "../client/src/modulos/legal/regras";
-import type { ClienteLegal, Processo } from "../client/src/modulos/legal/tipos";
 import { codigoDisponivel, montarLotes, podeFinalizarConferencia, podeMarcarPago, rankingPrestadores } from "../client/src/modulos/prestadores/regras";
 import type { Prestador } from "../client/src/modulos/prestadores/tipos";
 
@@ -79,47 +75,6 @@ describe("Conferência de recibos", () => {
   });
 });
 
-describe("Legal Workflow", () => {
-  const base: Processo = {
-    id: "PR-1", clienteId: "cl", tipo: "Geral", responsavel: "", vencimento: null, comQuem: "escritorio", traducao: false,
-    observacoes: "", etapa: "minuta", etapaDesde: "2026-06-25", criadoEm: "2026-06-01", ultimaAtividade: "2026-06-29", comunicacoes: [],
-  };
-  const clientes: ClienteLegal[] = [{ id: "cl", razaoBrasil: "Empresa", cnpjBrasil: "", razaoExterior: "", cnpjExterior: "", emails: "", pais: "", responsavel: "" }];
-
-  it("conta dias úteis, pulando fim de semana", () => {
-    // 26/06/2026 é sexta; até terça 30/06 são 2 dias úteis.
-    expect(diasUteisEntre("2026-06-26", "2026-06-30")).toBe(2);
-  });
-
-  it("classifica o prazo da etapa em dia, em risco e atrasado", () => {
-    // Minuta tem SLA de 3 dias úteis; de 25/06 a 30/06 passaram 3.
-    expect(prazoRestante(base, SLA_DEMO, HOJE)).toBe(0);
-    expect(situacaoPrazo(base, SLA_DEMO, HOJE)).toBe("Em risco");
-    expect(situacaoPrazo({ ...base, etapaDesde: "2026-06-29" }, SLA_DEMO, HOJE)).toBe("Em dia");
-    expect(situacaoPrazo({ ...base, etapaDesde: "2026-06-18" }, SLA_DEMO, HOJE)).toBe("Atrasado");
-    expect(situacaoPrazo({ ...base, etapa: "finalizado" }, SLA_DEMO, HOJE)).toBe("Concluído");
-  });
-
-  it("alerta processo parado, procuração vencendo e e-mail que voltou, nessa ordem", () => {
-    const lista = alertas(
-      [
-        { ...base, id: "email", comunicacoes: [{ id: "1", data: HOJE, tipo: "email_retornado", descricao: "", autor: "" }] },
-        { ...base, id: "vence", vencimento: "2026-07-20" },
-        { ...base, id: "parado", ultimaAtividade: "2026-06-20" },
-        { ...base, id: "fim", etapa: "finalizado", ultimaAtividade: "2026-01-01" },
-      ],
-      clientes,
-      HOJE,
-    );
-    expect(lista.map((alerta) => alerta.processo.id)).toEqual(["parado", "vence", "email"]);
-    expect(lista[1].gravidade).toBe("alta");
-  });
-
-  it("preenche o template e deixa à mostra a variável sem valor", () => {
-    expect(preencherTemplate("Olá {{nome}}, prazo {{prazo}}", { nome: "Ana" })).toBe("Olá Ana, prazo {{prazo}}");
-  });
-});
-
 describe("Banco Industrial", () => {
   const taxa = (bibUsd: number, itauUsd: number): Taxa => ({ id: "t", data: HOJE, horario: "10:00", bibUsd, bibEur: 6, itauUsd, itauEur: 6, observacao: "" });
 
@@ -151,12 +106,10 @@ describe("Agenda", () => {
     id, nome: id, categoria: "Impostos", concluida, vencimento, periodo: "", observacoes: "",
   });
 
-  it("junta reuniões, contas a pagar pendentes e procurações ativas", () => {
+  it("junta reuniões e contas a pagar pendentes", () => {
     const agenda = montarAgenda({
       reunioes: [{ id: "r", titulo: "Reunião", data: HOJE, hora: "09:00", local: "", participantes: "", pauta: "" }],
       tarefasContas: [tarefa("paga", HOJE, true), tarefa("aberta", HOJE)],
-      processos: [],
-      clientesLegal: [],
     });
     expect(agenda.map((evento) => evento.id)).toEqual(["r", "aberta"]);
   });
@@ -181,14 +134,9 @@ describe("Permissões", () => {
   });
 
   it("o módulo decide onde ela entra; inativo não entra em nada", () => {
-    expect(veModulo(usuario("admin", ["legal"]), "legal")).toBe(true);
-    expect(veModulo(usuario("admin", ["legal"]), "contas")).toBe(false);
-    expect(veModulo(usuario("admin", ["legal"], false), "legal")).toBe(false);
-    expect(pode(usuario("admin", ["legal"], false), "registros.editar")).toBe(false);
-  });
-
-  it("só oferece os ambientes em que a pessoa tem algum módulo", () => {
-    expect(ambientesDisponiveis(usuario("operador", ["legal"]))).toEqual(["escritorio"]);
-    expect(ambientesDisponiveis(usuario("admin", ["visao", "consultoria", "particular"]))).toEqual(["escritorio", "consultoria", "particular"]);
+    expect(veModulo(usuario("admin", ["prestadores"]), "prestadores")).toBe(true);
+    expect(veModulo(usuario("admin", ["prestadores"]), "contas")).toBe(false);
+    expect(veModulo(usuario("admin", ["prestadores"], false), "prestadores")).toBe(false);
+    expect(pode(usuario("admin", ["prestadores"], false), "registros.editar")).toBe(false);
   });
 });

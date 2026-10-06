@@ -6,7 +6,7 @@ export const COLUNAS_TAREFA = [
 ] as const;
 export type ColunaTarefa = (typeof COLUNAS_TAREFA)[number]["chave"];
 export type Prioridade = "Alta" | "Média" | "Baixa";
-export const AREAS_TAREFA = ["Legal", "Prestadores", "Financeiro", "Geral"] as const;
+export const AREAS_TAREFA = ["Prestadores", "Financeiro", "Geral"] as const;
 export type AreaTarefa = (typeof AREAS_TAREFA)[number];
 
 export type Tarefa = {

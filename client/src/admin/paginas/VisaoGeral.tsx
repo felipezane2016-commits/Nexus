@@ -10,14 +10,12 @@ import { formatBRL } from "@/lib/portal";
 import { tarefasContas } from "@/modulos/contas/colecoes";
 import { eventosDoDia, montarAgenda, vencendoEmBreve, type TipoEvento } from "@/modulos/escritorio/agenda";
 import { reunioes } from "@/modulos/escritorio/colecoes";
-import { useDadosLegal } from "@/modulos/legal/colecoes";
-import { alertas } from "@/modulos/legal/regras";
 import { montarLotes } from "@/modulos/prestadores/regras";
 import { useDadosPrestadores } from "@/modulos/prestadores/usarDados";
-import { AlertTriangle, ArrowRight, CalendarCheck, CalendarDays, ClipboardCheck, Clock3, Scale } from "lucide-react";
+import { ArrowRight, CalendarCheck, CalendarDays, ClipboardCheck, Clock3 } from "lucide-react";
 import { useLocation } from "wouter";
 
-export const TOM_EVENTO: Record<TipoEvento, Tom> = { Reunião: "blue", Pagamento: "amber", Procuração: "red" };
+export const TOM_EVENTO: Record<TipoEvento, Tom> = { Reunião: "blue", Pagamento: "amber" };
 
 function saudacao(nome: string) {
   return `Bom dia, ${nome.split(" ")[0]}`;
@@ -28,20 +26,17 @@ export default function VisaoGeral() {
   const [, navegar] = useLocation();
   const listaReunioes = useColecao(reunioes);
   const contas = useColecao(tarefasContas);
-  const legal = useDadosLegal();
   const prestadores = useDadosPrestadores();
 
   if (!usuario) return null;
-  const agenda = montarAgenda({ reunioes: listaReunioes, tarefasContas: contas, processos: legal.processos, clientesLegal: legal.clientes });
+  const agenda = montarAgenda({ reunioes: listaReunioes, tarefasContas: contas });
   const hoje = eventosDoDia(agenda, HOJE);
   const emBreve = vencendoEmBreve(contas, HOJE, somarDias(HOJE, 7));
-  const avisosLegal = alertas(legal.processos, legal.clientes, HOJE);
   const lotes = montarLotes(prestadores.recibos, prestadores.fechamentos, prestadores.prestadores).filter(
     (lote) => lote.situacao === "Aguardando conferência" || lote.pendentes > 0,
   );
 
   const veContas = veModulo(usuario, "contas");
-  const veLegal = veModulo(usuario, "legal");
   const vePrestadores = veModulo(usuario, "prestadores");
   const veCalendario = veModulo(usuario, "calendario");
 
@@ -53,15 +48,12 @@ export default function VisaoGeral() {
         descricao="O que vence, o que espera decisão e a agenda do dia — de todos os módulos que você acompanha."
       />
 
-      <div className="kpi-grid">
+      <div className="kpi-grid kpi-grid-fluido">
         {veContas ? (
           <Kpi rotulo="Vencendo em 7 dias" valor={String(emBreve.length)} detalhe="contas e tributos pendentes" icone={Clock3} aoClicar={() => navegar("/contas")} />
         ) : null}
         {veCalendario ? (
           <Kpi rotulo="Eventos hoje" valor={String(hoje.length)} detalhe="reuniões e vencimentos" icone={CalendarDays} aoClicar={() => navegar("/calendario")} />
-        ) : null}
-        {veLegal ? (
-          <Kpi rotulo="Alertas do Legal" valor={String(avisosLegal.length)} detalhe="processos pedem atenção" icone={Scale} aoClicar={() => navegar("/legal")} />
         ) : null}
         {vePrestadores ? (
           <Kpi
@@ -133,37 +125,6 @@ export default function VisaoGeral() {
                     <span className="field-hint">e mais {emBreve.length - 6}</span>
                   </li>
                 ) : null}
-              </ul>
-            )}
-          </section>
-        ) : null}
-
-        {veLegal ? (
-          <section className="operations-surface">
-            <div className="section-header">
-              <div>
-                <span className="eyebrow">Legal Workflow</span>
-                <h3>Alertas ativos</h3>
-              </div>
-              <button type="button" className="text-button" onClick={() => navegar("/legal")}>
-                Abrir painel <ArrowRight size={13} strokeWidth={2.2} />
-              </button>
-            </div>
-            {avisosLegal.length === 0 ? (
-              <Vazio icone={Scale} titulo="Nenhum alerta no momento" />
-            ) : (
-              <ul className="item-list">
-                {avisosLegal.slice(0, 5).map((alerta, indice) => (
-                  <li className="item-row" key={indice}>
-                    <span className="risk-icon" style={{ width: 26, height: 26 }}>
-                      <AlertTriangle size={14} strokeWidth={2} />
-                    </span>
-                    <div className="item-row-copy">
-                      <strong>{alerta.titulo}</strong>
-                      <span>{alerta.descricao}</span>
-                    </div>
-                  </li>
-                ))}
               </ul>
             )}
           </section>

@@ -5,7 +5,7 @@ import { useState, type FormEvent } from "react";
 import { Link, Redirect, useLocation } from "wouter";
 
 const GARANTIAS = [
-  { titulo: "Um lugar para a operação", texto: "Legal, prestadores, contas e agenda no mesmo ambiente." },
+  { titulo: "Um lugar para a operação", texto: "Prestadores, contas e agenda no mesmo lugar." },
   { titulo: "Cada um vê o que precisa", texto: "Papel e módulos definem o que aparece para cada pessoa." },
   { titulo: "Ligado ao portal", texto: "O que o prestador envia chega direto na conferência." },
 ];
@@ -45,7 +45,7 @@ export default function Entrar() {
           <h1>
             A operação do escritório, <em>num só lugar</em>.
           </h1>
-          <p>Processos, prestadores, contas e agenda com o histórico de quem decidiu o quê.</p>
+          <p>Prestadores, contas e agenda com o histórico de quem decidiu o quê.</p>
         </div>
         <ul className="acesso-pontos">
           {GARANTIAS.map((item) => (
