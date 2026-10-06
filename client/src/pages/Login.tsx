@@ -3,6 +3,7 @@ import { DEMO_CREDENTIALS } from "@/lib/portalSeed";
 import { AlertCircle, CheckCircle2, Eye, EyeOff, Info } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link, useLocation } from "wouter";
+import Marca from "@/components/Marca";
 
 const GARANTIAS = [
   {
@@ -48,10 +49,7 @@ export default function Login() {
     <div className="acesso">
       <section className="acesso-painel">
         <div className="brand-row">
-          <span className="brand-mark" aria-hidden="true">
-            N
-          </span>
-          <span className="brand-copy">Nexus Portal do Prestador</span>
+          <Marca legenda="Portal do Prestador" />
         </div>
 
         <div>
@@ -171,7 +169,7 @@ export default function Login() {
           </form>
 
           <p className="acesso-rodape">
-            É do escritório? <Link href="~/login">Entrar no Nexus Escritório</Link>
+            É do escritório? <Link href="~/login">Entrar no escritório</Link>
           </p>
         </div>
       </section>

@@ -3,6 +3,7 @@ import { entrar, USUARIOS_DEMO, useUsuarioAtual } from "@/_core/identidade/sessa
 import { AlertCircle, CheckCircle2, Eye, EyeOff, Info } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link, Redirect, useLocation } from "wouter";
+import Marca from "@/components/Marca";
 
 const GARANTIAS = [
   { titulo: "Um lugar para a operação", texto: "Prestadores, contas e agenda no mesmo lugar." },
@@ -35,10 +36,7 @@ export default function Entrar() {
     <div className="acesso">
       <section className="acesso-painel">
         <div className="brand-row">
-          <span className="brand-mark" aria-hidden="true">
-            N
-          </span>
-          <span className="brand-copy">Nexus Escritório</span>
+          <Marca legenda="Escritório" />
         </div>
         <div>
           <span className="eyebrow">Plataforma de inteligência operacional</span>

@@ -9,6 +9,7 @@ import { ArrowLeft, Bell, LogOut, Menu, Moon, Sun, X } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useLocation } from "wouter";
 import { itemAtivo, MENU_ESCRITORIO, menuDaRota, type Contador, type Grupo, type ItemMenu } from "./menu";
+import Marca from "@/components/Marca";
 
 /** Primeira rota que a pessoa pode abrir no escritório. */
 export function rotaInicial(usuario: Usuario) {
@@ -73,10 +74,7 @@ export default function CascaAdmin({ usuario, titulo, children }: Props) {
     <div className="app-shell">
       <aside className={menuAberto ? "sidebar sidebar-aberta" : "sidebar"} aria-label="Navegação principal">
         <div className="brand-row">
-          <span className="brand-mark" aria-hidden="true">
-            N
-          </span>
-          <span className="brand-copy">Nexus Escritório</span>
+          <Marca legenda="Escritório" />
           <button type="button" className="icon-button sidebar-close" aria-label="Fechar menu" onClick={() => setMenuAberto(false)}>
             <X size={17} strokeWidth={2} />
           </button>

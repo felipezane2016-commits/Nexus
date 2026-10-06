@@ -12,8 +12,9 @@ import {
 } from "recharts";
 
 /**
- * Gráficos do admin. Cores só de --serie-1/--serie-2 (validadas para daltonismo
- * e contraste no claro e no escuro); texto sempre em token de texto, nunca na
+ * Gráficos do admin. Cores só de --serie-1/--serie-2 (laranja e preto da logo,
+ * que se separam pela luminosidade); a 2ª série também é tracejada, para a
+ * identidade não depender só da cor. Texto sempre em token de texto, nunca na
  * cor da série; grade recessiva; uma escala só (nada de eixo duplo).
  */
 
@@ -82,6 +83,7 @@ type LinhasProps = {
 /** Até duas séries no tempo: legenda sempre, rótulo direto no último ponto. */
 export function GraficoLinhas({ dados, chaveX, series, formatar, rotulo, dominio }: LinhasProps) {
   const cores = ["var(--serie-1)", "var(--serie-2)"];
+  const tracos = [undefined, "6 4"];
   const ultimo = dados.length - 1;
   return (
     <figure style={{ margin: 0 }}>
@@ -89,7 +91,9 @@ export function GraficoLinhas({ dados, chaveX, series, formatar, rotulo, dominio
         <div className="chart-legend">
           {series.map((serie, indice) => (
             <span key={serie.chave}>
-              <span className="chart-swatch" style={{ background: cores[indice] }} aria-hidden="true" />
+              <svg className="chart-swatch" viewBox="0 0 16 4" aria-hidden="true">
+                <line x1="0" y1="2" x2="16" y2="2" stroke={cores[indice]} strokeWidth={2.5} strokeDasharray={tracos[indice] ? "4 3" : undefined} />
+              </svg>
               {serie.nome}
             </span>
           ))}
@@ -110,6 +114,7 @@ export function GraficoLinhas({ dados, chaveX, series, formatar, rotulo, dominio
                 name={serie.nome}
                 stroke={cores[indice]}
                 strokeWidth={2}
+                strokeDasharray={tracos[indice]}
                 dot={false}
                 activeDot={{ r: 4, stroke: "var(--card)", strokeWidth: 2 }}
                 isAnimationActive={false}

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { useLocation } from "wouter";
+import Marca from "@/components/Marca";
 
 const NAV_ITEMS = [
   { path: "/", label: "Visão geral", icon: LayoutDashboard },
@@ -63,10 +64,7 @@ export default function PortalShell({
         aria-label="Navegação principal"
       >
         <div className="brand-row">
-          <span className="brand-mark" aria-hidden="true">
-            N
-          </span>
-          <span className="brand-copy">Nexus Portal do Prestador</span>
+          <Marca legenda="Portal do Prestador" />
           <button
             type="button"
             className="icon-button sidebar-close"

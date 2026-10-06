@@ -2,115 +2,122 @@
 @import "tailwindcss";
 
 /*
- * Folha única do Portal do Prestador, no modelo "Design e Arquitetura".
- * Duas cores de marca — Horizon #67a4bf e Ivory #f3f1e2 — expandidas em
- * famílias. O --horizon puro é superfície e acento, nunca texto nem fundo de
- * botão: branco sobre ele dá 2,75:1. Quem clica e quem lê usa o 600 e o 700.
+ * Folha única do PNST Administrativo (admin + Portal do Prestador), no modelo
+ * "Design e Arquitetura", com a paleta da logo do escritório: o laranja PNST
+ * #F16122, o branco e o preto. Nada além disso tem matiz — os neutros são
+ * cinzas puros (croma zero) e não há tons derivados do laranja.
+ *
+ * Contraste: sobre branco o laranja dá 3,2:1, então nunca é texto pequeno;
+ * vira preenchimento com texto preto (5,7:1), borda, marcador ou sublinhado.
+ * No escuro ele também pode ser texto (5,4:1 sobre o cartão).
  */
 :root {
-  --horizon-50: #edf4f7;
-  --horizon-100: #dce9ef;
-  --horizon-200: #c1d8e2;
-  --horizon-300: #9fc1d0;
-  --horizon: #67a4bf;
-  --horizon-600: #3b7791;
-  --horizon-700: #2c596d;
-  --horizon-800: #22414f;
-  --horizon-900: #182930;
+  --laranja: #f16122;
+  --preto: #141414;
+  --branco: #ffffff;
+  --cinza-50: #fafafa;
+  --cinza-100: #f5f5f5;
+  --cinza-150: #efefef;
+  --cinza-200: #e8e8e8;
+  --cinza-300: #d4d4d4;
+  --cinza-400: #a6a6a6;
+  --cinza-500: #8c8c8c;
+  --cinza-600: #6b6b6b;
+  --cinza-700: #595959;
 
-  --ivory: #f3f1e2;
-  --warm-50: #f9f8f3;
-  --warm-100: #f2f1eb;
-  --warm-200: #e6e5de;
-  --warm-300: #d1d0c7;
-  --warm-400: #8d8a79;
-  --warm-500: #6f6d62;
-  --warm-600: #59584f;
-  --warm-700: #41403a;
+  --background: var(--cinza-100);
+  --foreground: var(--preto);
+  --card: var(--branco);
+  --card-border: var(--cinza-200);
+  --border: var(--cinza-300);
+  --border-hover: var(--cinza-400);
+  --subtle: var(--cinza-50);
+  --divider: var(--cinza-150);
+  --muted-foreground: var(--cinza-700);
+  --tertiary-foreground: var(--cinza-600);
+  --icon-muted: var(--cinza-500);
+  --ring: var(--laranja);
+  /* Ação = preenchimento laranja com texto preto; no hover vira preto. */
+  --action: var(--laranja);
+  --on-action: var(--preto);
+  --action-pressed: var(--preto);
+  --on-action-pressed: var(--branco);
+  /* Texto de link/acento: preto no claro (sublinhado laranja), laranja no escuro. */
+  --link: var(--preto);
+  --highlight: var(--cinza-150);
+  --highlight-border: var(--cinza-300);
+  --sidebar-bg: var(--preto);
+  --sidebar-fg: rgba(255, 255, 255, 0.72);
+  --risk-bg: var(--branco);
+  --risk-border: var(--laranja);
 
-  /* Tokens semânticos: os únicos que o modo escuro redefine. */
-  --background: var(--ivory);
-  --foreground: var(--horizon-900);
-  --card: #ffffff;
-  --card-border: #e9e8e3;
-  --border: var(--warm-300);
-  --subtle: var(--warm-50);
-  --divider: var(--warm-100);
-  --muted-foreground: var(--warm-600);
-  --tertiary-foreground: var(--warm-500);
-  --icon-muted: var(--warm-400);
-  --ring: var(--horizon-600);
-  --action: var(--horizon-700);
-  --action-pressed: var(--horizon-800);
-  --highlight: var(--horizon-50);
-  --highlight-border: var(--horizon-200);
-  --sidebar-bg: var(--horizon-900);
-  --risk-bg: #faf6ea;
-  --risk-border: #ece3c8;
+  /* Status: só preto, cinza, branco e laranja. O tipo de preenchimento é que
+     diferencia — concluído preto, bloqueado laranja, atenção com contorno
+     laranja, em andamento com contorno cinza, neutro cinza. */
+  --status-green-fg: var(--preto);
+  --status-green-bg: var(--cinza-150);
+  --status-green-mark: var(--preto);
+  --status-blue-fg: var(--preto);
+  --status-blue-bg: var(--branco);
+  --status-blue-mark: var(--cinza-500);
+  --status-amber-fg: var(--preto);
+  --status-amber-bg: var(--branco);
+  --status-amber-mark: var(--laranja);
+  --status-red-fg: var(--preto);
+  --status-red-bg: var(--laranja);
+  --status-red-mark: var(--laranja);
+  --status-neutral-fg: var(--cinza-700);
+  --status-neutral-bg: var(--cinza-150);
+  --status-neutral-mark: var(--cinza-400);
+  /* Texto solto que precisa chamar atenção (prazo vencido, excluir). */
+  --texto-alerta: var(--preto);
 
-  --status-green-fg: #4e886d;
-  --status-green-bg: #edf8f2;
-  --status-blue-fg: #316b84;
-  --status-blue-bg: #ecf4f8;
-  --status-amber-fg: #a66d25;
-  --status-amber-bg: #fff5e4;
-  --status-red-fg: #a74743;
-  --status-red-bg: #fff0ef;
-  --status-neutral-fg: #7c7b6f;
-  --status-neutral-bg: #f3f3f1;
-
-  --chart-1: #2c596d;
-  --chart-2: #67a4bf;
-  --chart-3: #7ba98d;
-  --chart-4: #cfa05c;
-  --chart-5: #c2695f;
-
-  --shadow-card: 0 5px 16px rgba(24, 41, 48, 0.025);
-  --shadow-float: 0 22px 60px rgba(24, 41, 48, 0.16);
+  --shadow-card: 0 5px 16px rgba(0, 0, 0, 0.03);
+  --shadow-float: 0 22px 60px rgba(0, 0, 0, 0.18);
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 
   --font-display: "DM Sans", system-ui, sans-serif;
   --font-body: "Source Sans 3", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
-  /* Nomes antigos do modelo, mantidos como apelidos. Código novo usa os novos. */
-  --cobalt: var(--horizon-700);
-  --navy: var(--horizon-900);
-  --paper: var(--ivory);
+  /* Nomes antigos usados pelo template. */
+  --cobalt: var(--preto);
+  --navy: var(--preto);
+  --paper: var(--background);
 }
 
 .dark {
-  --background: #0c191f;
-  --paper: #0c191f;
-  --foreground: #e2eff4;
-  --card: #182930;
-  --card-border: #263d47;
-  --border: #263d47;
-  --subtle: #13232a;
-  --divider: #1f343d;
-  --muted-foreground: #aaa897;
-  --tertiary-foreground: #949282;
-  --icon-muted: #7f7d6f;
-  --ring: #6aacc8;
-  --action: #6aacc8;
-  --action-pressed: #8cc0d6;
-  --highlight: #1d3640;
-  --highlight-border: #2e4f5c;
-  --sidebar-bg: #0f2027;
-  --risk-bg: #2a2619;
-  --risk-border: #4a412a;
-  --status-green-fg: #8cc7a8;
-  --status-green-bg: #18322a;
-  --status-blue-fg: #8cc0d6;
-  --status-blue-bg: #17303a;
-  --status-amber-fg: #e2b36e;
-  --status-amber-bg: #33281a;
-  --status-red-fg: #e59a95;
-  --status-red-bg: #3a1f1e;
-  --status-neutral-fg: #b3b1a4;
-  --status-neutral-bg: #23302f;
-  --shadow-card: 0 5px 16px rgba(0, 0, 0, 0.2);
-  --shadow-float: 0 22px 60px rgba(0, 0, 0, 0.45);
+  --background: #0d0d0d;
+  --paper: #0d0d0d;
+  --foreground: #f2f2f2;
+  --card: #1a1a1a;
+  --card-border: #2b2b2b;
+  --border: #333333;
+  --border-hover: #5c5c5c;
+  --subtle: #141414;
+  --divider: #242424;
+  --muted-foreground: #b3b3b3;
+  --tertiary-foreground: #9a9a9a;
+  --icon-muted: #808080;
+  --link: var(--laranja);
+  --highlight: #262626;
+  --highlight-border: #3a3a3a;
+  --sidebar-bg: #000000;
+  --risk-bg: #1a1a1a;
+  --status-green-fg: #f2f2f2;
+  --status-green-bg: #262626;
+  --status-green-mark: #f2f2f2;
+  --status-blue-fg: #f2f2f2;
+  --status-blue-bg: #1a1a1a;
+  --status-blue-mark: #6b6b6b;
+  --status-amber-fg: #f2f2f2;
+  --status-amber-bg: #1a1a1a;
+  --status-neutral-fg: #b3b3b3;
+  --status-neutral-bg: #262626;
+  --status-neutral-mark: #6b6b6b;
+  --texto-alerta: var(--laranja);
+  --shadow-card: 0 5px 16px rgba(0, 0, 0, 0.3);
+  --shadow-float: 0 22px 60px rgba(0, 0, 0, 0.55);
 }
 
 *,
@@ -179,7 +186,7 @@ code {
   text-transform: uppercase;
 }
 .accent-eyebrow {
-  color: var(--action);
+  color: var(--link);
 }
 
 /* ── Controles ───────────────────────────────────────────────────────────── */
@@ -201,15 +208,25 @@ code {
 }
 .button-primary {
   border: 1px solid var(--action);
-  color: #fff;
+  color: var(--on-action);
   background: var(--action);
 }
-.dark .button-primary {
-  color: #0c191f;
+/* Desabilitado é cinza, não um laranja desbotado (tom que a logo não tem). */
+.button-primary:disabled {
+  border-color: var(--highlight);
+  color: var(--icon-muted);
+  background: var(--highlight);
+  opacity: 1;
 }
 .button-primary:hover:not(:disabled) {
   border-color: var(--action-pressed);
+  color: var(--on-action-pressed);
   background: var(--action-pressed);
+}
+/* No escuro o hover preto sumiria no fundo: inverte para branco. */
+.dark {
+  --action-pressed: #f2f2f2;
+  --on-action-pressed: var(--preto);
 }
 .button-secondary {
   border: 1px solid var(--border);
@@ -217,7 +234,7 @@ code {
   background: var(--card);
 }
 .button-secondary:hover:not(:disabled) {
-  border-color: var(--horizon-300);
+  border-color: var(--border-hover);
   background: var(--highlight);
 }
 .button-primary:active:not(:disabled),
@@ -233,14 +250,17 @@ code {
   gap: 5px;
   border: 0;
   padding: 0;
-  color: var(--action);
+  color: var(--link);
   background: transparent;
   font: 700 12px/1.2 var(--font-display);
+  text-decoration: underline;
+  text-decoration-color: var(--laranja);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
 }
 .text-button:hover {
-  color: var(--action-pressed);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  color: var(--link);
+  text-decoration-color: currentColor;
 }
 .icon-button {
   width: 34px;
@@ -293,11 +313,11 @@ textarea.field-input {
   resize: vertical;
 }
 .field-input:focus {
-  border-color: var(--horizon-300);
+  border-color: var(--laranja);
   box-shadow: 0 0 0 3px var(--highlight);
 }
 .field-input[aria-invalid="true"] {
-  border-color: var(--status-red-fg);
+  border-color: var(--status-red-mark);
 }
 .field-hint {
   color: var(--tertiary-foreground);
@@ -307,7 +327,7 @@ textarea.field-input {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: var(--status-red-fg);
+  color: var(--texto-alerta);
   font: 600 11.5px/1.4 var(--font-body);
 }
 .field-grid {
@@ -335,13 +355,13 @@ textarea.field-input {
 }
 .filter-chip:hover {
   color: var(--foreground);
-  border-color: var(--horizon-300);
+  border-color: var(--border-hover);
 }
 .filter-chip-active,
 .filter-chip-active:hover {
-  color: var(--action);
-  border-color: var(--highlight-border);
-  background: var(--highlight);
+  color: var(--chip-ativo-fg);
+  border-color: var(--chip-ativo-bg);
+  background: var(--chip-ativo-bg);
 }
 .filter-chip-count {
   color: var(--tertiary-foreground);
@@ -361,7 +381,7 @@ textarea.field-input {
   background: var(--subtle);
 }
 .inline-search:focus-within {
-  border-color: var(--horizon-300);
+  border-color: var(--laranja);
   box-shadow: 0 0 0 3px var(--highlight);
 }
 .inline-search input {
@@ -390,27 +410,77 @@ textarea.field-input {
   height: 6px;
   flex: 0 0 auto;
   border-radius: 50%;
-  background: currentColor;
+  background: var(--marca, currentColor);
 }
 .status-green {
+  --marca: var(--status-green-mark);
+  border: 1px solid var(--status-green-mark);
   color: var(--status-green-fg);
   background: var(--status-green-bg);
 }
 .status-blue {
+  --marca: var(--status-blue-mark);
+  border: 1px solid var(--status-blue-mark);
   color: var(--status-blue-fg);
   background: var(--status-blue-bg);
 }
 .status-amber {
+  --marca: var(--status-amber-mark);
+  border: 1px solid var(--status-amber-mark);
   color: var(--status-amber-fg);
   background: var(--status-amber-bg);
 }
 .status-red {
+  --marca: var(--status-red-mark);
+  border: 1px solid var(--status-red-mark);
   color: var(--status-red-fg);
   background: var(--status-red-bg);
 }
 .status-neutral {
+  --marca: var(--status-neutral-mark);
+  border: 1px solid var(--status-neutral-mark);
   color: var(--status-neutral-fg);
   background: var(--status-neutral-bg);
+}
+
+/* Pílulas: concluído é preto cheio (branco no escuro), bloqueado é laranja
+   cheio. Nesses dois o ponto acompanha o texto. Neutro não tem contorno. */
+.status-pill.status-green {
+  color: var(--branco);
+  background: var(--preto);
+  --marca: currentColor;
+}
+.dark .status-pill.status-green {
+  color: var(--preto);
+  background: #f2f2f2;
+}
+.status-pill.status-red {
+  --marca: currentColor;
+}
+.status-pill.status-neutral {
+  border-color: transparent;
+}
+.filter-chip-active .filter-chip-count {
+  color: inherit;
+  opacity: 0.7;
+}
+:root {
+  --chip-ativo-bg: var(--preto);
+  --chip-ativo-fg: var(--branco);
+}
+.dark {
+  --chip-ativo-bg: #f2f2f2;
+  --chip-ativo-fg: var(--preto);
+}
+/* Texto solto que pede atenção: preto com sublinhado laranja no claro,
+   laranja no escuro. */
+.texto-alerta {
+  color: var(--texto-alerta);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--laranja);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 
 /* ── Casca ───────────────────────────────────────────────────────────────── */
@@ -427,7 +497,7 @@ textarea.field-input {
   display: flex;
   flex-direction: column;
   padding: 22px 14px 16px;
-  color: rgba(226, 239, 244, 0.74);
+  color: var(--sidebar-fg);
   background: var(--sidebar-bg);
 }
 .brand-row {
@@ -443,21 +513,33 @@ textarea.field-input {
   place-items: center;
   flex: 0 0 auto;
   border-radius: 7px;
-  color: var(--horizon-900);
-  background: var(--horizon);
+  color: var(--preto);
+  background: var(--laranja);
   font: 800 15px/1 var(--font-display);
   letter-spacing: -0.05em;
 }
-.brand-copy {
+/* Logo com a área (escritório ou portal) logo abaixo — a logo é o nome. */
+.brand-lockup {
   min-width: 0;
   flex: 1;
-  color: #fff;
-  font: 800 15.5px/1.15 var(--font-display);
-  letter-spacing: -0.045em;
+  display: grid;
+  justify-items: start;
+  gap: 9px;
+}
+.brand-logo {
+  display: block;
+  width: auto;
+  height: 40px;
+}
+.brand-copy {
+  color: rgba(255, 255, 255, 0.6);
+  font: 600 9.5px/1.25 var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 .sidebar-close {
   display: none;
-  color: rgba(226, 239, 244, 0.7);
+  color: rgba(255, 255, 255, 0.7);
 }
 .sidebar-close:hover {
   color: #fff;
@@ -465,7 +547,7 @@ textarea.field-input {
 }
 .sidebar-section-label {
   margin: 14px 10px 8px;
-  color: rgba(226, 239, 244, 0.5);
+  color: rgba(255, 255, 255, 0.5);
   font: 600 9px/1 var(--font-mono);
   letter-spacing: 0.13em;
   text-transform: uppercase;
@@ -503,7 +585,7 @@ textarea.field-input {
 .nav-active,
 .nav-active:hover {
   color: #fff;
-  background: rgba(103, 164, 191, 0.18);
+  background: rgba(255, 255, 255, 0.1);
 }
 .nav-active::before {
   content: "";
@@ -513,10 +595,10 @@ textarea.field-input {
   bottom: 9px;
   width: 3px;
   border-radius: 0 3px 3px 0;
-  background: var(--horizon);
+  background: var(--laranja);
 }
 .nav-active svg {
-  color: var(--horizon);
+  color: var(--laranja);
   opacity: 1;
 }
 .nav-count {
@@ -525,8 +607,8 @@ textarea.field-input {
   border-radius: 6px;
   padding: 3px 6px;
   text-align: center;
-  color: var(--horizon-900);
-  background: var(--horizon);
+  color: var(--preto);
+  background: var(--laranja);
   font: 600 10px/1 var(--font-mono);
 }
 .sidebar-footer {
@@ -553,7 +635,7 @@ textarea.field-input {
 .sidebar-account span {
   display: block;
   margin-top: 2px;
-  color: rgba(226, 239, 244, 0.55);
+  color: rgba(255, 255, 255, 0.55);
   font: 500 10px/1.2 var(--font-mono);
 }
 .sidebar-account > div {
@@ -566,8 +648,8 @@ textarea.field-input {
   place-items: center;
   flex: 0 0 auto;
   border-radius: 50%;
-  color: var(--horizon-900);
-  background: var(--horizon-200);
+  color: var(--preto);
+  background: var(--cinza-200);
   font: 800 11px/1 var(--font-display);
 }
 .sidebar-overlay {
@@ -628,7 +710,7 @@ textarea.field-input {
   height: 7px;
   border: 2px solid var(--background);
   border-radius: 50%;
-  background: var(--status-red-fg);
+  background: var(--status-red-mark);
 }
 .page-content {
   width: min(100%, 1480px);
@@ -741,8 +823,8 @@ textarea.field-input {
   place-items: center;
   flex: 0 0 auto;
   border-radius: 7px;
-  color: var(--action);
-  background: var(--highlight);
+  color: var(--on-action);
+  background: var(--action);
 }
 .kpi-value {
   margin-top: 14px;
@@ -788,19 +870,22 @@ textarea.field-input {
   place-items: center;
   flex: 0 0 auto;
   border-radius: 7px;
-  color: var(--status-amber-fg);
-  background: var(--status-amber-bg);
+  color: var(--on-action);
+  background: var(--laranja);
+}
+.risk-card-ok {
+  border-color: var(--card-border);
 }
 .risk-card-ok .risk-icon {
-  color: var(--status-green-fg);
-  background: var(--status-green-bg);
+  color: var(--chip-ativo-fg);
+  background: var(--chip-ativo-bg);
 }
 
 .attention-card {
   border-radius: 9px;
   padding: 24px;
-  color: rgba(226, 239, 244, 0.78);
-  background: linear-gradient(150deg, var(--horizon-800), var(--horizon-900));
+  color: rgba(255, 255, 255, 0.78);
+  background: var(--preto);
 }
 .attention-card h3 {
   margin-top: 8px;
@@ -813,17 +898,18 @@ textarea.field-input {
   font-size: 14px;
 }
 .attention-card .eyebrow {
-  color: var(--horizon-300);
+  color: var(--laranja);
 }
 .attention-card .button-primary {
   margin-top: 18px;
-  border-color: var(--horizon);
-  color: var(--horizon-900);
-  background: var(--horizon);
+  border-color: var(--laranja);
+  color: var(--preto);
+  background: var(--laranja);
 }
 .attention-card .button-primary:hover:not(:disabled) {
-  border-color: var(--horizon-300);
-  background: var(--horizon-300);
+  border-color: var(--branco);
+  color: var(--preto);
+  background: var(--branco);
 }
 
 .empty-state {
@@ -883,11 +969,8 @@ textarea.field-input {
 }
 .next-step-done .step-number {
   border-color: var(--action);
-  color: #fff;
+  color: var(--on-action);
   background: var(--action);
-}
-.dark .next-step-done .step-number {
-  color: #0c191f;
 }
 .next-step-copy {
   min-width: 0;
@@ -923,7 +1006,7 @@ textarea.field-input {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: var(--horizon);
+  background: var(--laranja);
   transition: width 0.22s var(--ease-out);
 }
 .progress-value {
@@ -952,7 +1035,7 @@ textarea.field-input {
   place-items: center;
   flex: 0 0 auto;
   border-radius: 7px;
-  color: var(--action);
+  color: var(--foreground);
   background: var(--highlight);
 }
 .ged-line-copy {
@@ -1048,7 +1131,7 @@ textarea.field-input {
   background: var(--subtle);
 }
 .cell-code {
-  color: var(--action);
+  color: var(--link);
   font: 600 11px/1 var(--font-mono);
 }
 .cell-main strong {
@@ -1069,7 +1152,7 @@ textarea.field-input {
   max-width: 380px;
   margin-top: 6px;
   white-space: normal;
-  color: var(--status-red-fg);
+  color: var(--texto-alerta);
   font-size: 12.5px;
 }
 .cell-actions {
@@ -1115,7 +1198,7 @@ textarea.field-input {
 }
 .upload-zone:hover,
 .upload-zone:focus-within {
-  border-color: var(--horizon-300);
+  border-color: var(--laranja);
   background: var(--highlight);
 }
 .upload-zone input {
@@ -1141,11 +1224,11 @@ textarea.field-input {
 }
 .upload-zone-filled {
   border-style: solid;
-  border-color: var(--status-green-fg);
+  border-color: var(--status-green-mark);
   background: var(--status-green-bg);
 }
 .upload-zone-filled svg {
-  color: var(--status-green-fg);
+  color: var(--status-green-mark);
 }
 
 /* ── Painel flutuante (formulário de recibo) ─────────────────────────────── */
@@ -1156,7 +1239,7 @@ textarea.field-input {
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(12, 25, 31, 0.5);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(3px);
 }
 .modal-panel {
@@ -1222,8 +1305,8 @@ textarea.field-input {
   justify-content: space-between;
   gap: 40px;
   padding: 44px clamp(32px, 5vw, 72px);
-  color: rgba(226, 239, 244, 0.76);
-  background: var(--horizon-900);
+  color: rgba(255, 255, 255, 0.76);
+  background: var(--preto);
 }
 .acesso-painel .brand-row {
   padding: 0;
@@ -1237,7 +1320,7 @@ textarea.field-input {
   letter-spacing: -0.052em;
 }
 .acesso-painel h1 em {
-  color: var(--horizon);
+  color: var(--laranja);
   font-style: normal;
 }
 .acesso-painel > div > p {
@@ -1246,7 +1329,7 @@ textarea.field-input {
   font-size: 16px;
 }
 .acesso-painel .eyebrow {
-  color: var(--horizon-300);
+  color: var(--laranja);
 }
 .acesso-pontos {
   display: grid;
@@ -1264,7 +1347,7 @@ textarea.field-input {
 .acesso-pontos svg {
   margin-top: 2px;
   flex: 0 0 auto;
-  color: var(--horizon);
+  color: var(--laranja);
 }
 .acesso-pontos strong {
   display: block;
@@ -1351,6 +1434,7 @@ textarea.field-input {
   background: var(--status-green-bg);
 }
 .acesso-alerta-info {
+  border: 1px solid var(--status-blue-mark);
   color: var(--status-blue-fg);
   background: var(--status-blue-bg);
 }
@@ -1427,7 +1511,7 @@ textarea.field-input {
     z-index: 35;
     inset: 0;
     border: 0;
-    background: rgba(12, 25, 31, 0.45);
+    background: rgba(0, 0, 0, 0.45);
   }
   .breadcrumbs {
     display: none;
@@ -1512,18 +1596,18 @@ textarea.field-input {
 /* ══ Admin ════════════════════════════════════════════════════════════════
    Peças que só o admin usa. Mesmos tokens; nenhuma cor nova fora das séries. */
 
-/* Séries de gráfico — validadas no validador de paleta (CVD, contraste,
-   croma) contra o cartão branco e o cartão escuro. A paleta --chart-* do
-   modelo falha como conjunto categórico, por isso não é usada em séries. */
+/* Séries de gráfico: só as cores da logo. Laranja e preto (branco-gelo no
+   escuro) se separam pela luminosidade, não pela matiz, então a 2ª série é
+   também tracejada e as linhas levam rótulo direto e tabela — a identidade
+   nunca depende só da cor. */
 :root {
-  --serie-1: #007399;
-  --serie-2: #b07015;
-  --grade: var(--warm-200);
+  --serie-1: var(--laranja);
+  --serie-2: var(--preto);
+  --grade: var(--cinza-200);
 }
 .dark {
-  --serie-1: #3898bf;
-  --serie-2: #c2862d;
-  --grade: #263d47;
+  --serie-2: #d9d9d9;
+  --grade: #2b2b2b;
 }
 
 .sidebar-back {
@@ -1531,7 +1615,7 @@ textarea.field-input {
   align-items: center;
   gap: 8px;
   margin: 0 0 6px;
-  color: rgba(226, 239, 244, 0.6);
+  color: rgba(255, 255, 255, 0.6);
 }
 .sidebar-module-title {
   margin: 4px 11px 2px;
@@ -1552,7 +1636,7 @@ textarea.field-input {
   position: fixed;
   z-index: 30;
   inset: 0;
-  background: rgba(12, 25, 31, 0.42);
+  background: rgba(0, 0, 0, 0.42);
 }
 .drawer-panel {
   position: fixed;
@@ -1648,7 +1732,7 @@ textarea.field-input {
   transition: border-color 0.15s var(--ease-out);
 }
 button.board-card:hover {
-  border-color: var(--horizon-300);
+  border-color: var(--border-hover);
 }
 .board-card strong {
   font: 700 13px/1.3 var(--font-display);
@@ -1696,7 +1780,7 @@ button.board-card:hover {
   background: var(--card);
 }
 .calendar-day:hover {
-  border-color: var(--horizon-300);
+  border-color: var(--border-hover);
 }
 .calendar-day-out {
   opacity: 0.4;
@@ -1704,11 +1788,8 @@ button.board-card:hover {
 .calendar-day-today .calendar-day-number {
   border-radius: 5px;
   padding: 1px 5px;
-  color: #fff;
+  color: var(--on-action);
   background: var(--action);
-}
-.dark .calendar-day-today .calendar-day-number {
-  color: #0c191f;
 }
 .calendar-day-selected {
   border-color: var(--action);
@@ -1790,9 +1871,9 @@ button.board-card:hover {
   gap: 6px;
 }
 .chart-swatch {
-  width: 14px;
-  height: 3px;
-  border-radius: 2px;
+  width: 16px;
+  height: 4px;
+  overflow: visible;
 }
 .chart-tooltip {
   border: 1px solid var(--card-border);
@@ -1908,7 +1989,7 @@ button.board-card:hover {
   flex: 0 0 auto;
   border: 0;
   border-radius: 11px;
-  background: var(--warm-300);
+  background: var(--cinza-300);
   transition: background 0.18s var(--ease-out);
 }
 .switch::after {

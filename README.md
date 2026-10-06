@@ -128,25 +128,35 @@ client/src/
 
 ## Design
 
-Modelo "Design e Arquitetura":
+Estrutura do modelo "Design e Arquitetura", com a paleta da logo do escritório
+(PNST): o laranja **#F16122**, o branco e o preto. Não existe nenhuma outra
+cor com matiz — os neutros são cinzas puros e não há tons derivados do laranja.
 
-- **Paleta.** Horizon `#67a4bf` e Ivory `#f3f1e2`. A ação primária usa
-  `--horizon-700`. Os neutros são quentes.
+- **Contraste.** Sobre branco o laranja dá 3,2:1, então nunca é texto pequeno.
+  Ele vira preenchimento com texto preto (5,7:1), borda, marcador ou
+  sublinhado. No escuro ele também pode ser texto (5,4:1).
+- **Ação primária.** Botão laranja com texto preto; no hover fica preto.
+  Desabilitado é cinza.
+- **Status.** Diferenciados pelo preenchimento, não pela matiz:
+
+  | Estado       | Classe            | Aparência                  |
+  | ------------ | ----------------- | -------------------------- |
+  | Concluído    | `.status-green`   | preto cheio, texto branco  |
+  | Bloqueado    | `.status-red`     | laranja cheio, texto preto |
+  | Atenção      | `.status-amber`   | contorno laranja           |
+  | Em andamento | `.status-blue`    | contorno cinza             |
+  | Neutro       | `.status-neutral` | cinza claro                |
+
+- **Gráficos.** `--serie-1` laranja e `--serie-2` preto (branco-gelo no
+  escuro), que se separam pela luminosidade; a segunda série também é
+  tracejada, e cada gráfico tem rótulo direto e "Ver como tabela".
+- **Logo.** `client/src/assets/pnst-logo.webp`, recortada do arquivo original
+  com as cores exatas, aparece na barra lateral e nos logins (sempre sobre
+  preto, que é o fundo da logo).
 - **Tipografia.** DM Sans, Source Sans 3 e IBM Plex Mono.
-- **Classes.** As telas usam o vocabulário de classes do modelo: `.page-heading`,
-  `.operations-surface`, `.kpi-card`, `.status-pill`, `.risk-card`,
-  `.ged-line` etc.
-
-O admin acrescenta:
-
-- **Componentes:**
-  - Gaveta lateral (`.drawer-*`).
-  - Abas (`.tab-row`).
-  - Kanban (`.board-*`).
-  - Calendário mensal (`.calendar-*`).
-  - Gráficos (`.chart-*`), cada um com "Ver como tabela".
-- **Cores de série:** `--serie-1` azul e `--serie-2` âmbar, validadas para
-  daltonismo no claro e no escuro.
+- **Classes.** O vocabulário do modelo: `.page-heading`, `.operations-surface`,
+  `.kpi-card`, `.status-pill`, `.risk-card`, `.ged-line`, gaveta (`.drawer-*`),
+  quadro (`.board-*`), calendário (`.calendar-*`) e gráficos (`.chart-*`).
 
 O modo escuro redefine só os tokens semânticos. Nenhuma tela rola para o lado
 em 390px.
