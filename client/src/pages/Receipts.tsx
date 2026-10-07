@@ -24,6 +24,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useState } from "react";
+import CabecalhoPagina from "@/components/CabecalhoPagina";
 
 type StatusFilter = PrototypeReceiptStatus | "Todos";
 
@@ -92,23 +93,15 @@ export default function Receipts() {
 
   return (
     <PortalShell title="Meus recibos">
-      <header className="page-heading">
-        <div>
-          <span className="eyebrow">
-            Competência aberta · {formatMonth(currentCompetencia)}
-          </span>
-          <h1>Meus recibos</h1>
-          <p>
-            Lance, revise e envie cada serviço prestado para conferência do
-            escritório.
-          </p>
-        </div>
-        <div className="heading-actions">
+      <CabecalhoPagina
+        titulo="Meus recibos"
+        descricao={`Competência aberta · ${formatMonth(currentCompetencia)}. Lance, revise e envie cada serviço para conferência.`}
+        acoes={
           <button type="button" className="button-primary" onClick={openNew}>
             <Plus size={15} strokeWidth={2.2} /> Lançar recibo
           </button>
-        </div>
-      </header>
+        }
+      />
 
       <div className="kpi-grid">
         {kpis.map(kpi => (

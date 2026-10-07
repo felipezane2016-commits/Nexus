@@ -7,6 +7,7 @@ import CascaAdmin, { rotaInicial } from "./CascaAdmin";
 import Vazio from "./componentes/Vazio";
 import { moduloDaRota } from "./menu";
 import VisaoGeral from "./paginas/VisaoGeral";
+import Cabecalho from "./componentes/Cabecalho";
 
 /**
  * Rotas do admin. A visão geral é estática — é o primeiro quadro depois do
@@ -75,6 +76,7 @@ export default function RotasAdmin() {
     <CascaAdmin usuario={usuario} titulo={pagina?.titulo ?? "Página não encontrada"}>
       {semAcesso ? (
         <section className="operations-surface">
+          <Cabecalho titulo={pagina?.titulo ?? "Sem acesso"} descricao="Área fora dos módulos liberados para você." />
           <Vazio
             icone={ShieldOff}
             titulo="Sem acesso a esta área"
@@ -91,6 +93,7 @@ export default function RotasAdmin() {
             ))}
             <Route>
               <section className="operations-surface">
+                <Cabecalho titulo="Página não encontrada" />
                 <Vazio icone={ShieldOff} titulo="Página não encontrada" texto="O endereço não existe no escritório." />
               </section>
             </Route>

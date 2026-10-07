@@ -132,38 +132,31 @@ client/src/
 
 ## Design
 
-Segue o modelo "Design e Arquitetura" na mesma estrutura — famílias de cor,
-tokens semânticos, status, tipografia, forma e vocabulário de componentes —,
-trocando só as cores de marca pelas do PNST:
+Estrutura e design do **MBG Connected Operations** (o sistema de referência),
+com as cores da marca PNST:
 
-| Modelo                | PNST                    | Valor     |
-| --------------------- | ----------------------- | --------- |
-| `--horizon` (a marca) | `--laranja`             | `#F16122` |
-| `--horizon-900`       | `--laranja-900` grafite | `#303030` |
-| `--ivory` (página)    | `--papel`               | `#F6F5F3` |
-| `--warm-*` (neutros)  | `--grafite-*`           | 50 a 700  |
-
-- **Família laranja.** 50–300 são tintas para realce e bordas; o `--laranja`
-  puro é superfície e acento, nunca texto nem fundo de botão (branco sobre ele
-  dá 3,24:1). Ação primária e link usam o `--laranja-700` `#AD3C0B` (6,13:1),
-  ação secundária o 600 `#C9460D` (4,81:1). O 900 é o grafite do site:
-  texto forte e barra lateral.
-- **Status.** Os do modelo: verde concluído, azul em andamento, âmbar atenção,
-  vermelho bloqueado, neutro rascunho — sempre com texto.
-- **Logo.** `client/src/assets/pnst-logo.webp`, recortada do arquivo original
-  com as cores exatas, sobre o grafite — como no site.
-- **Gráficos.** A família laranja abre a série, como o Horizon no modelo:
-  `--chart-1` (700) e `--chart-2` (a marca). O par passa no validador de
-  paleta no claro e no escuro; a segunda série também é tracejada e cada
-  gráfico tem "Ver como tabela".
+- **Casca.** Barra lateral de 256px em grafite `#303030` com a logo, itens de
+  menu arredondados e um cartão no pé com a pessoa logada. O título da página,
+  a descrição e as ações ficam no topo fixo (com desfoque), não no miolo — as
+  páginas declaram o título com `<Cabecalho>`/`<CabecalhoPagina>` e ele vai
+  para o topo por portal. Abaixo de 1024px a barra vira gaveta.
+- **Tokens semânticos** como no MBG: `primary`, `secondary`, `muted`,
+  `accent`, `success`, `warning`, `info`, `destructive` e `sidebar-*`. O
+  `primary` é o laranja 600 `#C9460D` (4,81:1 com branco, para botão, link e
+  filtro ativo); o laranja da marca `#F16122` é o `sidebar-primary` (item
+  ativo, contador, avatar, gráfico).
+- **Componentes.** Painéis com raio de 16px, sombra suave e animação de
+  entrada; KPIs com o número grande primeiro; selos em pílula com borda e
+  fundo translúcidos; filtros em pílula (o ativo preenchido); tabelas de
+  borda a borda com cabeçalho em fundo neutro.
+- **Tipografia.** Manrope no texto, Sora nos títulos — como no MBG, sem
+  monoespaçada; números com algarismos tabulares.
+- **Gráficos.** `--chart-1` (laranja 700) e `--chart-2` (a marca), par
+  validado no claro e no escuro; a 2ª série também é tracejada e cada gráfico
+  tem "Ver como tabela".
 - **Convenções.** Uma folha de estilo só; `style={{}}` apenas para valor
-  calculado em tempo de execução (largura de barra, progresso). Ícones
-  `lucide-react` de 13 a 19px, traço entre 1.7 e 2.4. Nenhum componente declara
-  cor só no `.dark`: o texto sobre a ação é o token `--on-action`.
-- **Tipografia.** DM Sans fala, Source Sans 3 explica, IBM Plex Mono etiqueta.
-
-O modo escuro redefine só os tokens semânticos. Nenhuma tela rola para o lado
-em 390px.
+  calculado em tempo de execução. O modo escuro redefine só os tokens.
+  Nenhuma tela rola para o lado em 390px.
 
 ## Build estático para preview
 

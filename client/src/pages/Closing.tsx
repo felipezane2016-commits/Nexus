@@ -23,6 +23,7 @@ import {
   Upload,
 } from "lucide-react";
 import { useState, type ChangeEvent } from "react";
+import CabecalhoPagina from "@/components/CabecalhoPagina";
 
 export default function Closing() {
   const {
@@ -66,35 +67,25 @@ export default function Closing() {
 
   return (
     <PortalShell title="Fechamento mensal">
-      <header className="page-heading">
-        <div>
-          <span className="eyebrow">Fechamento</span>
-          <h1>Fechamento mensal</h1>
-          <p>
-            Consolide os recibos da competência, anexe o documento de
-            faturamento e envie ao escritório.
-          </p>
-        </div>
-        <div className="heading-actions">
-          <div className="field-group">
-            <label className="field-label" htmlFor="competencia">
-              Competência
-            </label>
-            <select
-              id="competencia"
-              className="field-input"
-              value={competencia}
-              onChange={event => setCompetencia(event.target.value)}
-            >
-              {competencias.map(option => (
-                <option key={option} value={option}>
-                  {formatMonth(option)}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </header>
+      <CabecalhoPagina
+        titulo="Fechamento mensal"
+        descricao="Consolide os recibos da competência, anexe o documento de faturamento e envie ao escritório."
+        acoes={
+          <select
+            id="competencia"
+            className="field-input field-input-compacto"
+            aria-label="Competência"
+            value={competencia}
+            onChange={event => setCompetencia(event.target.value)}
+          >
+            {competencias.map(option => (
+              <option key={option} value={option}>
+                {formatMonth(option)}
+              </option>
+            ))}
+          </select>
+        }
+      />
 
       <div
         className={closing.submitted ? "risk-card risk-card-ok" : "risk-card"}

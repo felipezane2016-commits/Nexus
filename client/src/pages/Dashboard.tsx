@@ -24,6 +24,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { useLocation } from "wouter";
+import CabecalhoPagina from "@/components/CabecalhoPagina";
 
 export default function Dashboard() {
   const { receipts, currentCompetencia, closingFor, provider } = usePortal();
@@ -122,17 +123,10 @@ export default function Dashboard() {
 
   return (
     <PortalShell title="Visão geral">
-      <header className="page-heading">
-        <div>
-          <span className="eyebrow">
-            Competência {formatMonth(currentCompetencia)}
-          </span>
-          <h1>Olá, {firstName}</h1>
-          <p>
-            Acompanhe os recibos da competência e feche o mês sem pendências.
-          </p>
-        </div>
-        <div className="heading-actions">
+      <CabecalhoPagina
+        titulo={`Olá, ${firstName}`}
+        descricao={`Competência ${formatMonth(currentCompetencia)} · acompanhe os recibos e feche o mês sem pendências.`}
+        acoes={
           <button
             type="button"
             className="button-primary"
@@ -140,8 +134,8 @@ export default function Dashboard() {
           >
             <Plus size={15} strokeWidth={2.2} /> Lançar recibo
           </button>
-        </div>
-      </header>
+        }
+      />
 
       {rejected.length > 0 ? (
         <div className="risk-card" role="status">
