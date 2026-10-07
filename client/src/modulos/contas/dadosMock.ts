@@ -1,5 +1,5 @@
 import { HOJE } from "@/_core/tempo";
-import type { EventoEconomico, Ordem, Taxa, TarefaConta } from "./tipos";
+import type { ConfigEmailsOrdens, Decisao, EventoEconomico, Invoice, Ordem, Taxa, TarefaConta } from "./tipos";
 
 /**
  * Tarefas do Account Management, com as categorias e periodicidades do app
@@ -99,16 +99,124 @@ function gerarTaxas(): Taxa[] {
 
 export const TAXAS_DEMO: Taxa[] = gerarTaxas();
 
+type BaseOrdem = Pick<Ordem, "id" | "numeroOrdem" | "dataRecebimento" | "cliente" | "moeda" | "valor"> & Partial<Ordem>;
+
+function inv(numero: string, valor: number, tipo: Invoice["tipo"] = "Honorários"): Invoice {
+  return { numero, valor, tipo, anexoId: null, arquivo: `Invoice ${numero}.pdf` };
+}
+
+/** Preenche o que a ordem ainda não tem; o histórico nasce das datas preenchidas. */
+function ordem(base: BaseOrdem): Ordem {
+  const completa: Ordem = {
+    beneficiario: "Pacheco Neto Sanden Teisseire Advogados",
+    invoices: [],
+    bloqueiaEmails: false,
+    observacoes: "",
+    invoiceEnviadaEm: null,
+    okBancoEm: null,
+    enviadaSuperioresEm: null,
+    decisao: null,
+    fechamento: null,
+    respostaBancoEm: null,
+    baixa: { sisjuri: null, extrato: null, contrato: null },
+    historico: [],
+    ...base,
+  };
+  const h = (quando: string | null, texto: string, autor = "Fernanda Moraes") => (quando ? [{ quando: `${quando}T12:00:00.000Z`, autor, texto }] : []);
+  completa.historico = [
+    ...h(completa.dataRecebimento, `Ordem nº ${completa.numeroOrdem} recebida do Banco Industrial.`),
+    ...h(completa.invoiceEnviadaEm, `Invoice(s) ${completa.invoices.map((i) => i.numero).join(", ")} enviada(s) ao banco.`),
+    ...h(completa.okBancoEm, "Banco Industrial deu OK para o fechamento."),
+    ...h(completa.enviadaSuperioresEm, "Cotação enviada aos superiores."),
+    ...h(completa.decisao?.quando.slice(0, 10) ?? null, `Decisão: ${completa.decisao?.prazo}.`, completa.decisao?.decididoPor),
+    ...h(completa.fechamento?.data ?? null, `Câmbio fechado a ${completa.fechamento?.cotacao.toFixed(4).replace(".", ",")}.`),
+    ...h(completa.respostaBancoEm, "Resposta com a cotação e as invoices enviada ao banco."),
+  ];
+  return completa;
+}
+
+const decisao = (prazo: Decisao["prazo"], quando: string, extra: Partial<Decisao> = {}): Decisao => ({
+  prazo,
+  taxaAlvo: null,
+  dataFechamento: null,
+  decididoPor: "Ricardo Alves",
+  quando: `${quando}T14:00:00.000Z`,
+  canal: "E-mail",
+  observacao: "",
+  ...extra,
+});
+
+const BAIXA_COMPLETA = (data: string) => ({ sisjuri: data, extrato: data, contrato: data });
+
+/**
+ * Uma ordem em cada etapa do fluxo, para a demonstração mostrar o caminho
+ * inteiro: recebida, invoice enviada, liberada, aguardando decisão,
+ * aguardando câmbio, fechamento agendado, fechada, baixa pendente e concluída.
+ */
 export const ORDENS_DEMO: Ordem[] = [
-  { id: "ord-1", dataRecebimento: "2026-06-03", cliente: "Nordhaven Holdings AS", moeda: "EUR", valor: 12480, faturas: ["50917", "50902"], tipo: "Honorários", observacoes: "", fechamento: { cotacao: 6.1245, data: "2026-06-04", responsavel: "Fernanda Moraes" } },
-  { id: "ord-2", dataRecebimento: "2026-06-09", cliente: "Pinecrest Capital LLC", moeda: "USD", valor: 8650, faturas: ["50931"], tipo: "Misto", observacoes: "", fechamento: { cotacao: 5.5871, data: "2026-06-10", responsavel: "Ricardo Alves" } },
-  { id: "ord-3", dataRecebimento: "2026-06-16", cliente: "Alvora GmbH", moeda: "EUR", valor: 4320.5, faturas: ["50944", "50945", "50948"], tipo: "Despesas", observacoes: "", fechamento: { cotacao: 6.0912, data: "2026-06-17", responsavel: "Fernanda Moraes" } },
-  { id: "ord-4", dataRecebimento: "2026-06-24", cliente: "Marelle SAS", moeda: "EUR", valor: 9800, faturas: ["50957"], tipo: "Honorários", observacoes: "Aguardando melhor cotação.", fechamento: null },
-  { id: "ord-5", dataRecebimento: "2026-06-26", cliente: "Pinecrest Capital LLC", moeda: "USD", valor: 15200, faturas: ["50961", "50963"], tipo: "Honorários", observacoes: "", fechamento: null },
-  { id: "ord-6", dataRecebimento: "2026-06-29", cliente: "Lusitano SGPS, S.A.", moeda: "EUR", valor: 2150, faturas: ["50966"], tipo: "Despesas", observacoes: "", fechamento: null },
-  { id: "ord-7", dataRecebimento: "2026-05-14", cliente: "Nordhaven Holdings AS", moeda: "EUR", valor: 7640, faturas: ["50871"], tipo: "Honorários", observacoes: "", fechamento: { cotacao: 6.0534, data: "2026-05-15", responsavel: "Fernanda Moraes" } },
-  { id: "ord-8", dataRecebimento: "2026-05-27", cliente: "Pinecrest Capital LLC", moeda: "USD", valor: 5300, faturas: ["50889"], tipo: "Despesas", observacoes: "", fechamento: { cotacao: 5.6102, data: "2026-05-28", responsavel: "Ricardo Alves" } },
+  ordem({
+    id: "ord-1", numeroOrdem: "88412", dataRecebimento: "2026-06-03", cliente: "Nordhaven Holdings AS", moeda: "EUR", valor: 12480,
+    invoices: [inv("50917", 9000), inv("50902", 3480, "Despesas")],
+    invoiceEnviadaEm: "2026-06-03", okBancoEm: "2026-06-03", enviadaSuperioresEm: "2026-06-03", decisao: decisao("D+1", "2026-06-03", { dataFechamento: "2026-06-04" }),
+    fechamento: { cotacao: 6.1245, data: "2026-06-04", responsavel: "Fernanda Moraes", quemFechou: "FM / Daniel" }, respostaBancoEm: "2026-06-04", baixa: BAIXA_COMPLETA("2026-06-08"),
+  }),
+  ordem({
+    id: "ord-2", numeroOrdem: "88590", dataRecebimento: "2026-06-09", cliente: "Pinecrest Capital LLC", moeda: "USD", valor: 8650,
+    invoices: [inv("50931", 6000), inv("50932", 2650, "Despesas")],
+    invoiceEnviadaEm: "2026-06-09", okBancoEm: "2026-06-09", enviadaSuperioresEm: "2026-06-09", decisao: decisao("D+1", "2026-06-09", { dataFechamento: "2026-06-10" }),
+    fechamento: { cotacao: 5.5871, data: "2026-06-10", responsavel: "Ricardo Alves", quemFechou: "RA / Daniel" }, respostaBancoEm: "2026-06-10",
+    baixa: { sisjuri: "2026-06-12", extrato: "2026-06-12", contrato: null },
+  }),
+  ordem({
+    id: "ord-3", numeroOrdem: "88731", dataRecebimento: "2026-06-16", cliente: "Alvora GmbH", moeda: "EUR", valor: 4320.5,
+    invoices: [inv("50944", 1820.5, "Despesas"), inv("50945", 1500, "Despesas"), inv("50948", 1000, "Despesas")],
+    invoiceEnviadaEm: "2026-06-16", okBancoEm: "2026-06-16", enviadaSuperioresEm: "2026-06-16", decisao: decisao("D+1", "2026-06-16", { dataFechamento: "2026-06-17" }),
+    fechamento: { cotacao: 6.0912, data: "2026-06-17", responsavel: "Fernanda Moraes", quemFechou: "FM / Daniel" },
+  }),
+  ordem({
+    id: "ord-4", numeroOrdem: "89102", dataRecebimento: "2026-06-24", cliente: "Marelle SAS", moeda: "EUR", valor: 9800,
+    invoices: [inv("50957", 9800)], observacoes: "Aguardando melhor cotação.",
+    invoiceEnviadaEm: "2026-06-24", okBancoEm: "2026-06-25", enviadaSuperioresEm: "2026-06-25",
+    decisao: decisao("Aguardar", "2026-06-25", { taxaAlvo: 6.15, canal: "Sistema", observacao: "Fechar quando o BIB passar de 6,15." }),
+  }),
+  ordem({
+    id: "ord-5", numeroOrdem: "89214", dataRecebimento: "2026-06-26", cliente: "Pinecrest Capital LLC", moeda: "USD", valor: 15200,
+    invoices: [inv("50961", 9200), inv("50963", 6000)],
+    invoiceEnviadaEm: "2026-06-26", okBancoEm: "2026-06-29", enviadaSuperioresEm: "2026-06-29", decisao: decisao("D+1", "2026-06-29", { dataFechamento: "2026-06-30" }),
+  }),
+  ordem({
+    id: "ord-6", numeroOrdem: "89307", dataRecebimento: "2026-06-29", cliente: "Lusitano SGPS, S.A.", moeda: "EUR", valor: 2150,
+    invoices: [inv("50966", 2150, "Despesas")], invoiceEnviadaEm: "2026-06-29", okBancoEm: "2026-06-30",
+  }),
+  ordem({
+    id: "ord-9", numeroOrdem: "89355", dataRecebimento: "2026-06-29", cliente: "Kestrel Analytics Ltd", moeda: "USD", valor: 5400,
+    invoices: [inv("50969", 5400)], invoiceEnviadaEm: "2026-06-29",
+  }),
+  ordem({
+    id: "ord-10", numeroOrdem: "89361", dataRecebimento: "2026-06-29", cliente: "Vandermeer Logistics BV", moeda: "EUR", valor: 3875.2,
+    invoices: [inv("50970", 3875.2)], invoiceEnviadaEm: "2026-06-29", okBancoEm: "2026-06-30", enviadaSuperioresEm: "2026-06-30",
+  }),
+  ordem({ id: "ord-11", numeroOrdem: "89402", dataRecebimento: "2026-06-30", cliente: "Hallberg Industrie GmbH", moeda: "EUR", valor: 1263.49 }),
+  ordem({
+    id: "ord-7", numeroOrdem: "87655", dataRecebimento: "2026-05-14", cliente: "Nordhaven Holdings AS", moeda: "EUR", valor: 7640,
+    invoices: [inv("50871", 7640)],
+    invoiceEnviadaEm: "2026-05-14", okBancoEm: "2026-05-14", enviadaSuperioresEm: "2026-05-14", decisao: decisao("D+1", "2026-05-14", { dataFechamento: "2026-05-15" }),
+    fechamento: { cotacao: 6.0534, data: "2026-05-15", responsavel: "Fernanda Moraes", quemFechou: "FM / Daniel" }, respostaBancoEm: "2026-05-15", baixa: BAIXA_COMPLETA("2026-05-20"),
+  }),
+  ordem({
+    id: "ord-8", numeroOrdem: "87902", dataRecebimento: "2026-05-27", cliente: "Pinecrest Capital LLC", moeda: "USD", valor: 5300,
+    invoices: [inv("50889", 5300, "Despesas")],
+    invoiceEnviadaEm: "2026-05-27", okBancoEm: "2026-05-27", enviadaSuperioresEm: "2026-05-27", decisao: decisao("D+1", "2026-05-27", { dataFechamento: "2026-05-28" }),
+    fechamento: { cotacao: 5.6102, data: "2026-05-28", responsavel: "Ricardo Alves", quemFechou: "RA / Daniel" }, respostaBancoEm: "2026-05-28", baixa: BAIXA_COMPLETA("2026-06-02"),
+  }),
 ];
+
+export const CONFIG_EMAILS_DEMO: ConfigEmailsOrdens = {
+  emailBanco: "cambio@bancoindustrial.demo",
+  copiaBanco: "",
+  emailsSuperiores: "ricardo@nexus.demo; diretoria@nexus.demo",
+  assinatura: "Fernanda Moraes\nAccount Management — PNST",
+};
 
 export const EVENTOS_ECONOMICOS_DEMO: EventoEconomico[] = [
   { id: "ev-1", data: "2026-07-01", hora: "10:00", titulo: "PMI industrial", regiao: "EUA", impacto: "Médio" },

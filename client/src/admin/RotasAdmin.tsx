@@ -34,7 +34,7 @@ const PAGINAS: Pagina[] = [
   { padrao: "/contas", titulo: "Tarefas", Componente: lazy(() => import("./paginas/contas/TarefasContas")) },
   { padrao: "/contas/banco", titulo: "Painel de câmbio", Componente: lazy(() => import("./paginas/contas/PainelCambio")) },
   { padrao: "/contas/taxas", titulo: "Taxas diárias", Componente: lazy(() => import("./paginas/contas/Taxas")) },
-  { padrao: "/contas/ordens", titulo: "Ordens recebidas", Componente: lazy(() => import("./paginas/contas/Ordens")) },
+  { padrao: "/contas/ordens", titulo: "Ordens de pagamento", Componente: lazy(() => import("./paginas/contas/ordens/Ordens")) },
   { padrao: "/contas/tendencia", titulo: "Tendência", Componente: lazy(() => import("./paginas/contas/Tendencia")) },
   { padrao: "/contas/economia", titulo: "Economia potencial", Componente: lazy(() => import("./paginas/contas/Economia")) },
   {

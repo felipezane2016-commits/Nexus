@@ -113,7 +113,7 @@ const CAMBIO = ORDENS_DEMO.filter((ordem) => ordem.fechamento).map((ordem) => {
     dataBanco: somarDias(fechamento.data, 1),
     historico: `LIQ CAMBIO ${ordem.moeda} ${ordem.cliente.toUpperCase().slice(0, 18)}`,
     descricao: `Câmbio ${ordem.moeda} — ${ordem.cliente}`,
-    documento: `FAT ${ordem.faturas[0]}`,
+    documento: ordem.invoices[0] ? `FAT ${ordem.invoices[0].numero}` : "",
     valor: reais,
     lado: "ambos" as const,
     origem: "Câmbio" as const,

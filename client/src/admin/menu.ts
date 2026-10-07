@@ -25,7 +25,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-export type Contador = "notificacoes" | "conferencia";
+export type Contador = "notificacoes" | "conferencia" | "ordens";
 
 export type ItemMenu = {
   rota: string;
@@ -104,7 +104,7 @@ export const MENUS_MODULO: MenuModulo[] = [
         itens: [
           { rota: "/contas/banco", rotulo: "Painel de câmbio", icone: LineChart },
           { rota: "/contas/taxas", rotulo: "Taxas diárias", icone: Banknote },
-          { rota: "/contas/ordens", rotulo: "Ordens recebidas", icone: ClipboardCheck },
+          { rota: "/contas/ordens", rotulo: "Ordens de pagamento", icone: ClipboardCheck, contador: "ordens" },
           { rota: "/contas/tendencia", rotulo: "Tendência", icone: TrendingUp },
           { rota: "/contas/economia", rotulo: "Economia potencial", icone: PiggyBank },
           { rota: "/contas/calendario-economico", rotulo: "Calendário econômico", icone: CalendarRange },

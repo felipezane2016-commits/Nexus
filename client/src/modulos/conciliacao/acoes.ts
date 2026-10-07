@@ -176,7 +176,7 @@ export function trazerDoSistema() {
       contaId: CONTA_BIB_PNST,
       data: ordem.fechamento.data,
       descricao: `Câmbio ${ordem.moeda} — ${ordem.cliente}`,
-      documento: ordem.faturas[0] ? `FAT ${ordem.faturas[0]}` : "",
+      documento: ordem.invoices[0] ? `FAT ${ordem.invoices[0].numero}` : "",
       valor: Math.round(ordem.valor * ordem.fechamento.cotacao * 100) / 100,
       origem: "Câmbio",
       origemId: ordem.id,

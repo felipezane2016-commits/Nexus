@@ -15,8 +15,9 @@ import BuscaGlobal, { type ItemBusca } from "@/components/BuscaGlobal";
 import MenuConta from "@/components/MenuConta";
 import MenuSino from "@/components/MenuSino";
 import { documentos, tarefas } from "@/modulos/escritorio/colecoes";
-import { tarefasContas } from "@/modulos/contas/colecoes";
-import { formatarData } from "@/_core/tempo";
+import { ordens, taxas, tarefasContas } from "@/modulos/contas/colecoes";
+import { alertasDasOrdens } from "@/modulos/contas/regras";
+import { formatarData, HOJE } from "@/_core/tempo";
 
 /** Primeira rota que a pessoa pode abrir no escritório. */
 export function rotaInicial(usuario: Usuario) {
@@ -39,14 +40,18 @@ function useContadores(): Record<Contador, number> {
   const listaRecibos = useColecao(recibos);
   const listaFechamentos = useColecao(fechamentos);
   const listaPrestadores = useColecao(prestadores);
+  const listaOrdens = useColecao(ordens);
+  const listaTaxas = useColecao(taxas);
   return useMemo(
     () => ({
       notificacoes: avisos.filter(aviso => !aviso.lida).length,
       conferencia: montarLotes(listaRecibos, listaFechamentos, listaPrestadores).filter(
         lote => lote.situacao === "Aguardando conferência" || lote.pendentes > 0
       ).length,
+      // Ordens que pedem ação hoje: fechar D+n, taxa-alvo atingida, OK do banco atrasado.
+      ordens: alertasDasOrdens(listaOrdens, listaTaxas, HOJE).length,
     }),
-    [avisos, listaRecibos, listaFechamentos, listaPrestadores]
+    [avisos, listaRecibos, listaFechamentos, listaPrestadores, listaOrdens, listaTaxas]
   );
 }
 

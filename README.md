@@ -77,7 +77,7 @@ Rotas do admin:
   - `/contas` tarefas
   - `/contas/banco` painel de câmbio
   - `/contas/taxas` (com exportação CSV)
-  - `/contas/ordens`
+  - `/contas/ordens` ordens de pagamento do Banco Industrial (fluxo completo)
   - `/contas/tendencia`
   - `/contas/economia`
   - `/contas/calendario-economico`
@@ -89,6 +89,49 @@ Rotas do admin:
 
 Ao entrar num módulo (Prestadores, Contas), a barra lateral troca para o menu
 dele e ganha o link "Voltar ao escritório".
+
+## Ordens de pagamento do Banco Industrial
+
+O fluxo que a área financeira faz a cada ordem recebida do exterior. Cada
+ordem mostra a etapa em que está e o próximo passo; a etapa sai das datas
+preenchidas (`etapaDaOrdem`), sem estado guardado à parte.
+
+1. **Recebida.** "Nova ordem do e-mail": cola-se o e-mail "Ordem de Pagamento"
+   do BIB e o sistema lê ordenante, beneficiário, moeda, valor e nº da ordem.
+2. **Invoice enviada.** Cadastra-se a invoice gerada no Sisjuri (número,
+   valor, honorários ou despesas, PDF). O e-mail ao banco sai pronto, com a
+   natureza da ordem e as invoices anexadas.
+3. **Liberada pelo banco.** Registra-se o OK do banco.
+4. **E-mail aos superiores.** Junta as ordens liberadas, a cotação do dia (dá
+   para registrar ali mesmo o que os bancos passaram por telefone), o
+   comentário de mercado e a tabela "Horário Cotação × BIB × ITAU × ITAÚ x BIB"
+   das últimas quatro cotações, com as cores do e-mail de hoje.
+5. **Decisão.** Gestor ou administrador decide no sistema: aguardar o câmbio
+   (com taxa-alvo opcional) ou fechar em D+0, D+1 ou D+2 (dias úteis). Quem
+   recebeu a decisão por e-mail a registra dizendo quem decidiu.
+6. **Fechamento.** Cotação, data e "quem fechou"; o valor em reais sai na hora.
+7. **Resposta ao banco** com a cotação e as invoices anexadas.
+8. **Baixa.** Checklist: baixa no Sisjuri, extrato lançado (atalho para a
+   conciliação do BIB) e contrato de câmbio assinado. Com os três, a ordem
+   fica concluída.
+
+Alertas no topo (e o contador no menu): fechamento D+n do dia ou atrasado,
+taxa-alvo atingida e OK do banco pendente há 2 dias ou mais.
+
+**E-mails.** Cada e-mail pronto tem "Abrir no Outlook" (baixa um rascunho
+`.eml` com `X-Unsent: 1`: o Outlook abre como mensagem nova, editável, com
+destinatários, corpo formatado e os PDFs anexados) e "Copiar formatado" (HTML
+na área de transferência). Destinatários e assinatura ficam em ⚙ na página.
+Os PDFs das invoices ficam no IndexedDB do navegador (`_core/armazenamento/anexos.ts`).
+
+**Planilha.** "Exportar planilha" gera o *Controle de Fechamento de Ordens*
+no layout do escritório: uma aba por mês, colunas A–L, ordem mista em duas
+linhas mescladas e, no pé, as ordens não fechadas por moeda com AMOUNT
+USD/EUR. "PENDENTE?" só vira NÃO quando a baixa termina.
+
+**Fase 2 (Microsoft 365).** Ler os e-mails do BIB sozinho, perceber o OK do
+banco e enviar direto da caixa do usuário exige backend e um aplicativo
+autorizado pela TI no Microsoft 365 (Graph API).
 
 ## Conciliação bancária
 
@@ -131,6 +174,7 @@ client/src/
     armazenamento/colecao.ts   criarColecao / useColecao: coleção reativa e persistida
     armazenamento/semente.ts   VERSAO_DA_SEMENTE, restaurarDemonstracao(), comecarDoZero()
     identidade/                papéis, permissões, módulos, sessão do admin
+    armazenamento/anexos.ts    PDFs anexados (IndexedDB)
     tempo.ts                   "hoje" da demonstração e utilitários de data
   modulos/conciliacao/         contas bancárias, extrato, razão, casamentos, fechamentos; regras puras e leitura de OFX/CSV
   modulos/<módulo>/            tipos, dados de demonstração, coleções, regras puras, ações
@@ -153,7 +197,8 @@ client/src/
 
 - **Regras puras.** Agenda, vencimentos, lotes de conferência, spreads e
   rankings ficam em `modulos/*/regras.ts`, sem React. Os testes ficam em
-  `server/admin.regras.test.ts`, `server/conciliacao.test.ts`,
+  `server/admin.regras.test.ts`, `server/ordens.test.ts`,
+  `server/conciliacao.test.ts`,
   `server/colecao.test.ts` e `server/portal*.test.ts`.
 - **Acesso efetivo = papel ∩ módulos.** O papel (admin, gestor, operador,
   visualizador) dá as permissões (`registros.editar`, `registros.excluir`,
