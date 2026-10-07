@@ -50,10 +50,10 @@ export default function VisaoGeral() {
 
       <div className="kpi-grid kpi-grid-fluido">
         {veContas ? (
-          <Kpi rotulo="Vencendo em 7 dias" valor={String(emBreve.length)} detalhe="contas e tributos pendentes" icone={Clock3} aoClicar={() => navegar("/contas")} />
+          <Kpi rotulo="Vencendo em 7 dias" valor={String(emBreve.length)} detalhe="contas e tributos pendentes" icone={Clock3} tom="ambar" aoClicar={() => navegar("/contas")} />
         ) : null}
         {veCalendario ? (
-          <Kpi rotulo="Eventos hoje" valor={String(hoje.length)} detalhe="reuniões e vencimentos" icone={CalendarDays} aoClicar={() => navegar("/calendario")} />
+          <Kpi rotulo="Eventos hoje" valor={String(hoje.length)} detalhe="reuniões e vencimentos" icone={CalendarDays} tom="neutro" aoClicar={() => navegar("/calendario")} />
         ) : null}
         {vePrestadores ? (
           <Kpi
@@ -61,6 +61,7 @@ export default function VisaoGeral() {
             valor={String(lotes.length)}
             detalhe={formatBRL(lotes.reduce((soma, lote) => soma + lote.total, 0))}
             icone={ClipboardCheck}
+            tom="laranja"
             aoClicar={() => navegar("/prestadores/conferencia")}
           />
         ) : null}

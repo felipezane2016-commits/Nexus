@@ -5,13 +5,18 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { notificacoes } from "@/modulos/notificacoes/colecao";
 import { fechamentos, prestadores, recibos } from "@/modulos/prestadores/colecoes";
 import { montarLotes } from "@/modulos/prestadores/regras";
-import { ArrowLeft, Bell, LogOut, Menu, Moon, Sun, X } from "lucide-react";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { ArrowLeft, Building2, FileText, KanbanSquare, Landmark, LayoutGrid, LogOut, Menu, Moon, Receipt, Sun, UserCog, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useLocation } from "wouter";
 import { itemAtivo, MENU_ESCRITORIO, menuDaRota, type Contador, type Grupo, type ItemMenu } from "./menu";
 import Marca from "@/components/Marca";
 import AvisoRenovacao from "@/components/AvisoRenovacao";
-import { EncaixeCabecalho } from "@/components/CabecalhoPagina";
+import BuscaGlobal, { type ItemBusca } from "@/components/BuscaGlobal";
+import MenuConta from "@/components/MenuConta";
+import MenuSino from "@/components/MenuSino";
+import { documentos, tarefas } from "@/modulos/escritorio/colecoes";
+import { tarefasContas } from "@/modulos/contas/colecoes";
+import { formatarData } from "@/_core/tempo";
 
 /** Primeira rota que a pessoa pode abrir no escritório. */
 export function rotaInicial(usuario: Usuario) {
@@ -47,31 +52,65 @@ function useContadores(): Record<Contador, number> {
 
 type Props = { usuario: Usuario; titulo: string; children: ReactNode };
 
+/** Itens da busca do topo: páginas do menu e registros que a pessoa pode ver. */
+function itensDeBusca(usuario: Usuario, navegar: (rota: string) => void): ItemBusca[] {
+  const itens: ItemBusca[] = [];
+  const paginas = MENU_ESCRITORIO.flatMap((grupo) => grupo.itens).filter((item) => visivel(usuario, item));
+  for (const pagina of paginas) {
+    itens.push({ id: `pg-${pagina.rota}`, grupo: "Páginas", titulo: pagina.rotulo, icone: <LayoutGrid size={14} />, abrir: () => navegar(pagina.rota) });
+  }
+  if (veModulo(usuario, "prestadores")) {
+    for (const prestador of prestadores.ler()) {
+      itens.push({ id: `pr-${prestador.id}`, grupo: "Prestadores", titulo: prestador.nome, detalhe: `${prestador.categoria} · ${prestador.codigoAcesso}`, icone: <Building2 size={14} />, abrir: () => navegar("/prestadores/cadastro") });
+    }
+    for (const recibo of recibos.ler()) {
+      itens.push({ id: `re-${recibo.id}`, grupo: "Recibos", titulo: `${recibo.id} · ${recibo.client}`, detalhe: `${recibo.category} · ${formatarData(recibo.serviceDate)} · ${recibo.status}`, icone: <Receipt size={14} />, abrir: () => navegar("/prestadores/historico") });
+    }
+  }
+  if (veModulo(usuario, "tarefas")) {
+    for (const tarefa of tarefas.ler()) {
+      itens.push({ id: `tf-${tarefa.id}`, grupo: "Tarefas", titulo: tarefa.titulo, detalhe: tarefa.area, icone: <KanbanSquare size={14} />, abrir: () => navegar("/tarefas") });
+    }
+  }
+  if (veModulo(usuario, "documentos")) {
+    for (const documento of documentos.ler()) {
+      itens.push({ id: `dc-${documento.id}`, grupo: "Documentos", titulo: documento.nome, detalhe: documento.categoria, icone: <FileText size={14} />, abrir: () => navegar("/documentos") });
+    }
+  }
+  if (veModulo(usuario, "contas")) {
+    for (const conta of tarefasContas.ler()) {
+      itens.push({ id: `ct-${conta.id}`, grupo: "Account Management", titulo: conta.nome, detalhe: conta.categoria, icone: <Landmark size={14} />, abrir: () => navegar("/contas") });
+    }
+  }
+  return itens;
+}
+
 export default function CascaAdmin({ usuario, titulo, children }: Props) {
   const { theme, toggleTheme } = useTheme();
   const [caminho, navegar] = useLocation();
   const [menuAberto, setMenuAberto] = useState(false);
   const contadores = useContadores();
+  const avisos = useColecao(notificacoes);
 
   // Fecha a gaveta a cada navegação, senão ela cobre a página recém-aberta.
   useEffect(() => {
     setMenuAberto(false);
   }, [caminho]);
 
-  const menuModulo = menuDaRota(caminho);
-  const grupos: Grupo[] = (menuModulo ? menuModulo.grupos : MENU_ESCRITORIO)
-    .map(grupo => ({ ...grupo, itens: grupo.itens.filter(item => visivel(usuario, item)) }))
-    .filter(grupo => grupo.itens.length > 0);
-  const ativo = itemAtivo(
-    grupos.flatMap(grupo => grupo.itens),
-    caminho
-  );
-
-  const [encaixe, setEncaixe] = useState<HTMLDivElement | null>(null);
-
   useEffect(() => {
     document.title = `${titulo} — PNST Administrativo`;
   }, [titulo]);
+
+  const menuModulo = menuDaRota(caminho);
+  const grupos: Grupo[] = (menuModulo ? menuModulo.grupos : MENU_ESCRITORIO)
+    .map((grupo) => ({ ...grupo, itens: grupo.itens.filter((item) => visivel(usuario, item)) }))
+    .filter((grupo) => grupo.itens.length > 0);
+  const ativo = itemAtivo(
+    grupos.flatMap((grupo) => grupo.itens),
+    caminho,
+  );
+  const buscar = useCallback(() => itensDeBusca(usuario, navegar), [usuario, navegar]);
+  const naoLidas = avisos.filter((aviso) => !aviso.lida);
 
   function sairDoAdmin() {
     sair();
@@ -79,115 +118,133 @@ export default function CascaAdmin({ usuario, titulo, children }: Props) {
   }
 
   return (
-    <EncaixeCabecalho.Provider value={encaixe}>
-      <div className="app-shell">
-        <aside className={menuAberto ? "sidebar sidebar-aberta" : "sidebar"} aria-label="Navegação principal">
-          <div className="brand-row">
-            <Marca legenda="Escritório" />
-            <button type="button" className="icon-button sidebar-close" aria-label="Fechar menu" onClick={() => setMenuAberto(false)}>
-              <X size={17} strokeWidth={2} />
+    <div className="app-shell">
+      <aside className={menuAberto ? "sidebar sidebar-aberta" : "sidebar"} aria-label="Navegação principal">
+        <div className="brand-row">
+          <Marca legenda="Escritório" />
+          <button type="button" className="sidebar-close" aria-label="Fechar menu" onClick={() => setMenuAberto(false)}>
+            <X size={16} strokeWidth={2} />
+          </button>
+        </div>
+
+        <div className="sidebar-scroll">
+          {menuModulo ? (
+            <>
+              <button type="button" className="nav-item sidebar-back" onClick={() => navegar(rotaInicial(usuario))}>
+                <ArrowLeft size={16} strokeWidth={1.7} />
+                <span>Voltar ao escritório</span>
+              </button>
+              <p className="sidebar-module-title">{menuModulo.titulo}</p>
+            </>
+          ) : null}
+
+          {grupos.map((grupo) => (
+            <div key={grupo.rotulo}>
+              <p className="sidebar-section-label">{grupo.rotulo}</p>
+              <nav className="sidebar-nav" aria-label={grupo.rotulo}>
+                {grupo.itens.map((item) => {
+                  const Icone = item.icone;
+                  const estaAtivo = ativo?.rota === item.rota;
+                  const contagem = item.contador ? contadores[item.contador] : 0;
+                  return (
+                    <button
+                      key={item.rota}
+                      type="button"
+                      className={estaAtivo ? "nav-item nav-active" : "nav-item"}
+                      aria-current={estaAtivo ? "page" : undefined}
+                      onClick={() => navegar(item.rota)}
+                    >
+                      <Icone size={17} strokeWidth={estaAtivo ? 2.2 : 1.7} />
+                      <span>{item.rotulo}</span>
+                      {contagem > 0 ? (
+                        <span className="nav-count" aria-label={`${contagem} pendente(s)`}>
+                          {contagem}
+                        </span>
+                      ) : null}
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+          ))}
+        </div>
+
+        <div className="sidebar-footer">
+          <div className="sidebar-rule" />
+          <div className="profile-row">
+            <span className="avatar avatar-sm" aria-hidden="true">
+              {iniciais(usuario.nome)}
+            </span>
+            <div>
+              <strong>{usuario.nome}</strong>
+              <span>
+                {PAPEIS[usuario.papel].nome} · {usuario.departamento}
+              </span>
+            </div>
+            <button type="button" className="icon-button subtle" aria-label="Sair" title="Sair" onClick={sairDoAdmin}>
+              <LogOut size={15} strokeWidth={1.9} />
             </button>
           </div>
+        </div>
+      </aside>
 
-          <div className="sidebar-scroll">
+      {menuAberto ? <button type="button" className="sidebar-overlay" aria-label="Fechar menu" onClick={() => setMenuAberto(false)} /> : null}
+
+      <div className="main-shell">
+        <header className="topbar">
+          <button type="button" className="menu-button" aria-label="Abrir menu" onClick={() => setMenuAberto(true)}>
+            <Menu size={19} strokeWidth={1.9} />
+          </button>
+          <div className="breadcrumbs">
             {menuModulo ? (
               <>
-                <button type="button" className="nav-item sidebar-back" onClick={() => navegar(rotaInicial(usuario))}>
-                  <ArrowLeft size={16} strokeWidth={2} />
-                  Voltar ao escritório
-                </button>
-                <p className="sidebar-module-title">{menuModulo.titulo}</p>
+                <span>{menuModulo.titulo}</span>
+                <span aria-hidden="true">/</span>
               </>
             ) : null}
-
-            {grupos.map(grupo => (
-              <div key={grupo.rotulo}>
-                <p className="sidebar-section-label">{grupo.rotulo}</p>
-                <nav className="sidebar-nav" aria-label={grupo.rotulo}>
-                  {grupo.itens.map(item => {
-                    const Icone = item.icone;
-                    const estaAtivo = ativo?.rota === item.rota;
-                    const contagem = item.contador ? contadores[item.contador] : 0;
-                    return (
-                      <button
-                        key={item.rota}
-                        type="button"
-                        className={estaAtivo ? "nav-item nav-active" : "nav-item"}
-                        aria-current={estaAtivo ? "page" : undefined}
-                        onClick={() => navegar(item.rota)}
-                      >
-                        <Icone size={16} strokeWidth={1.9} />
-                        {item.rotulo}
-                        {contagem > 0 ? (
-                          <span className="nav-count" aria-label={`${contagem} pendente(s)`}>
-                            {contagem}
-                          </span>
-                        ) : null}
-                      </button>
-                    );
-                  })}
-                </nav>
-              </div>
-            ))}
+            <strong>{titulo}</strong>
           </div>
-
-          <div className="sidebar-footer sidebar-card">
-            <div className="sidebar-account">
-              <div className="avatar" aria-hidden="true">
-                {iniciais(usuario.nome)}
-              </div>
-              <div>
-                <strong>{usuario.nome}</strong>
-                <span>
-                  {PAPEIS[usuario.papel].nome} · {usuario.departamento}
-                </span>
-              </div>
-            </div>
-            <button type="button" className="nav-item" onClick={sairDoAdmin}>
-              <LogOut size={16} strokeWidth={1.9} />
-              Sair
-            </button>
-          </div>
-        </aside>
-
-        {menuAberto ? (
-          <button type="button" className="sidebar-overlay" aria-label="Fechar menu" onClick={() => setMenuAberto(false)} />
-        ) : null}
-
-        <div className="main-shell">
-          <header className="topbar">
-            <button type="button" className="icon-button menu-button" aria-label="Abrir menu" onClick={() => setMenuAberto(true)}>
-              <Menu size={18} strokeWidth={2} />
-            </button>
-            {/* Encaixe do título: cada página declara o seu com <Cabecalho>. */}
-            <div className="topbar-titulo" ref={setEncaixe} />
-            <div className="topbar-actions">
-              {toggleTheme ? (
-                <button
-                  type="button"
-                  className="icon-button"
-                  aria-label={theme === "dark" ? "Usar tema claro" : "Usar tema escuro"}
-                  onClick={toggleTheme}
-                >
-                  {theme === "dark" ? <Sun size={17} strokeWidth={1.9} /> : <Moon size={17} strokeWidth={1.9} />}
-                </button>
-              ) : null}
+          <div className="topbar-actions">
+            <BuscaGlobal itens={buscar} placeholder="Buscar páginas, prestadores, recibos, tarefas…" />
+            {toggleTheme ? (
               <button
                 type="button"
-                className={contadores.notificacoes > 0 ? "icon-button notification-dot" : "icon-button"}
-                aria-label={contadores.notificacoes > 0 ? `${contadores.notificacoes} notificação(ões) não lida(s)` : "Notificações"}
-                onClick={() => navegar("/notificacoes")}
+                className="icon-button theme-toggle"
+                aria-label={theme === "dark" ? "Usar tema claro" : "Usar tema escuro"}
+                aria-pressed={theme === "dark"}
+                onClick={toggleTheme}
               >
-                <Bell size={17} strokeWidth={1.9} />
+                {theme === "dark" ? <Sun size={17} strokeWidth={1.9} /> : <Moon size={17} strokeWidth={1.9} />}
               </button>
-            </div>
-          </header>
-          <main className="page-content">
-            <AvisoRenovacao />
-            {children}
-          </main>
-        </div>
+            ) : null}
+            <MenuSino
+              avisos={naoLidas.map((aviso) => ({
+                id: aviso.id,
+                titulo: aviso.titulo,
+                detalhe: aviso.corpo,
+                abrir: () => navegar(aviso.destino ?? "/notificacoes"),
+              }))}
+              vazio="Você está em dia. Nenhuma notificação nova."
+              rodape={{ rotulo: "Ver todas as notificações", abrir: () => navegar("/notificacoes") }}
+            />
+            <MenuConta
+              iniciais={iniciais(usuario.nome)}
+              nome={usuario.nome}
+              detalhe={`${PAPEIS[usuario.papel].nome} · ${usuario.departamento}`}
+              acoes={[
+                ...(pode(usuario, "usuarios.gerenciar")
+                  ? [{ rotulo: "Usuários e acessos", icone: <UserCog size={14} />, aoClicar: () => navegar("/usuarios") }]
+                  : []),
+                { rotulo: "Sair", icone: <LogOut size={14} />, aoClicar: sairDoAdmin },
+              ]}
+            />
+          </div>
+        </header>
+        <main className="page-content page-enter" key={caminho}>
+          <AvisoRenovacao />
+          {children}
+        </main>
       </div>
-    </EncaixeCabecalho.Provider>
+    </div>
   );
 }

@@ -1,28 +1,21 @@
-import { createContext, useContext, type ReactNode } from "react";
-import { createPortal } from "react-dom";
+import type { ReactNode } from "react";
 
 /**
- * O título da página mora no topo fixo da casca, não no miolo: a casca expõe
- * um encaixe e cada página declara o seu título, que é levado para lá por
- * portal. Assim o título continua visível ao rolar e a página não precisa
- * saber como a casca é montada.
+ * Abertura de página, como na Central de Operações PNST: sobrelinha em
+ * laranja, título e descrição dentro do conteúdo; o topo fixo mostra só o
+ * nome da seção, a busca e as ações da conta.
  */
-export const EncaixeCabecalho = createContext<HTMLElement | null>(null);
+type Props = { rotulo?: ReactNode; titulo: ReactNode; descricao?: ReactNode; acoes?: ReactNode };
 
-type Props = { titulo: ReactNode; descricao?: ReactNode; acoes?: ReactNode };
-
-export default function CabecalhoPagina({ titulo, descricao, acoes }: Props) {
-  const encaixe = useContext(EncaixeCabecalho);
-  const conteudo = (
-    <div className="page-heading">
+export default function CabecalhoPagina({ rotulo, titulo, descricao, acoes }: Props) {
+  return (
+    <header className="page-heading">
       <div className="page-heading-copy">
+        {rotulo ? <span className="eyebrow accent-eyebrow">{rotulo}</span> : null}
         <h1>{titulo}</h1>
         {descricao ? <p>{descricao}</p> : null}
       </div>
       {acoes ? <div className="heading-actions">{acoes}</div> : null}
-    </div>
+    </header>
   );
-  // Fora de uma casca (ou no primeiro render, antes do encaixe existir) não
-  // há onde pôr o título; a casca re-renderiza assim que o encaixe monta.
-  return encaixe ? createPortal(conteudo, encaixe) : null;
 }

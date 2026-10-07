@@ -68,6 +68,7 @@ export default function Closing() {
   return (
     <PortalShell title="Fechamento mensal">
       <CabecalhoPagina
+        rotulo={"Fechamento"}
         titulo="Fechamento mensal"
         descricao="Consolide os recibos da competência, anexe o documento de faturamento e envie ao escritório."
         acoes={

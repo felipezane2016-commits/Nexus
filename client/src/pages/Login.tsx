@@ -1,24 +1,9 @@
 import { usePortal } from "@/contexts/PortalContext";
 import { DEMO_CREDENTIALS } from "@/lib/portalSeed";
-import { AlertCircle, CheckCircle2, Eye, EyeOff, Info } from "lucide-react";
+import { AlertCircle, Eye, EyeOff, Info } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link, useLocation } from "wouter";
-import Marca from "@/components/Marca";
-
-const GARANTIAS = [
-  {
-    titulo: "Cada recibo com seu histórico",
-    texto: "Quem lançou, quando foi enviado e o que o escritório decidiu.",
-  },
-  {
-    titulo: "Fechamento em quatro etapas",
-    texto: "Recibos, revisão, documento e envio — o progresso fica à vista.",
-  },
-  {
-    titulo: "Acesso por contrato",
-    texto: "Cada prestador vê apenas os próprios recibos.",
-  },
-];
+import logoPnst from "@/assets/pnst-logo.webp";
 
 export default function Login() {
   const { signIn } = usePortal();
@@ -47,37 +32,12 @@ export default function Login() {
 
   return (
     <div className="acesso">
-      <section className="acesso-painel">
-        <div className="brand-row">
-          <Marca legenda="Portal do Prestador" />
-        </div>
-
-        <div>
-          <span className="eyebrow">Recibos e fechamento mensal</span>
-          <h1>
-            Seus recibos, <em>fechados no prazo</em>.
-          </h1>
-          <p>
-            Lance cada serviço prestado, acompanhe a conferência do escritório e
-            envie o fechamento sem trocar e-mails.
-          </p>
-        </div>
-
-        <ul className="acesso-pontos">
-          {GARANTIAS.map(item => (
-            <li key={item.titulo}>
-              <CheckCircle2 size={17} strokeWidth={2} />
-              <div>
-                <strong>{item.titulo}</strong>
-                {item.texto}
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
 
       <section className="acesso-palco">
         <div className="acesso-cartao">
+          <div className="auth-badge">
+            <img src={logoPnst} alt="PNST — Pacheco Neto Sanden Teisseire Advogados" />
+          </div>
           <span className="accent-eyebrow">Entrar</span>
           <h2>Bem-vinda de volta</h2>
           <p>

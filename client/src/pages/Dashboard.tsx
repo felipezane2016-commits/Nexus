@@ -26,6 +26,9 @@ import {
 import { useLocation } from "wouter";
 import CabecalhoPagina from "@/components/CabecalhoPagina";
 
+/** Filete de cada indicador, na ordem em que aparecem. */
+const TONS_KPI = ["laranja", "verde", "ambar", "neutro"];
+
 export default function Dashboard() {
   const { receipts, currentCompetencia, closingFor, provider } = usePortal();
   const [, navigate] = useLocation();
@@ -124,6 +127,7 @@ export default function Dashboard() {
   return (
     <PortalShell title="Visão geral">
       <CabecalhoPagina
+        rotulo={`Competência ${formatMonth(currentCompetencia)}`}
         titulo={`Olá, ${firstName}`}
         descricao={`Competência ${formatMonth(currentCompetencia)} · acompanhe os recibos e feche o mês sem pendências.`}
         acoes={
@@ -163,10 +167,10 @@ export default function Dashboard() {
       ) : null}
 
       <div className="kpi-grid">
-        {kpis.map(kpi => {
+        {kpis.map((kpi, indice) => {
           const Icon = kpi.icon;
           return (
-            <div className="kpi-card" key={kpi.label}>
+            <div className={`kpi-card kpi-${TONS_KPI[indice] ?? "neutro"}`} key={kpi.label}>
               <div className="kpi-card-head">
                 <span className="kpi-label">{kpi.label}</span>
                 <span className="kpi-icon" aria-hidden="true">

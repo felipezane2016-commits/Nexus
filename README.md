@@ -132,31 +132,30 @@ client/src/
 
 ## Design
 
-Estrutura e design do **MBG Connected Operations** (o sistema de referência),
-com as cores da marca PNST:
+Estrutura e design da **Central de Operações PNST** (o app de referência):
 
-- **Casca.** Barra lateral de 256px em grafite `#303030` com a logo, itens de
-  menu arredondados e um cartão no pé com a pessoa logada. O título da página,
-  a descrição e as ações ficam no topo fixo (com desfoque), não no miolo — as
-  páginas declaram o título com `<Cabecalho>`/`<CabecalhoPagina>` e ele vai
-  para o topo por portal. Abaixo de 1024px a barra vira gaveta.
-- **Tokens semânticos** como no MBG: `primary`, `secondary`, `muted`,
-  `accent`, `success`, `warning`, `info`, `destructive` e `sidebar-*`. O
-  `primary` é o laranja 600 `#C9460D` (4,81:1 com branco, para botão, link e
-  filtro ativo); o laranja da marca `#F16122` é o `sidebar-primary` (item
-  ativo, contador, avatar, gráfico).
-- **Componentes.** Painéis com raio de 16px, sombra suave e animação de
-  entrada; KPIs com o número grande primeiro; selos em pílula com borda e
-  fundo translúcidos; filtros em pílula (o ativo preenchido); tabelas de
-  borda a borda com cabeçalho em fundo neutro.
-- **Tipografia.** Manrope no texto, Sora nos títulos — como no MBG, sem
-  monoespaçada; números com algarismos tabulares.
-- **Gráficos.** `--chart-1` (laranja 700) e `--chart-2` (a marca), par
-  validado no claro e no escuro; a 2ª série também é tracejada e cada gráfico
-  tem "Ver como tabela".
+- **Casca.** Barra lateral de 258px em grafite `#282828` com a logo, rótulos de
+  grupo em mono, item ativo em `#3e3e3e` com barra laranja à esquerda e, no pé,
+  a pessoa logada com o botão de sair. Topo de 70px com trilha (módulo /
+  página), busca global (páginas, prestadores, recibos, tarefas, documentos,
+  contas), alternância de tema, sino com avisos e menu da conta. Abaixo de
+  760px a barra vira gaveta e a busca vira ícone.
+- **Título no miolo.** Cada página abre com um sobretítulo laranja em mono, o
+  `h1` de 26px, a descrição e as ações à direita
+  (`<Cabecalho>`/`<CabecalhoPagina>`).
+- **Cores.** Laranja PNST `#F16122` direto no botão principal (texto branco em
+  negrito), filtro ativo e gráficos; fundo `#f9f9f9`, bordas `#e7e7e7`. O modo
+  escuro redefine só os tokens.
+- **Componentes.** Raios de 6–9px; KPIs com rótulo mono de 9px, número em 32px
+  e faixa colorida de 3px no pé (laranja, verde, âmbar, vermelho ou neutro);
+  selos de status com ponto colorido; filtros em chip cinza (o ativo com tinta
+  laranja); tabelas com cabeçalho mono em fundo neutro.
+- **Tipografia.** DM Sans nos títulos, Source Sans 3 no texto e IBM Plex Mono
+  nos rótulos; números com algarismos tabulares.
+- **Login.** Cartão centralizado com o selo escuro da logo e brilho laranja ao
+  fundo, igual para admin e portal.
 - **Convenções.** Uma folha de estilo só; `style={{}}` apenas para valor
-  calculado em tempo de execução. O modo escuro redefine só os tokens.
-  Nenhuma tela rola para o lado em 390px.
+  calculado em tempo de execução. Nenhuma tela rola para o lado em 390px.
 
 ## Build estático para preview
 

@@ -26,6 +26,9 @@ import {
 import { useState } from "react";
 import CabecalhoPagina from "@/components/CabecalhoPagina";
 
+/** Filete de cada indicador, na ordem em que aparecem. */
+const TONS_KPI = ["laranja", "verde", "ambar", "neutro"];
+
 type StatusFilter = PrototypeReceiptStatus | "Todos";
 
 export default function Receipts() {
@@ -94,6 +97,7 @@ export default function Receipts() {
   return (
     <PortalShell title="Meus recibos">
       <CabecalhoPagina
+        rotulo={"Recibos"}
         titulo="Meus recibos"
         descricao={`Competência aberta · ${formatMonth(currentCompetencia)}. Lance, revise e envie cada serviço para conferência.`}
         acoes={
@@ -104,8 +108,8 @@ export default function Receipts() {
       />
 
       <div className="kpi-grid">
-        {kpis.map(kpi => (
-          <div className="kpi-card" key={kpi.label}>
+        {kpis.map((kpi, indice) => (
+          <div className={`kpi-card kpi-${TONS_KPI[indice] ?? "neutro"}`} key={kpi.label}>
             <span className="kpi-label">{kpi.label}</span>
             <p className="kpi-value">{kpi.value}</p>
             <p className="kpi-detail">{kpi.detail}</p>

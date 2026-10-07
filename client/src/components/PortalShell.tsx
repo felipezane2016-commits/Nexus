@@ -1,7 +1,7 @@
 import { useTheme } from "@/contexts/ThemeContext";
 import { usePortal } from "@/contexts/PortalContext";
+import { formatBRL, formatDate } from "@/lib/portal";
 import {
-  Bell,
   CalendarCheck,
   LayoutDashboard,
   LogOut,
@@ -11,11 +11,13 @@ import {
   Sun,
   X,
 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useLocation } from "wouter";
 import Marca from "@/components/Marca";
 import AvisoRenovacao from "@/components/AvisoRenovacao";
-import { EncaixeCabecalho } from "@/components/CabecalhoPagina";
+import BuscaGlobal from "@/components/BuscaGlobal";
+import MenuConta from "@/components/MenuConta";
+import MenuSino from "@/components/MenuSino";
 
 const NAV_ITEMS = [
   { path: "/", label: "Visão geral", icon: LayoutDashboard },
@@ -43,7 +45,6 @@ export default function PortalShell({
   const { theme, toggleTheme } = useTheme();
   const [location, navigate] = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [encaixe, setEncaixe] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
     document.title = `${title} — Portal do Prestador · PNST`;
@@ -55,9 +56,26 @@ export default function PortalShell({
   const draftCount = receipts.filter(
     receipt => receipt.status === "Rascunho"
   ).length;
-  const rejectedCount = receipts.filter(
-    receipt => receipt.status === "Rejeitado"
-  ).length;
+  const rejected = receipts.filter(receipt => receipt.status === "Rejeitado");
+
+  const buscar = useCallback(
+    () => [
+      ...NAV_ITEMS.map(item => ({
+        id: `pg-${item.path}`,
+        grupo: "Páginas",
+        titulo: item.label,
+        abrir: () => navigate(item.path),
+      })),
+      ...receipts.map(receipt => ({
+        id: `re-${receipt.id}`,
+        grupo: "Recibos",
+        titulo: `${receipt.id} · ${receipt.client}`,
+        detalhe: `${receipt.category} · ${formatDate(receipt.serviceDate)} · ${formatBRL(receipt.amount)} · ${receipt.status}`,
+        abrir: () => navigate("/recibos"),
+      })),
+    ],
+    [receipts, navigate]
+  );
 
   function handleSignOut() {
     signOut();
@@ -65,26 +83,26 @@ export default function PortalShell({
   }
 
   return (
-    <EncaixeCabecalho.Provider value={encaixe}>
-      <div className="app-shell">
-        <aside
-          className={menuOpen ? "sidebar sidebar-aberta" : "sidebar"}
-          aria-label="Navegação principal"
-        >
-          <div className="brand-row">
-            <Marca legenda="Portal do Prestador" />
-            <button
-              type="button"
-              className="icon-button sidebar-close"
-              aria-label="Fechar menu"
-              onClick={() => setMenuOpen(false)}
-            >
-              <X size={17} strokeWidth={2} />
-            </button>
-          </div>
+    <div className="app-shell">
+      <aside
+        className={menuOpen ? "sidebar sidebar-aberta" : "sidebar"}
+        aria-label="Navegação principal"
+      >
+        <div className="brand-row">
+          <Marca legenda="Portal do Prestador" />
+          <button
+            type="button"
+            className="sidebar-close"
+            aria-label="Fechar menu"
+            onClick={() => setMenuOpen(false)}
+          >
+            <X size={16} strokeWidth={2} />
+          </button>
+        </div>
 
-          <p className="sidebar-section-label">Principal</p>
-          <nav className="sidebar-nav">
+        <div className="sidebar-scroll">
+          <p className="sidebar-section-label">Navegação</p>
+          <nav className="sidebar-nav" aria-label="Navegação">
             {NAV_ITEMS.map(item => {
               const Icon = item.icon;
               const active = location === item.path;
@@ -98,13 +116,10 @@ export default function PortalShell({
                   aria-current={active ? "page" : undefined}
                   onClick={() => navigate(item.path)}
                 >
-                  <Icon size={16} strokeWidth={1.9} />
-                  {item.label}
+                  <Icon size={17} strokeWidth={active ? 2.2 : 1.7} />
+                  <span>{item.label}</span>
                   {badge ? (
-                    <span
-                      className="nav-count"
-                      aria-label={`${badge} rascunho(s)`}
-                    >
+                    <span className="nav-count" aria-label={`${badge} rascunho(s)`}>
                       {badge}
                     </span>
                   ) : null}
@@ -112,87 +127,99 @@ export default function PortalShell({
               );
             })}
           </nav>
+        </div>
 
-          <div className="sidebar-footer sidebar-card">
-            <div className="sidebar-account">
-              <div className="avatar" aria-hidden="true">
-                {initials(provider.name)}
-              </div>
-              <div>
-                <strong>{provider.name}</strong>
-                <span>{provider.code}</span>
-              </div>
+        <div className="sidebar-footer">
+          <div className="sidebar-rule" />
+          <div className="profile-row">
+            <span className="avatar avatar-sm" aria-hidden="true">
+              {initials(provider.name)}
+            </span>
+            <div>
+              <strong>{provider.name}</strong>
+              <span>{provider.code}</span>
             </div>
-            <button type="button" className="nav-item" onClick={handleSignOut}>
-              <LogOut size={16} strokeWidth={1.9} />
-              Sair do portal
-            </button>
-          </div>
-        </aside>
-
-        {menuOpen ? (
-          <button
-            type="button"
-            className="sidebar-overlay"
-            aria-label="Fechar menu"
-            onClick={() => setMenuOpen(false)}
-          />
-        ) : null}
-
-        <div className="main-shell">
-          <header className="topbar">
             <button
               type="button"
-              className="icon-button menu-button"
-              aria-label="Abrir menu"
-              onClick={() => setMenuOpen(true)}
+              className="icon-button subtle"
+              aria-label="Sair do portal"
+              title="Sair do portal"
+              onClick={handleSignOut}
             >
-              <Menu size={18} strokeWidth={2} />
+              <LogOut size={15} strokeWidth={1.9} />
             </button>
-            {/* Encaixe do título: cada página declara o seu com <CabecalhoPagina>. */}
-            <div className="topbar-titulo" ref={setEncaixe} />
-            <div className="topbar-actions">
-              {toggleTheme ? (
-                <button
-                  type="button"
-                  className="icon-button"
-                  aria-label={
-                    theme === "dark" ? "Usar tema claro" : "Usar tema escuro"
-                  }
-                  onClick={toggleTheme}
-                >
-                  {theme === "dark" ? (
-                    <Sun size={17} strokeWidth={1.9} />
-                  ) : (
-                    <Moon size={17} strokeWidth={1.9} />
-                  )}
-                </button>
-              ) : null}
+          </div>
+        </div>
+      </aside>
+
+      {menuOpen ? (
+        <button
+          type="button"
+          className="sidebar-overlay"
+          aria-label="Fechar menu"
+          onClick={() => setMenuOpen(false)}
+        />
+      ) : null}
+
+      <div className="main-shell">
+        <header className="topbar">
+          <button
+            type="button"
+            className="menu-button"
+            aria-label="Abrir menu"
+            onClick={() => setMenuOpen(true)}
+          >
+            <Menu size={19} strokeWidth={1.9} />
+          </button>
+          <div className="breadcrumbs">
+            <strong>{title}</strong>
+          </div>
+          <div className="topbar-actions">
+            <BuscaGlobal itens={buscar} placeholder="Buscar recibos e páginas…" />
+            {toggleTheme ? (
               <button
                 type="button"
-                className={
-                  rejectedCount > 0
-                    ? "icon-button notification-dot"
-                    : "icon-button"
-                }
-                aria-label={
-                  rejectedCount > 0
-                    ? `${rejectedCount} recibo(s) devolvido(s)`
-                    : "Sem novidades"
-                }
-                onClick={() => navigate("/recibos")}
+                className="icon-button theme-toggle"
+                aria-label={theme === "dark" ? "Usar tema claro" : "Usar tema escuro"}
+                aria-pressed={theme === "dark"}
+                onClick={toggleTheme}
               >
-                <Bell size={17} strokeWidth={1.9} />
+                {theme === "dark" ? (
+                  <Sun size={17} strokeWidth={1.9} />
+                ) : (
+                  <Moon size={17} strokeWidth={1.9} />
+                )}
               </button>
-            </div>
-          </header>
+            ) : null}
+            <MenuSino
+              avisos={rejected.map(receipt => ({
+                id: receipt.id,
+                titulo: `${receipt.id} devolvido`,
+                detalhe: receipt.reviewNote ?? "Revise e reenvie o recibo.",
+                abrir: () => navigate("/recibos"),
+              }))}
+              vazio="Você está em dia. Nenhum recibo devolvido."
+            />
+            <MenuConta
+              iniciais={initials(provider.name)}
+              nome={provider.name}
+              detalhe={`Código ${provider.code}`}
+              acoes={[
+                {
+                  rotulo: "Sair do portal",
+                  icone: <LogOut size={14} />,
+                  aoClicar: handleSignOut,
+                },
+              ]}
+            />
+          </div>
+        </header>
 
-          <main className="page-content">
-            <AvisoRenovacao />
-            {children}
-          </main>
-        </div>
+        <main className="page-content page-enter" key={location}>
+          <AvisoRenovacao />
+          {children}
+        </main>
       </div>
-    </EncaixeCabecalho.Provider>
+    </div>
   );
 }

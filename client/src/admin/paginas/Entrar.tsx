@@ -1,15 +1,9 @@
 import { PAPEIS } from "@/_core/identidade/permissoes";
 import { entrar, USUARIOS_DEMO, useUsuarioAtual } from "@/_core/identidade/sessao";
-import { AlertCircle, CheckCircle2, Eye, EyeOff, Info } from "lucide-react";
+import { AlertCircle, Eye, EyeOff, Info } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link, Redirect, useLocation } from "wouter";
-import Marca from "@/components/Marca";
-
-const GARANTIAS = [
-  { titulo: "Um lugar para a operação", texto: "Prestadores, contas e agenda no mesmo lugar." },
-  { titulo: "Cada um vê o que precisa", texto: "Papel e módulos definem o que aparece para cada pessoa." },
-  { titulo: "Ligado ao portal", texto: "O que o prestador envia chega direto na conferência." },
-];
+import logoPnst from "@/assets/pnst-logo.webp";
 
 export default function Entrar() {
   const usuario = useUsuarioAtual();
@@ -34,32 +28,12 @@ export default function Entrar() {
 
   return (
     <div className="acesso">
-      <section className="acesso-painel">
-        <div className="brand-row">
-          <Marca legenda="Escritório" />
-        </div>
-        <div>
-          <span className="eyebrow">Plataforma de inteligência operacional</span>
-          <h1>
-            A operação do escritório, <em>num só lugar</em>.
-          </h1>
-          <p>Prestadores, contas e agenda com o histórico de quem decidiu o quê.</p>
-        </div>
-        <ul className="acesso-pontos">
-          {GARANTIAS.map((item) => (
-            <li key={item.titulo}>
-              <CheckCircle2 size={17} strokeWidth={2} />
-              <div>
-                <strong>{item.titulo}</strong>
-                {item.texto}
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
 
       <section className="acesso-palco">
         <div className="acesso-cartao">
+          <div className="auth-badge">
+            <img src={logoPnst} alt="PNST — Pacheco Neto Sanden Teisseire Advogados" />
+          </div>
           <span className="accent-eyebrow">Escritório · Entrar</span>
           <h2>Bem-vindo de volta</h2>
           <p>Entre com o e-mail corporativo.</p>
