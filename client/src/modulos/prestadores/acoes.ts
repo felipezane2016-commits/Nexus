@@ -1,3 +1,4 @@
+import { HOJE } from "@/_core/tempo";
 import { formatBRL, formatMonth } from "@/lib/portal";
 import { notificar } from "@/modulos/notificacoes/colecao";
 import { fechamentos, prestadores, recibos } from "./colecoes";
@@ -40,7 +41,7 @@ export function marcarPago(prestadorId: string, competencia: string) {
   fechamentos.atualizar((lista) =>
     lista.map((item) =>
       item.prestadorId === prestadorId && item.competencia === competencia && item.review === "Conferido"
-        ? { ...item, review: "Pago" }
+        ? { ...item, review: "Pago", paidAt: HOJE }
         : item,
     ),
   );

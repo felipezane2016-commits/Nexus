@@ -75,6 +75,8 @@ export type Closing = {
   submittedAt: string | null;
   /** null enquanto o prestador não envia; o escritório avança daí em diante. */
   review: ClosingReview | null;
+  /** Dia em que o escritório pagou o lote; alimenta o razão da conciliação. */
+  paidAt?: string | null;
 };
 
 export type Provider = {

@@ -42,6 +42,10 @@ const PAGINAS: Pagina[] = [
     titulo: "Calendário econômico",
     Componente: lazy(() => import("./paginas/contas/CalendarioEconomico")),
   },
+  { padrao: "/contas/conciliacao", titulo: "Painel da conciliação", Componente: lazy(() => import("./paginas/conciliacao/PainelConciliacao")) },
+  { padrao: "/contas/conciliacao/conciliar", titulo: "Conciliar", Componente: lazy(() => import("./paginas/conciliacao/Conciliar")) },
+  { padrao: "/contas/conciliacao/demonstrativo", titulo: "Demonstrativo", Componente: lazy(() => import("./paginas/conciliacao/Demonstrativo")) },
+  { padrao: "/contas/conciliacao/contas", titulo: "Contas bancárias", Componente: lazy(() => import("./paginas/conciliacao/ContasBancarias")) },
 
 ];
 

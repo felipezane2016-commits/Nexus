@@ -81,9 +81,46 @@ Rotas do admin:
   - `/contas/tendencia`
   - `/contas/economia`
   - `/contas/calendario-economico`
+  - **Conciliação bancária**:
+    - `/contas/conciliacao` painel das contas no mês
+    - `/contas/conciliacao/conciliar` extrato × razão
+    - `/contas/conciliacao/demonstrativo` relatório e fechamento
+    - `/contas/conciliacao/contas` contas bancárias e importações
 
 Ao entrar num módulo (Prestadores, Contas), a barra lateral troca para o menu
 dele e ganha o link "Voltar ao escritório".
+
+## Conciliação bancária
+
+Segue o processo que a área financeira faz todo mês, conta por conta:
+
+1. **Extrato.** Importa o OFX do internet banking ou um CSV (data, histórico,
+   documento, valor — ou crédito e débito separados). Linha já importada fica
+   de fora (FITID do OFX ou assinatura da linha). O saldo final do arquivo vira
+   o "saldo informado pelo banco".
+2. **Razão.** Os lançamentos da conta contábil que espelha o banco. "Trazer do
+   sistema" puxa sozinho os lotes de prestadores pagos (saída no Itaú PNST) e
+   as ordens de câmbio fechadas (entrada no Banco Industrial); o resto entra
+   por "Novo lançamento".
+3. **Casamento.** "Conciliar automaticamente" casa o que é seguro: mesmo
+   valor com até 3 dias de diferença (mesmo documento primeiro) e o débito
+   único do banco que soma 2 a 4 lançamentos do razão (lote de pagamentos). O
+   resto se casa à mão, N para M, desde que as somas batam.
+4. **Ajustes.** Tarifa, IOF e rendimento só existem no banco: "Lançar no
+   razão" cria o lançamento com a contrapartida escolhida e já concilia.
+5. **Demonstrativo.** Saldo do extrato + depósitos em trânsito − pagamentos
+   não compensados = saldo bancário ajustado; saldo do razão + créditos não
+   contabilizados − débitos não contabilizados = saldo contábil ajustado. A
+   diferença tem de ser zero. Exporta CSV e imprime.
+6. **Fechamento com dupla checagem.** O checklist exige mês anterior fechado,
+   saldo do banco conferido, nada do banco fora do razão e diferença zero.
+   Quem prepara envia para revisão; um gestor ou administrador *diferente*
+   aprova. Em revisão ou fechado, o mês trava; o revisor devolve, o
+   administrador reabre.
+
+Na semente, maio está fechado nas três contas (Itaú PNST, Banco Industrial
+PNST e Itaú PNSTART) e junho está em andamento, com cheque não compensado,
+depósito em trânsito, tarifas, IOF, rendimento e um lote SISPAG.
 
 ## Arquitetura
 
@@ -95,6 +132,7 @@ client/src/
     armazenamento/semente.ts   VERSAO_DA_SEMENTE, restaurarDemonstracao(), comecarDoZero()
     identidade/                papéis, permissões, módulos, sessão do admin
     tempo.ts                   "hoje" da demonstração e utilitários de data
+  modulos/conciliacao/         contas bancárias, extrato, razão, casamentos, fechamentos; regras puras e leitura de OFX/CSV
   modulos/<módulo>/            tipos, dados de demonstração, coleções, regras puras, ações
   admin/                       casca, menus, rotas, componentes e páginas do admin
   pages/, components/          Portal do Prestador
@@ -115,8 +153,8 @@ client/src/
 
 - **Regras puras.** Agenda, vencimentos, lotes de conferência, spreads e
   rankings ficam em `modulos/*/regras.ts`, sem React. Os testes ficam em
-  `server/admin.regras.test.ts`, `server/colecao.test.ts` e
-  `server/portal*.test.ts`.
+  `server/admin.regras.test.ts`, `server/conciliacao.test.ts`,
+  `server/colecao.test.ts` e `server/portal*.test.ts`.
 - **Acesso efetivo = papel ∩ módulos.** O papel (admin, gestor, operador,
   visualizador) dá as permissões (`registros.editar`, `registros.excluir`,
   `usuarios.gerenciar`). Os módulos do usuário dizem o que ele vê. Visualizador

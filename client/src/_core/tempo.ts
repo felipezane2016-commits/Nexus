@@ -23,3 +23,8 @@ export function formatarDataHora(iso: string) {
 export function gerarId(prefixo: string) {
   return `${prefixo}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 }
+
+/** Dias corridos de `data` até hoje (da demonstração). */
+export function diasDesde(data: string) {
+  return Math.round((Date.parse(`${HOJE}T12:00:00Z`) - Date.parse(`${data.slice(0, 10)}T12:00:00Z`)) / 86_400_000);
+}
