@@ -91,7 +91,7 @@ chave de serviço que nunca sai de lá).
    VITE_SUPABASE_URL=https://xxxx.supabase.co
    VITE_SUPABASE_ANON_KEY=eyJ...
    ```
-3. Teste no seu computador: `pnpm install` e `pnpm dev`, e abra <http://localhost:3000>.
+3. Teste no seu computador: `pnpm install` e `pnpm web`, e abra <http://localhost:3000>.
    Sem esse arquivo o sistema mostra "Sistema ainda não ligado ao banco".
    Com ele, a tela de login pede e-mail e senha; entre com o administrador do
    passo 4. O sistema começa vazio: nada fictício, só o que a equipe cadastrar.

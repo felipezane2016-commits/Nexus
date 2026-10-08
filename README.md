@@ -42,7 +42,8 @@ O passo a passo para criar o projeto e ligar o sistema está em **[SUPABASE.md](
 
 ```bash
 pnpm install
-pnpm dev                # http://localhost:3000 (dados reais, com o .env.local)
+pnpm web                # http://localhost:3000 (dados reais, com o .env.local; funciona no Windows)
+pnpm dev                # o mesmo pelo servidor Express do template (Linux/macOS)
 VITE_DEMO=1 pnpm dev    # demonstração com dados fictícios
 ```
 
