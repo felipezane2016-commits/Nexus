@@ -7,7 +7,9 @@
 const url = (import.meta.env?.VITE_SUPABASE_URL as string | undefined) ?? "";
 const chave = (import.meta.env?.VITE_SUPABASE_ANON_KEY as string | undefined) ?? "";
 
-export const MODO_REAL = Boolean(url && chave);
+// Os testes automáticos (vitest) rodam sempre na demonstração, mesmo com um
+// .env.local de verdade na pasta: nunca gravam no banco real.
+export const MODO_REAL = Boolean(url && chave) && import.meta.env?.MODE !== "test";
 export const CONFIG_SUPABASE = { url, chave };
 
 /**

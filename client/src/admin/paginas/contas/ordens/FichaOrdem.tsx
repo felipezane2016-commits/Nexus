@@ -2,7 +2,7 @@ import { apagarAnexo, baixarBlob, guardarAnexo, lerAnexo } from "@/_core/armazen
 import { useColecao } from "@/_core/armazenamento/colecao";
 import { pode, type Usuario } from "@/_core/identidade/permissoes";
 import { usuarios } from "@/_core/identidade/sessao";
-import { formatarData, formatarDataHora, HOJE } from "@/_core/tempo";
+import { formatarData, formatarDataHora, HOJE, horaDeBrasilia } from "@/_core/tempo";
 import Gaveta from "@/admin/componentes/Gaveta";
 import Selo from "@/admin/componentes/Selo";
 import { formatBRL, parseAmount } from "@/lib/portal";
@@ -180,7 +180,7 @@ function AcaoDaEtapa({ ordem, etapa, usuario, autor, podeEditar, aoEnviarSuperio
   aoEnviarSuperiores: () => void;
 }) {
   const { configEmails } = useDadosContas();
-  const hora = new Date().getHours();
+  const hora = horaDeBrasilia();
   switch (etapa) {
     case "Recebida":
       return ordem.invoices.length === 0 ? (

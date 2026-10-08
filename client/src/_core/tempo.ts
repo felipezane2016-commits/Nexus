@@ -12,6 +12,11 @@ function hojeReal() {
  */
 export const HOJE = MODO_REAL ? hojeReal() : "2026-06-30";
 
+/** Hora atual em Brasília (0–23), para saudações. */
+export function horaDeBrasilia(agora = new Date()) {
+  return Number(new Intl.DateTimeFormat("en-GB", { timeZone: "America/Sao_Paulo", hour: "2-digit", hourCycle: "h23" }).format(agora));
+}
+
 export function somarDias(data: string, dias: number) {
   const d = new Date(`${data}T12:00:00`);
   d.setDate(d.getDate() + dias);

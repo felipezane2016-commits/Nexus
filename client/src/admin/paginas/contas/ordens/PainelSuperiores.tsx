@@ -1,5 +1,5 @@
 import { gravarItem } from "@/_core/armazenamento/colecao";
-import { formatarData, gerarId, HOJE } from "@/_core/tempo";
+import { formatarData, gerarId, HOJE, horaDeBrasilia } from "@/_core/tempo";
 import Painel from "@/admin/componentes/Painel";
 import { registrarEnvioSuperiores } from "@/modulos/contas/acoesOrdens";
 import { taxas as colecaoTaxas, useDadosContas } from "@/modulos/contas/colecoes";
@@ -35,7 +35,7 @@ export default function PainelSuperiores({ selecionadas, autor, aoFechar }: { se
   const [enviado, setEnviado] = useState(false);
 
   const escolhidas = ordens.filter((ordem) => marcadas.includes(ordem.id));
-  const email = emailAosSuperiores(escolhidas, ultimasCotacoes(taxas, 4), comentario, configEmails, new Date().getHours());
+  const email = emailAosSuperiores(escolhidas, ultimasCotacoes(taxas, 4), comentario, configEmails, horaDeBrasilia());
 
   function salvarCotacao() {
     const numeros = Object.fromEntries(CAMPOS.map(([campo]) => [campo, Number.parseFloat(valores[campo].replace(",", "."))])) as Record<CampoTaxa, number>;

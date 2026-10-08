@@ -1,13 +1,14 @@
 import { useColecao } from "@/_core/armazenamento/colecao";
 import { veModulo } from "@/_core/identidade/permissoes";
 import { useUsuarioAtual } from "@/_core/identidade/sessao";
-import { formatarData, HOJE, somarDias } from "@/_core/tempo";
+import { formatarData, HOJE, horaDeBrasilia, somarDias } from "@/_core/tempo";
 import Cabecalho from "@/admin/componentes/Cabecalho";
 import Kpi from "@/admin/componentes/Kpi";
 import Selo, { type Tom } from "@/admin/componentes/Selo";
 import Vazio from "@/admin/componentes/Vazio";
 import { formatBRL } from "@/lib/portal";
 import { tarefasContas } from "@/modulos/contas/colecoes";
+import { saudacao as saudacaoDaHora } from "@/modulos/contas/emails";
 import { eventosDoDia, montarAgenda, vencendoEmBreve, type TipoEvento } from "@/modulos/escritorio/agenda";
 import { reunioes } from "@/modulos/escritorio/colecoes";
 import { montarLotes } from "@/modulos/prestadores/regras";
@@ -18,7 +19,8 @@ import { useLocation } from "wouter";
 export const TOM_EVENTO: Record<TipoEvento, Tom> = { Reunião: "blue", Pagamento: "amber" };
 
 function saudacao(nome: string) {
-  return `Bom dia, ${nome.split(" ")[0]}`;
+  const texto = saudacaoDaHora(horaDeBrasilia());
+  return `${texto[0].toUpperCase()}${texto.slice(1)}, ${nome.split(" ")[0]}`;
 }
 
 export default function VisaoGeral() {

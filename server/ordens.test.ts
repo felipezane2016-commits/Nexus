@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { ORDENS_DEMO } from "../client/src/modulos/contas/dadosMock";
 import { emailAosSuperiores, emailInvoiceAoBanco, emailRespostaAoBanco, rotuloDia, saudacao } from "../client/src/modulos/contas/emails";
 import { montarEml } from "../client/src/modulos/contas/eml";
+import { horaDeBrasilia } from "../client/src/_core/tempo";
 import { mesesDoAno, montarAba, pendenteNaPlanilha } from "../client/src/modulos/contas/planilha";
 import {
   alertasDasOrdens,
@@ -124,6 +125,15 @@ describe("cotação aos superiores", () => {
     expect(email.html).toContain("4,9570");
     expect(email.html).toContain("-0,40%");
     expect(saudacao(15)).toBe("boa tarde");
+  });
+
+  it("cumprimenta pela hora de Brasília, não pela do computador", () => {
+    // 22:30 em UTC são 19:30 em Brasília.
+    expect(horaDeBrasilia(new Date("2026-10-08T22:30:00Z"))).toBe(19);
+    expect(saudacao(horaDeBrasilia(new Date("2026-10-08T22:30:00Z")))).toBe("boa noite");
+    expect(saudacao(horaDeBrasilia(new Date("2026-10-08T12:00:00Z")))).toBe("bom dia");
+    expect(horaDeBrasilia(new Date("2026-10-09T02:59:00Z"))).toBe(23);
+    expect(horaDeBrasilia(new Date("2026-10-09T03:00:00Z"))).toBe(0);
   });
 
   it("escapa texto digitado no HTML", () => {
