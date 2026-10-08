@@ -34,6 +34,7 @@ pnpm build   # build de produção
 | --------------------- | ------------- | ---------------------------------- |
 | `fernanda@nexus.demo` | Administrador | todos                              |
 | `ricardo@nexus.demo`  | Gestor        | escritório, Prestadores e Contas   |
+| `marcos@nexus.demo`   | Gestor        | chefe da administração: aprova os pagamentos |
 | `helena@nexus.demo`   | Operador      | calendário, tarefas e Prestadores  |
 | `caio@nexus.demo`     | Visualizador  | visão geral, Prestadores e Contas  |
 | `bianca@nexus.demo`   | —             | conta inativa (o login é recusado) |
@@ -66,6 +67,11 @@ Rotas do admin:
   - `/tarefas`
   - `/documentos`
   - `/usuarios` (só com permissão `usuarios.gerenciar`)
+- **Pagamentos** (qualquer pessoa logada pede; cada um vê o que lhe cabe):
+  - `/pagamentos` pedidos, conferência e pagamento
+  - `/pagamentos/aprovacoes` fila do aprovador
+  - `/pagamentos/fornecedores` cadastro e validação de dados bancários
+  - `/pagamentos/regras` aprovador e substituto
 - **Prestadores**:
   - `/prestadores` painel
   - `/prestadores/conferencia`: lotes por prestador × competência. Aprovar ou
@@ -89,6 +95,34 @@ Rotas do admin:
 
 Ao entrar num módulo (Prestadores, Contas), a barra lateral troca para o menu
 dele e ganha o link "Voltar ao escritório".
+
+## Aprovação de pagamentos
+
+Pedido → conferência do financeiro → aprovação do chefe da administração →
+pagamento com comprovante → conciliação. Sem faixas de valor nem dias fixos:
+cada pedido segue o próprio vencimento.
+
+- **Pedido.** Qualquer pessoa logada (financeiro ou outras áreas) pede:
+  favorecido (fornecedor cadastrado ou avulso), valor, vencimento, forma
+  (boleto, Pix, TED, débito), centro de custo (empresa, categoria, cliente,
+  caso, reembolsável) e documento anexado — sem documento não sai. Urgência e
+  vencimento passado exigem justificativa.
+- **Segregação de funções** (`modulos/pagamentos/regras.ts`): quem pede não
+  confere; quem pede ou confere não aprova (vai para o substituto); quem
+  aprova não registra o pagamento. Outras áreas veem só os próprios pedidos.
+- **Aprovação.** Fila com urgentes primeiro e aprovação em lote. Devolver e
+  reprovar pedem motivo; devolvido volta para quem pediu corrigir e reenviar.
+  O substituto aprova só no período configurado em Regras de aprovação.
+- **Fornecedores.** Mudar banco, agência, conta ou Pix marca o fornecedor como
+  "a validar": o pagamento só é aprovado com a confirmação, por telefone, de
+  que a conta nova é dele (o golpe mais comum contra financeiro).
+- **Pagamento.** O financeiro escolhe a conta de saída e anexa o comprovante;
+  o lançamento entra no razão da conciliação e casa com o débito do extrato.
+- **Prestadores.** O lote conferido vira pedido (já conferido) com "Solicitar
+  pagamento"; quando o pedido é pago, o lote fica Pago e o portal vê na hora.
+- **Alertas e contadores**: vencido sem pagamento, vence em até 2 dias,
+  fornecedor a validar; o menu mostra a cada um o que é seu (aprovar,
+  conferir/pagar, corrigir).
 
 ## Ordens de pagamento do Banco Industrial
 
@@ -176,6 +210,7 @@ client/src/
     identidade/                papéis, permissões, módulos, sessão do admin
     armazenamento/anexos.ts    PDFs anexados (IndexedDB)
     tempo.ts                   "hoje" da demonstração e utilitários de data
+  modulos/pagamentos/          pedidos, fornecedores, regras de aprovação e segregação de funções
   modulos/conciliacao/         contas bancárias, extrato, razão, casamentos, fechamentos; regras puras e leitura de OFX/CSV
   modulos/<módulo>/            tipos, dados de demonstração, coleções, regras puras, ações
   admin/                       casca, menus, rotas, componentes e páginas do admin
@@ -198,6 +233,7 @@ client/src/
 - **Regras puras.** Agenda, vencimentos, lotes de conferência, spreads e
   rankings ficam em `modulos/*/regras.ts`, sem React. Os testes ficam em
   `server/admin.regras.test.ts`, `server/ordens.test.ts`,
+  `server/pagamentos.test.ts`,
   `server/conciliacao.test.ts`,
   `server/colecao.test.ts` e `server/portal*.test.ts`.
 - **Acesso efetivo = papel ∩ módulos.** O papel (admin, gestor, operador,

@@ -17,6 +17,9 @@ import MenuSino from "@/components/MenuSino";
 import { documentos, tarefas } from "@/modulos/escritorio/colecoes";
 import { ordens, taxas, tarefasContas } from "@/modulos/contas/colecoes";
 import { alertasDasOrdens } from "@/modulos/contas/regras";
+import { configAprovacao, pagamentos } from "@/modulos/pagamentos/colecoes";
+import { aprovadorVigente, ehFinanceiro, podeAprovar } from "@/modulos/pagamentos/regras";
+import type { ConfigAprovacao, Pagamento } from "@/modulos/pagamentos/tipos";
 import { formatarData, HOJE } from "@/_core/tempo";
 
 /** Primeira rota que a pessoa pode abrir no escritório. */
@@ -35,13 +38,26 @@ function visivel(usuario: Usuario, item: ItemMenu) {
   return true;
 }
 
-function useContadores(): Record<Contador, number> {
+/**
+ * O que cada pessoa tem a fazer em pagamentos: o aprovador vê a fila de
+ * aprovação; o financeiro, o que conferir e pagar; quem pediu, o que voltou.
+ */
+function contadoresPagamentos(usuario: Usuario, lista: Pagamento[], config: ConfigAprovacao) {
+  const aprovacoes = usuario.id === aprovadorVigente(config, HOJE) ? lista.filter((p) => podeAprovar(usuario, p, config, HOJE).ok).length : 0;
+  const doFinanceiro = ehFinanceiro(usuario) ? lista.filter((p) => p.status === "Em conferência" || p.status === "Aprovado").length : 0;
+  const devolvidos = lista.filter((p) => p.status === "Devolvido" && p.solicitanteId === usuario.id).length;
+  return { aprovacoes, pagamentos: aprovacoes + doFinanceiro + devolvidos };
+}
+
+function useContadores(usuario: Usuario): Record<Contador, number> {
   const avisos = useColecao(notificacoes);
   const listaRecibos = useColecao(recibos);
   const listaFechamentos = useColecao(fechamentos);
   const listaPrestadores = useColecao(prestadores);
   const listaOrdens = useColecao(ordens);
   const listaTaxas = useColecao(taxas);
+  const listaPagamentos = useColecao(pagamentos);
+  const config = useColecao(configAprovacao);
   return useMemo(
     () => ({
       notificacoes: avisos.filter(aviso => !aviso.lida).length,
@@ -50,8 +66,9 @@ function useContadores(): Record<Contador, number> {
       ).length,
       // Ordens que pedem ação hoje: fechar D+n, taxa-alvo atingida, OK do banco atrasado.
       ordens: alertasDasOrdens(listaOrdens, listaTaxas, HOJE).length,
+      ...contadoresPagamentos(usuario, listaPagamentos, config),
     }),
-    [avisos, listaRecibos, listaFechamentos, listaPrestadores, listaOrdens, listaTaxas]
+    [avisos, listaRecibos, listaFechamentos, listaPrestadores, listaOrdens, listaTaxas, usuario, listaPagamentos, config]
   );
 }
 
@@ -94,7 +111,7 @@ export default function CascaAdmin({ usuario, titulo, children }: Props) {
   const { theme, toggleTheme } = useTheme();
   const [caminho, navegar] = useLocation();
   const [menuAberto, setMenuAberto] = useState(false);
-  const contadores = useContadores();
+  const contadores = useContadores(usuario);
   const avisos = useColecao(notificacoes);
 
   // Fecha a gaveta a cada navegação, senão ela cobre a página recém-aberta.

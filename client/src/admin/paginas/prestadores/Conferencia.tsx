@@ -7,7 +7,11 @@ import Selo, { type Tom } from "@/admin/componentes/Selo";
 import Vazio from "@/admin/componentes/Vazio";
 import StatusPill from "@/components/StatusPill";
 import { formatBRL, formatMonth, type Receipt } from "@/lib/portal";
-import { aprovarRecibo, devolverRecibo, finalizarConferencia, marcarPago } from "@/modulos/prestadores/acoes";
+import { aprovarRecibo, devolverRecibo, finalizarConferencia } from "@/modulos/prestadores/acoes";
+import { solicitarDoLote } from "@/modulos/pagamentos/acoes";
+import { pagamentos } from "@/modulos/pagamentos/colecoes";
+import { useColecao } from "@/_core/armazenamento/colecao";
+import { useLocation } from "wouter";
 import { montarLotes, podeFinalizarConferencia, podeMarcarPago, type Lote } from "@/modulos/prestadores/regras";
 import type { SituacaoLote } from "@/modulos/prestadores/tipos";
 import { useDadosPrestadores } from "@/modulos/prestadores/usarDados";
@@ -118,7 +122,13 @@ export default function Conferencia() {
 
 function GavetaLote({ lote, podeAgir, aoFechar }: { lote: Lote; podeAgir: boolean; aoFechar: () => void }) {
   const finalizar = podeAgir && podeFinalizarConferencia(lote);
-  const pagar = podeAgir && podeMarcarPago(lote);
+  const usuario = useUsuarioAtual();
+  const [, navegar] = useLocation();
+  const listaPagamentos = useColecao(pagamentos);
+  const chave = `${lote.prestador.id}|${lote.competencia}`;
+  // O lote conferido vira pedido de pagamento: o pago vem da aprovação, não de um clique aqui.
+  const pedido = listaPagamentos.find((p) => p.origemId === chave && p.status !== "Cancelado" && p.status !== "Reprovado") ?? null;
+  const pagar = podeAgir && podeMarcarPago(lote) && !pedido;
   const enviados = lote.situacao !== "Recibos avulsos";
 
   return (
@@ -145,9 +155,14 @@ function GavetaLote({ lote, podeAgir, aoFechar }: { lote: Lote; podeAgir: boolea
               <Check size={15} strokeWidth={2.2} /> Finalizar conferência
             </button>
           ) : null}
-          {pagar ? (
-            <button type="button" className="button-primary" onClick={() => marcarPago(lote.prestador.id, lote.competencia)}>
-              <Wallet size={15} strokeWidth={2} /> Marcar como pago
+          {pagar && usuario ? (
+            <button type="button" className="button-primary" onClick={() => solicitarDoLote(lote, usuario)}>
+              <Wallet size={15} strokeWidth={2} /> Solicitar pagamento
+            </button>
+          ) : null}
+          {pedido && lote.situacao !== "Pago" ? (
+            <button type="button" className="button-secondary" onClick={() => navegar("/pagamentos")}>
+              <Wallet size={15} strokeWidth={2} /> {pedido.numero}: {pedido.status.toLowerCase()}
             </button>
           ) : null}
         </>

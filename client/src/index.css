@@ -1191,7 +1191,8 @@ textarea.field-input {
 /* ── Painel flutuante (formulário de recibo) ─────────────────────────────── */
 .modal-backdrop {
   position: fixed;
-  z-index: 30;
+  /* Acima do topo (35), da barra lateral (50) e da gaveta do celular (60). */
+  z-index: 70;
   inset: 0;
   display: grid;
   place-items: center;
@@ -1536,13 +1537,13 @@ textarea.field-input {
 /* Gaveta lateral: detalhe sem tirar a pessoa da lista. */
 .drawer-backdrop {
   position: fixed;
-  z-index: 30;
+  z-index: 70;
   inset: 0;
   background: rgba(26, 26, 26, 0.42);
 }
 .drawer-panel {
   position: fixed;
-  z-index: 31;
+  z-index: 71;
   top: 0;
   right: 0;
   bottom: 0;
@@ -2121,7 +2122,9 @@ button.kpi-card {
   }
 }
 .page-enter {
-  animation: entrar-pagina 220ms var(--ease-out) both;
+  /* "backwards": ao terminar, nada fica aplicado — um transform retido viraria
+     o bloco de contenção das gavetas fixas e as cortaria em páginas curtas. */
+  animation: entrar-pagina 220ms var(--ease-out) backwards;
 }
 .sidebar-rule {
   height: 1px;
@@ -3141,4 +3144,130 @@ button.kpi-card:hover {
 }
 .ficha-passo-topo {
   margin-top: 0;
+}
+
+/* ── Pagamentos ──────────────────────────────────────────────────────────── */
+.marca-urgente {
+  margin-left: 6px;
+  border-radius: 4px;
+  padding: 1px 6px;
+  color: #fff;
+  background: var(--status-red-fg);
+  font: 600 9px/1.6 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+.texto-vencido {
+  color: var(--status-red-fg);
+  font-weight: 600;
+}
+.texto-vencendo {
+  color: var(--status-amber-fg);
+  font-weight: 600;
+}
+.vencimento-nota {
+  display: block;
+  font: 600 9px/1.4 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.lista-documentos {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+.lista-documentos li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.documento-pagamento {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12.5px;
+}
+.documento-pagamento svg {
+  color: var(--laranja);
+}
+.confirma-dados {
+  margin-bottom: 12px;
+  border-radius: 7px;
+  padding: 10px 12px;
+  color: var(--status-red-fg);
+  background: var(--status-red-bg);
+  font-weight: 600;
+}
+.fila-aprovacao {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fila-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 14px 16px;
+}
+.fila-item > input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  margin-top: 3px;
+  accent-color: var(--laranja);
+}
+.fila-item-urgente {
+  border-color: var(--status-red-fg);
+  box-shadow: inset 3px 0 0 var(--status-red-fg);
+}
+.fila-item-copy {
+  min-width: 0;
+  flex: 1 1 0;
+}
+.fila-item-copy strong {
+  display: block;
+  font-size: 15px;
+}
+.fila-item-copy > span {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted-foreground);
+  font-size: 12.5px;
+}
+.fila-item-fim {
+  display: grid;
+  flex: 0 0 auto;
+  justify-items: end;
+  gap: 6px;
+  font-size: 12.5px;
+  text-align: right;
+}
+.fila-item-fim .money {
+  font: 800 18px/1.1 var(--font-display);
+}
+@media (max-width: 760px) {
+  .fila-item {
+    flex-wrap: wrap;
+  }
+  .fila-item-fim {
+    flex-basis: 100%;
+    justify-items: start;
+    text-align: left;
+  }
+}
+.cell-main .marca-urgente {
+  display: inline-block;
+  margin-top: 0;
+  color: #fff;
+  font-size: 9px;
 }

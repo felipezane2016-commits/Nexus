@@ -3,6 +3,7 @@ import {
   Banknote,
   Bell,
   BookOpen,
+  Building2,
   CalendarDays,
   CalendarRange,
   ClipboardCheck,
@@ -19,13 +20,16 @@ import {
   ListChecks,
   PiggyBank,
   Scale,
+  Settings2,
+  ShieldCheck,
   TrendingUp,
   Truck,
   UserCog,
+  Wallet,
   type LucideIcon,
 } from "lucide-react";
 
-export type Contador = "notificacoes" | "conferencia" | "ordens";
+export type Contador = "notificacoes" | "conferencia" | "ordens" | "pagamentos" | "aprovacoes";
 
 export type ItemMenu = {
   rota: string;
@@ -56,6 +60,7 @@ export const MENU_ESCRITORIO: Grupo[] = [
     itens: [
       { rota: "/prestadores", rotulo: "Prestadores", icone: Truck, modulo: "prestadores", contador: "conferencia" },
       { rota: "/contas", rotulo: "Account Management", icone: Landmark, modulo: "contas" },
+      { rota: "/pagamentos", rotulo: "Pagamentos", icone: Wallet, contador: "pagamentos" },
     ],
   },
   {
@@ -68,7 +73,7 @@ export const MENU_ESCRITORIO: Grupo[] = [
  * Módulos com casca própria: ao entrar, a barra troca para o menu do módulo,
  * com volta para o escritório — como o GED e o Backoffice do modelo.
  */
-export type MenuModulo = { modulo: Modulo; titulo: string; prefixo: string; grupos: Grupo[] };
+export type MenuModulo = { modulo?: Modulo; titulo: string; prefixo: string; grupos: Grupo[] };
 
 export const MENUS_MODULO: MenuModulo[] = [
   {
@@ -117,6 +122,26 @@ export const MENUS_MODULO: MenuModulo[] = [
           { rota: "/contas/conciliacao/conciliar", rotulo: "Conciliar", icone: GitCompareArrows },
           { rota: "/contas/conciliacao/demonstrativo", rotulo: "Demonstrativo", icone: FileSpreadsheet },
           { rota: "/contas/conciliacao/contas", rotulo: "Contas bancárias", icone: Landmark },
+        ],
+      },
+    ],
+  },
+  {
+    titulo: "Pagamentos",
+    prefixo: "/pagamentos",
+    grupos: [
+      {
+        rotulo: "Contas a pagar",
+        itens: [
+          { rota: "/pagamentos", rotulo: "Pagamentos", icone: Wallet, contador: "pagamentos" },
+          { rota: "/pagamentos/aprovacoes", rotulo: "Aprovações", icone: ShieldCheck, contador: "aprovacoes" },
+        ],
+      },
+      {
+        rotulo: "Cadastros",
+        itens: [
+          { rota: "/pagamentos/fornecedores", rotulo: "Fornecedores", icone: Building2 },
+          { rota: "/pagamentos/regras", rotulo: "Regras de aprovação", icone: Settings2 },
         ],
       },
     ],
