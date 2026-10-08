@@ -7,6 +7,7 @@ import Cabecalho from "@/admin/componentes/Cabecalho";
 import Campo from "@/admin/componentes/Campo";
 import Painel from "@/admin/componentes/Painel";
 import Selo from "@/admin/componentes/Selo";
+import { MODO_REAL } from "@/_core/supabase/modo";
 import { Eraser, Plus, RotateCcw, Search } from "lucide-react";
 import { useState } from "react";
 
@@ -41,14 +42,18 @@ export default function Usuarios() {
         descricao={`${ativos} usuário(s) ativo(s). O papel define o que a pessoa pode fazer; os módulos, onde ela entra.`}
         acoes={
           <>
+            {MODO_REAL ? null : (
+              <>
             <button type="button" className="button-secondary" onClick={() => executar("zerar")} onBlur={() => setConfirmando(null)}>
               <Eraser size={15} strokeWidth={2.2} /> {confirmando === "zerar" ? "Confirmar: esvaziar tudo" : "Começar do zero"}
             </button>
             <button type="button" className="button-secondary" onClick={() => executar("restaurar")} onBlur={() => setConfirmando(null)}>
               <RotateCcw size={15} strokeWidth={2.2} /> {confirmando === "restaurar" ? "Confirmar: apagar alterações" : "Restaurar demonstração"}
             </button>
+              </>
+            )}
             <button type="button" className="button-primary" onClick={() => setEditando("novo")}>
-              <Plus size={15} strokeWidth={2.2} /> Novo usuário
+              <Plus size={15} strokeWidth={2.2} /> {MODO_REAL ? "Convidar usuário" : "Novo usuário"}
             </button>
           </>
         }
@@ -130,6 +135,8 @@ function FormularioUsuario({ usuario, todos, euId, aoFechar }: { usuario: Usuari
   );
   const [novaSenha, setNovaSenha] = useState("");
   const [erros, setErros] = useState<Erros>({});
+  const [enviando, setEnviando] = useState(false);
+  const [erroConvite, setErroConvite] = useState<string | null>(null);
   const souEu = usuario?.id === euId;
 
   function alternarModulo(modulo: Modulo) {
@@ -140,13 +147,14 @@ function FormularioUsuario({ usuario, todos, euId, aoFechar }: { usuario: Usuari
     setErros((atual) => ({ ...atual, modulos: undefined }));
   }
 
-  function salvar() {
+  async function salvar() {
     const encontrados: Erros = {};
     if (!dados.nome.trim()) encontrados.nome = "Informe o nome.";
     if (!/^\S+@\S+\.\S+$/.test(dados.email)) encontrados.email = "E-mail inválido.";
     else if (todos.some((item) => item.id !== dados.id && item.email.toLowerCase() === dados.email.toLowerCase()))
       encontrados.email = "Já existe um usuário com este e-mail.";
-    if ((!usuario || novaSenha) && novaSenha.length < 6) encontrados.senha = "Mínimo de 6 caracteres.";
+    // No modo real a senha é da pessoa: ela cria pelo link do convite.
+    if (!MODO_REAL && (!usuario || novaSenha) && novaSenha.length < 6) encontrados.senha = "Mínimo de 6 caracteres.";
     if (dados.modulos.length === 0) encontrados.modulos = "Libere ao menos um módulo.";
     // Quem edita a si mesmo não pode se rebaixar nem se desativar: ficaria sem
     // ninguém para desfazer o erro.
@@ -155,24 +163,47 @@ function FormularioUsuario({ usuario, todos, euId, aoFechar }: { usuario: Usuari
       setErros(encontrados);
       return;
     }
+    if (MODO_REAL && !usuario) {
+      setEnviando(true);
+      const { convidar } = await import("@/_core/supabase/autenticacao");
+      const erro = await convidar({ tipo: "equipe", email: dados.email.trim(), nome: dados.nome.trim(), departamento: dados.departamento, papel: dados.papel, modulos: dados.modulos });
+      setEnviando(false);
+      if (erro) return setErroConvite(erro);
+      aoFechar();
+      return;
+    }
     usuarios.atualizar((lista) => gravarItem(lista, { ...dados, nome: dados.nome.trim(), email: dados.email.trim(), senha: novaSenha || dados.senha }));
     aoFechar();
   }
 
   return (
-    <Painel rotulo="Usuários e acessos" titulo={usuario ? usuario.nome : "Novo usuário"} aoFechar={aoFechar} aoEnviar={salvar}>
+    <Painel
+      rotulo="Usuários e acessos"
+      titulo={usuario ? usuario.nome : MODO_REAL ? "Convidar usuário" : "Novo usuário"}
+      descricao={MODO_REAL && !usuario ? "A pessoa recebe um e-mail com o link para criar a própria senha." : undefined}
+      aoFechar={aoFechar}
+      aoEnviar={salvar}
+      textoEnviar={MODO_REAL && !usuario ? (enviando ? "Enviando…" : "Enviar convite") : undefined}
+    >
+      {erroConvite ? (
+        <div className="acesso-alerta-erro espaco-abaixo" role="alert">
+          <span>{erroConvite}</span>
+        </div>
+      ) : null}
       <div className="field-grid">
         <Campo id="us-nome" rotulo="Nome completo" erro={erros.nome}>
           {(aria) => <input {...aria} className="field-input" value={dados.nome} onChange={(e) => setDados({ ...dados, nome: e.target.value })} />}
         </Campo>
-        <Campo id="us-email" rotulo="E-mail" erro={erros.email}>
-          {(aria) => <input {...aria} className="field-input" type="email" value={dados.email} onChange={(e) => setDados({ ...dados, email: e.target.value })} />}
+        <Campo id="us-email" rotulo="E-mail" erro={erros.email} dica={MODO_REAL && usuario ? "O e-mail é o login: não muda por aqui." : undefined}>
+          {(aria) => <input {...aria} className="field-input" type="email" value={dados.email} disabled={MODO_REAL && Boolean(usuario)} onChange={(e) => setDados({ ...dados, email: e.target.value })} />}
         </Campo>
       </div>
       <div className="field-grid">
-        <Campo id="us-senha" rotulo="Senha" erro={erros.senha} dica={usuario ? "Em branco mantém a atual" : "Mínimo de 6 caracteres"}>
-          {(aria) => <input {...aria} className="field-input" type="password" value={novaSenha} onChange={(e) => setNovaSenha(e.target.value)} autoComplete="new-password" />}
-        </Campo>
+        {MODO_REAL ? null : (
+          <Campo id="us-senha" rotulo="Senha" erro={erros.senha} dica={usuario ? "Em branco mantém a atual" : "Mínimo de 6 caracteres"}>
+            {(aria) => <input {...aria} className="field-input" type="password" value={novaSenha} onChange={(e) => setNovaSenha(e.target.value)} autoComplete="new-password" />}
+          </Campo>
+        )}
         <Campo id="us-departamento" rotulo="Departamento">
           {(aria) => (
             <select {...aria} className="field-input" value={dados.departamento} onChange={(e) => setDados({ ...dados, departamento: e.target.value })}>

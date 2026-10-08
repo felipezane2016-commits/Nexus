@@ -53,7 +53,9 @@ const NOTIFICACOES_DEMO: Notificacao[] = [
   },
 ];
 
-export const notificacoes = criarColecao<Notificacao[]>("notificacoes", () => NOTIFICACOES_DEMO, { vazio: () => [] });
+export const notificacoes = criarColecao<Notificacao[]>("notificacoes", () => NOTIFICACOES_DEMO, {
+  remota: { tipo: "lista", tabela: "notificacoes", maisNovosPrimeiro: true },
+  vazio: () => [] });
 
 /** Ponto único para qualquer módulo avisar o escritório. */
 export function notificar(aviso: Omit<Notificacao, "id" | "quando" | "lida">) {

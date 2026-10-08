@@ -4,6 +4,8 @@ import { AlertCircle, Eye, EyeOff, Info } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link, useLocation } from "wouter";
 import logoPnst from "@/assets/pnst-logo.webp";
+import { MODO_REAL } from "@/_core/supabase/modo";
+import EsqueciSenha from "@/components/EsqueciSenha";
 
 export default function Login() {
   const { signIn } = usePortal();
@@ -13,9 +15,9 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = signIn(code, password);
+    const result = await signIn(code, password);
     if (!result.ok) {
       setError(result.message);
       return;
@@ -41,23 +43,25 @@ export default function Login() {
           <span className="accent-eyebrow">Entrar</span>
           <h2>Bem-vinda de volta</h2>
           <p>
-            Use o código de acesso enviado pelo escritório na assinatura do
-            contrato.
+            {MODO_REAL
+              ? "Use o e-mail cadastrado no escritório e a senha que você criou pelo convite."
+              : "Use o código de acesso enviado pelo escritório na assinatura do contrato."}
           </p>
 
           <form className="acesso-form" onSubmit={handleSubmit} noValidate>
             <div className="field-group">
               <label className="field-label" htmlFor="login-codigo">
-                Código de acesso
+                {MODO_REAL ? "E-mail" : "Código de acesso"}
               </label>
               <input
                 id="login-codigo"
                 className="field-input"
+                type={MODO_REAL ? "email" : "text"}
                 value={code}
                 onChange={event => setCode(event.target.value)}
-                placeholder="PNST-0000"
+                placeholder={MODO_REAL ? "voce@empresa.com.br" : "PNST-0000"}
                 autoComplete="username"
-                autoCapitalize="characters"
+                autoCapitalize={MODO_REAL ? "none" : "characters"}
                 aria-invalid={error ? true : undefined}
                 aria-describedby={error ? "login-erro" : undefined}
                 required
@@ -101,9 +105,13 @@ export default function Login() {
                 <input type="checkbox" defaultChecked />
                 Manter conectado
               </label>
-              <button type="button" className="text-button" onClick={fillDemo}>
-                Preencher credenciais demo
-              </button>
+              {MODO_REAL ? (
+                <EsqueciSenha emailInicial={code} />
+              ) : (
+                <button type="button" className="text-button" onClick={fillDemo}>
+                  Preencher credenciais demo
+                </button>
+              )}
             </div>
 
             {error ? (
@@ -117,15 +125,17 @@ export default function Login() {
               Entrar no portal
             </button>
 
-            <div className="acesso-alerta-info">
-              <Info size={15} strokeWidth={2} />
-              <span>
-                <strong>Ambiente de demonstração.</strong> Código{" "}
-                <code>{DEMO_CREDENTIALS.code}</code>, senha{" "}
-                <code>{DEMO_CREDENTIALS.password}</code>. Os dados ficam só
-                neste navegador.
-              </span>
-            </div>
+            {MODO_REAL ? null : (
+              <div className="acesso-alerta-info">
+                <Info size={15} strokeWidth={2} />
+                <span>
+                  <strong>Ambiente de demonstração.</strong> Código{" "}
+                  <code>{DEMO_CREDENTIALS.code}</code>, senha{" "}
+                  <code>{DEMO_CREDENTIALS.password}</code>. Os dados ficam só
+                  neste navegador.
+                </span>
+              </div>
+            )}
           </form>
 
           <p className="acesso-rodape">

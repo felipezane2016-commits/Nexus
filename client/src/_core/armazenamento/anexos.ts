@@ -1,3 +1,5 @@
+import { MODO_REAL } from "../supabase/modo";
+
 /**
  * Arquivos anexados (PDF das invoices) no IndexedDB do navegador: o
  * localStorage não comporta binários. Com backend, vira upload para o
@@ -27,13 +29,32 @@ async function operar<T>(modo: IDBTransactionMode, acao: (loja: IDBObjectStore) 
   });
 }
 
+// Modo real: bucket privado `anexos` do Supabase Storage. O id do anexo é o
+// caminho do arquivo no bucket; só a equipe logada lê (política do bucket).
+async function storage() {
+  const { supabase } = await import("../supabase/cliente");
+  return supabase().storage.from("anexos");
+}
+
 export async function guardarAnexo(arquivo: File): Promise<Anexo> {
+  if (MODO_REAL) {
+    const nomeSeguro = arquivo.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w.\-]+/g, "_");
+    const caminho = `${new Date().toISOString().slice(0, 7)}/${crypto.randomUUID()}/${nomeSeguro}`;
+    const { error } = await (await storage()).upload(caminho, arquivo, { contentType: arquivo.type || "application/pdf" });
+    if (error) throw error;
+    return { id: caminho, nome: arquivo.name, tipo: arquivo.type || "application/pdf", blob: arquivo };
+  }
   const anexo: Anexo = { id: `anx-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, nome: arquivo.name, tipo: arquivo.type || "application/pdf", blob: arquivo };
   await operar("readwrite", (loja) => loja.put(anexo));
   return anexo;
 }
 
 export async function lerAnexo(id: string): Promise<Anexo | null> {
+  if (MODO_REAL) {
+    const { data, error } = await (await storage()).download(id);
+    if (error || !data) return null;
+    return { id, nome: id.split("/").pop() ?? id, tipo: data.type, blob: data };
+  }
   try {
     return (await operar<Anexo | undefined>("readonly", (loja) => loja.get(id))) ?? null;
   } catch {
@@ -42,6 +63,10 @@ export async function lerAnexo(id: string): Promise<Anexo | null> {
 }
 
 export async function apagarAnexo(id: string) {
+  if (MODO_REAL) {
+    await (await storage()).remove([id]);
+    return;
+  }
   try {
     await operar("readwrite", (loja) => loja.delete(id));
   } catch {

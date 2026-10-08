@@ -3271,3 +3271,42 @@ button.kpi-card:hover {
   color: #fff;
   font-size: 9px;
 }
+
+/* ── Modo real (Supabase) ────────────────────────────────────────────────── */
+.portao-carregando {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 160px;
+  color: var(--muted-foreground);
+}
+.faixa-erro {
+  position: fixed;
+  z-index: 90;
+  top: 12px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(calc(100% - 32px), 640px);
+  transform: translateX(-50%);
+  border-radius: 9px;
+  padding: 10px 12px 10px 14px;
+  color: #fff;
+  background: var(--status-red-fg);
+  box-shadow: var(--shadow-float);
+  font-size: 13.5px;
+}
+.faixa-erro span {
+  flex: 1;
+}
+.faixa-erro .icon-button {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+  background: transparent;
+}
+.esqueci-senha .inline-row .field-input {
+  flex: 1;
+  min-width: 0;
+}

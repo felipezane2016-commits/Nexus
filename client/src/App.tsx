@@ -6,6 +6,7 @@ import { useHashLocation } from "wouter/use-hash-location";
 import RotasAdmin from "./admin/RotasAdmin";
 import Entrar from "./admin/paginas/Entrar";
 import ErrorBoundary from "./components/ErrorBoundary";
+import PortaoSupabase from "./components/PortaoSupabase";
 import { PortalProvider, usePortal } from "./contexts/PortalContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Closing from "./pages/Closing";
@@ -82,13 +83,15 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <PortalProvider>
-            {hashRouting ? (
-              <WouterRouter hook={useHashLocation}>
+            <PortaoSupabase>
+              {hashRouting ? (
+                <WouterRouter hook={useHashLocation}>
+                  <Rotas />
+                </WouterRouter>
+              ) : (
                 <Rotas />
-              </WouterRouter>
-            ) : (
-              <Rotas />
-            )}
+              )}
+            </PortaoSupabase>
           </PortalProvider>
         </TooltipProvider>
       </ThemeProvider>

@@ -12,13 +12,14 @@ import {
 import type { Casamento, ContaBancaria, FechamentoConciliacao, Importacao, LancamentoExtrato, LancamentoRazao, SaldoInformado } from "./tipos";
 
 // Contas bancárias são cadastro, não movimento: atravessam o "começar do zero".
-export const contasBancarias = criarColecao<ContaBancaria[]>("conciliacao-contas", () => CONTAS_BANCARIAS_DEMO);
-export const extrato = criarColecao<LancamentoExtrato[]>("conciliacao-extrato", () => EXTRATO_DEMO, { vazio: () => [] });
-export const razao = criarColecao<LancamentoRazao[]>("conciliacao-razao", () => RAZAO_DEMO, { vazio: () => [] });
-export const casamentos = criarColecao<Casamento[]>("conciliacao-casamentos", () => CASAMENTOS_DEMO, { vazio: () => [] });
-export const importacoes = criarColecao<Importacao[]>("conciliacao-importacoes", () => [], { vazio: () => [] });
-export const saldosInformados = criarColecao<SaldoInformado[]>("conciliacao-saldos", () => SALDOS_INFORMADOS_DEMO, { vazio: () => [] });
+export const contasBancarias = criarColecao<ContaBancaria[]>("conciliacao-contas", () => CONTAS_BANCARIAS_DEMO, { remota: { tipo: "lista", tabela: "conciliacao_contas" } });
+export const extrato = criarColecao<LancamentoExtrato[]>("conciliacao-extrato", () => EXTRATO_DEMO, { remota: { tipo: "lista", tabela: "conciliacao_extrato" }, vazio: () => [] });
+export const razao = criarColecao<LancamentoRazao[]>("conciliacao-razao", () => RAZAO_DEMO, { remota: { tipo: "lista", tabela: "conciliacao_razao" }, vazio: () => [] });
+export const casamentos = criarColecao<Casamento[]>("conciliacao-casamentos", () => CASAMENTOS_DEMO, { remota: { tipo: "lista", tabela: "conciliacao_casamentos" }, vazio: () => [] });
+export const importacoes = criarColecao<Importacao[]>("conciliacao-importacoes", () => [], { remota: { tipo: "lista", tabela: "conciliacao_importacoes" }, vazio: () => [] });
+export const saldosInformados = criarColecao<SaldoInformado[]>("conciliacao-saldos", () => SALDOS_INFORMADOS_DEMO, { remota: { tipo: "lista", tabela: "conciliacao_saldos" }, vazio: () => [] });
 export const fechamentosConciliacao = criarColecao<FechamentoConciliacao[]>("conciliacao-fechamentos", () => FECHAMENTOS_CONCILIACAO_DEMO, {
+  remota: { tipo: "lista", tabela: "conciliacao_fechamentos" }, 
   vazio: () => [],
 });
 

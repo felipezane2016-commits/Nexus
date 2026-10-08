@@ -4,6 +4,8 @@ import { AlertCircle, Eye, EyeOff, Info } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link, Redirect, useLocation } from "wouter";
 import logoPnst from "@/assets/pnst-logo.webp";
+import { MODO_REAL } from "@/_core/supabase/modo";
+import EsqueciSenha from "@/components/EsqueciSenha";
 
 export default function Entrar() {
   const usuario = useUsuarioAtual();
@@ -12,12 +14,15 @@ export default function Entrar() {
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
 
   if (usuario) return <Redirect to="/" />;
 
-  function enviar(evento: FormEvent<HTMLFormElement>) {
+  async function enviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
-    const resultado = entrar(email, senha);
+    setEnviando(true);
+    const resultado = await entrar(email, senha);
+    setEnviando(false);
     if (!resultado.ok) {
       setErro(resultado.mensagem);
       return;
@@ -88,10 +93,14 @@ export default function Entrar() {
               </div>
             ) : null}
 
-            <button type="submit" className="button-primary button-block">
-              Entrar
+            <button type="submit" className="button-primary button-block" disabled={enviando}>
+              {enviando ? "Entrando…" : "Entrar"}
             </button>
 
+            {MODO_REAL ? (
+              <EsqueciSenha emailInicial={email} />
+            ) : (
+              <>
             <div className="acesso-alerta-info">
               <Info size={15} strokeWidth={2} />
               <span>
@@ -115,6 +124,8 @@ export default function Entrar() {
                 </button>
               ))}
             </div>
+              </>
+            )}
           </form>
 
           <p className="acesso-rodape">

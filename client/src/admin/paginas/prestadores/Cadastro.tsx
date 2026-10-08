@@ -9,6 +9,7 @@ import { salvarPrestador } from "@/modulos/prestadores/acoes";
 import { codigoDisponivel } from "@/modulos/prestadores/regras";
 import { CATEGORIAS_PRESTADOR, type CategoriaPrestador, type Prestador } from "@/modulos/prestadores/tipos";
 import { useDadosPrestadores } from "@/modulos/prestadores/usarDados";
+import { MODO_REAL } from "@/_core/supabase/modo";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
@@ -17,6 +18,14 @@ export default function Cadastro() {
   const usuario = useUsuarioAtual();
   const podeEditar = pode(usuario, "registros.editar");
   const [editando, setEditando] = useState<Prestador | "novo" | null>(null);
+  const [aviso, setAviso] = useState<{ tom: "sucesso" | "erro"; texto: string } | null>(null);
+
+  /** Modo real: o prestador recebe um e-mail para criar a senha do portal. */
+  async function convidarPortal(prestador: Prestador) {
+    const { convidar } = await import("@/_core/supabase/autenticacao");
+    const erro = await convidar({ tipo: "prestador", email: prestador.email, nome: prestador.nome, prestadorId: prestador.id });
+    setAviso(erro ? { tom: "erro", texto: erro } : { tom: "sucesso", texto: `Convite do portal enviado para ${prestador.email}.` });
+  }
 
   return (
     <>
@@ -32,6 +41,11 @@ export default function Cadastro() {
           ) : null
         }
       />
+      {aviso ? (
+        <div className={`acesso-alerta-${aviso.tom} espaco-abaixo`} role="status">
+          <span>{aviso.texto}</span>
+        </div>
+      ) : null}
       <section className="operations-surface">
         <div className="table-scroll">
           <table>
@@ -71,6 +85,11 @@ export default function Cadastro() {
                       {podeEditar ? (
                         <button type="button" className="text-button" onClick={() => setEditando(prestador)}>
                           Editar
+                        </button>
+                      ) : null}
+                      {MODO_REAL && podeEditar && prestador.portalAtivo && prestador.email ? (
+                        <button type="button" className="text-button" onClick={() => convidarPortal(prestador)}>
+                          Convidar para o portal
                         </button>
                       ) : null}
                     </div>
@@ -120,7 +139,10 @@ function FormularioPrestador({ prestador, todos, aoFechar }: { prestador: Presta
     if (!dados.codigoAcesso.trim()) encontrados.codigoAcesso = "Defina o código de acesso ao portal.";
     else if (!codigoDisponivel(dados.codigoAcesso, todos, prestador?.id)) encontrados.codigoAcesso = "Este código já é de outro prestador.";
     // Na edição, senha em branco mantém a atual; no cadastro, é obrigatória.
-    if ((!prestador || dados.senha) && dados.senha.length < 6) encontrados.senha = "Mínimo de 6 caracteres.";
+    // No modo real não há senha aqui: o prestador cria a dele pelo convite.
+    if (MODO_REAL) {
+      if (dados.portalAtivo && !dados.email.trim()) encontrados.email = "O e-mail é o login do portal.";
+    } else if ((!prestador || dados.senha) && dados.senha.length < 6) encontrados.senha = "Mínimo de 6 caracteres.";
     if (Object.values(encontrados).some(Boolean)) {
       setErros(encontrados);
       return;
@@ -133,7 +155,7 @@ function FormularioPrestador({ prestador, todos, aoFechar }: { prestador: Presta
       email: dados.email.trim(),
       telefone: dados.telefone.trim(),
       codigoAcesso: dados.codigoAcesso.trim().toUpperCase(),
-      senha: dados.senha || prestador?.senha || "",
+      senha: MODO_REAL ? "" : dados.senha || prestador?.senha || "",
       portalAtivo: dados.portalAtivo,
       contrato: prestador?.contrato ?? `Contrato de prestação ${dados.codigoAcesso.trim().toUpperCase()}`,
       desde: prestador?.desde ?? HOJE,
@@ -145,7 +167,7 @@ function FormularioPrestador({ prestador, todos, aoFechar }: { prestador: Presta
     <Painel
       rotulo={prestador ? "Editar prestador" : "Novo prestador"}
       titulo={prestador?.nome ?? "Cadastrar prestador"}
-      descricao="O código e a senha são o acesso do prestador ao Portal do Prestador."
+      descricao={MODO_REAL ? "O e-mail é o login do portal; depois de salvar, use “Convidar para o portal”." : "O código e a senha são o acesso do prestador ao Portal do Prestador."}
       aoFechar={aoFechar}
       aoEnviar={salvar}
     >
@@ -180,11 +202,13 @@ function FormularioPrestador({ prestador, todos, aoFechar }: { prestador: Presta
             <input {...aria} className="field-input" value={dados.codigoAcesso} onChange={(e) => mudar("codigoAcesso", e.target.value)} autoCapitalize="characters" autoComplete="off" />
           )}
         </Campo>
-        <Campo id="prest-senha" rotulo="Senha do portal" erro={erros.senha} dica={prestador ? "Em branco mantém a atual" : "Mínimo de 6 caracteres"}>
-          {(aria) => (
-            <input {...aria} className="field-input" type="password" value={dados.senha} onChange={(e) => mudar("senha", e.target.value)} autoComplete="new-password" />
-          )}
-        </Campo>
+        {MODO_REAL ? null : (
+          <Campo id="prest-senha" rotulo="Senha do portal" erro={erros.senha} dica={prestador ? "Em branco mantém a atual" : "Mínimo de 6 caracteres"}>
+            {(aria) => (
+              <input {...aria} className="field-input" type="password" value={dados.senha} onChange={(e) => mudar("senha", e.target.value)} autoComplete="new-password" />
+            )}
+          </Campo>
+        )}
       </div>
       <div className="toggle-row">
         <div>

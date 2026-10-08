@@ -12,6 +12,7 @@ import {
 import { DEMO_COMPETENCIA } from "@/lib/portalSeed";
 import { autenticarPrestador, avisarFechamentoRecebido } from "@/modulos/prestadores/acoes";
 import { fechamentos, prestadores, recibos } from "@/modulos/prestadores/colecoes";
+import { MODO_REAL } from "@/_core/supabase/modo";
 import { createContext, useCallback, useContext, useMemo, type ReactNode } from "react";
 
 /**
@@ -21,7 +22,7 @@ import { createContext, useCallback, useContext, useMemo, type ReactNode } from 
  */
 
 type SessaoPortal = { prestadorId: string | null };
-const sessaoPortal = criarColecao<SessaoPortal>("sessao-portal", () => ({ prestadorId: null }));
+export const sessaoPortal = criarColecao<SessaoPortal>("sessao-portal", () => ({ prestadorId: null }));
 
 type PortalContextValue = {
   provider: Provider;
@@ -29,7 +30,8 @@ type PortalContextValue = {
   receipts: Receipt[];
   closings: Closing[];
   currentCompetencia: string;
-  signIn: (code: string, password: string) => { ok: true } | { ok: false; message: string };
+  /** Demonstração: código + senha do cadastro. Modo real: e-mail + senha do Supabase. */
+  signIn: (code: string, password: string) => Promise<{ ok: true } | { ok: false; message: string }>;
   signOut: () => void;
   createReceipt: (draft: ReceiptDraft) => Receipt;
   updateReceipt: (id: string, draft: ReceiptDraft) => void;
@@ -43,6 +45,12 @@ type PortalContextValue = {
 const PortalContext = createContext<PortalContextValue | null>(null);
 
 const SEM_PRESTADOR: Provider = { name: "", code: "", document: "", email: "", contract: "" };
+
+function proximoReciboDoPrestador(lista: Receipt[], codigo: string) {
+  const prefixo = `REC-${codigo.replace(/^PNST-/i, "")}-`;
+  const maior = lista.reduce((max, recibo) => (recibo.id.startsWith(prefixo) ? Math.max(max, Number(recibo.id.slice(prefixo.length)) || 0) : max), 0);
+  return `${prefixo}${String(maior + 1).padStart(4, "0")}`;
+}
 
 function emptyClosing(prestadorId: string, competencia: string): Closing {
   return { prestadorId, competencia, documentName: null, submitted: false, submittedAt: null, review: null };
@@ -92,14 +100,22 @@ export function PortalProvider({ children }: { children: ReactNode }) {
     [prestador],
   );
 
-  const signIn = useCallback((code: string, password: string) => {
+  const signIn = useCallback(async (code: string, password: string) => {
+    if (MODO_REAL) {
+      const { entrarComSenha } = await import("@/_core/supabase/autenticacao");
+      const resultado = await entrarComSenha(code, password, "prestador");
+      return resultado.ok ? { ok: true as const } : { ok: false as const, message: resultado.mensagem };
+    }
     const encontrado = autenticarPrestador(code, password);
     if (!encontrado) return { ok: false as const, message: "Código de acesso ou senha incorretos, ou acesso desativado." };
     sessaoPortal.atualizar(() => ({ prestadorId: encontrado.id }));
     return { ok: true as const };
   }, []);
 
-  const signOut = useCallback(() => sessaoPortal.atualizar(() => ({ prestadorId: null })), []);
+  const signOut = useCallback(() => {
+    if (MODO_REAL) void import("@/_core/supabase/autenticacao").then(({ sair }) => sair());
+    else sessaoPortal.atualizar(() => ({ prestadorId: null }));
+  }, []);
 
   /** Só mexe em recibo do próprio prestador — a coleção é de todos. */
   const meus = useCallback((recibo: Receipt) => recibo.prestadorId === meuId, [meuId]);
@@ -108,7 +124,9 @@ export function PortalProvider({ children }: { children: ReactNode }) {
     (draft: ReceiptDraft) => {
       // O número é global: dois prestadores nunca recebem o mesmo REC-xxxx.
       const created: Receipt = {
-        id: nextReceiptId(recibos.ler()),
+        // No banco real cada prestador só enxerga os próprios recibos: o código
+        // dele no número evita colisão com o de outro prestador.
+        id: MODO_REAL ? proximoReciboDoPrestador(recibos.ler(), prestador?.codigoAcesso ?? meuId) : nextReceiptId(recibos.ler()),
         prestadorId: meuId,
         ...draftToFields(draft),
         status: "Rascunho",
@@ -118,7 +136,7 @@ export function PortalProvider({ children }: { children: ReactNode }) {
       recibos.atualizar((lista) => [created, ...lista]);
       return created;
     },
-    [meuId],
+    [meuId, prestador?.codigoAcesso],
   );
 
   const updateReceipt = useCallback(

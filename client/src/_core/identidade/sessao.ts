@@ -1,4 +1,5 @@
 import { criarColecao, useColecao } from "@/_core/armazenamento/colecao";
+import { MODO_REAL } from "@/_core/supabase/modo";
 import type { Modulo, Usuario } from "./permissoes";
 
 const MODULOS_TODOS: Modulo[] = [
@@ -91,7 +92,40 @@ export const USUARIOS_DEMO: Usuario[] = [
   },
 ];
 
-export const usuarios = criarColecao<Usuario[]>("usuarios", () => USUARIOS_DEMO);
+/**
+ * Modo real: a lista vem da tabela `perfis` (só a equipe; prestadores ficam
+ * no portal). Gente nova entra por convite, nunca por esta lista — por isso
+ * só se alteram perfis existentes, e a senha não existe aqui.
+ */
+export const usuarios = criarColecao<Usuario[]>("usuarios", () => USUARIOS_DEMO, {
+  remota: {
+    tipo: "lista",
+    tabela: "perfis",
+    somenteAlterar: true,
+    deLinha: (linha) =>
+      linha.tipo === "equipe"
+        ? {
+            id: linha.id,
+            nome: linha.nome,
+            email: linha.email,
+            senha: "",
+            departamento: linha.departamento,
+            papel: linha.papel,
+            modulos: linha.modulos,
+            ativo: linha.ativo,
+            ultimoAcesso: linha.ultimo_acesso,
+          }
+        : null,
+    paraLinha: (usuario: Usuario) => ({
+      id: usuario.id,
+      nome: usuario.nome,
+      departamento: usuario.departamento,
+      papel: usuario.papel,
+      modulos: usuario.modulos,
+      ativo: usuario.ativo,
+    }),
+  },
+});
 
 type Sessao = { usuarioId: string | null };
 export const sessaoAdmin = criarColecao<Sessao>("sessao-admin", () => ({ usuarioId: null }));
@@ -103,7 +137,12 @@ export function useUsuarioAtual(): Usuario | null {
   return lista.find((usuario) => usuario.id === sessao.usuarioId && usuario.ativo) ?? null;
 }
 
-export function entrar(email: string, senha: string): { ok: true } | { ok: false; mensagem: string } {
+export async function entrar(email: string, senha: string): Promise<{ ok: true } | { ok: false; mensagem: string }> {
+  if (MODO_REAL) {
+    const { entrarComSenha } = await import("@/_core/supabase/autenticacao");
+    const resultado = await entrarComSenha(email, senha, "equipe");
+    return resultado.ok ? { ok: true } : resultado;
+  }
   const alvo = email.trim().toLowerCase();
   const usuario = usuarios.ler().find((item) => item.email.toLowerCase() === alvo);
   if (!usuario || usuario.senha !== senha) return { ok: false, mensagem: "E-mail ou senha incorretos." };
@@ -115,6 +154,10 @@ export function entrar(email: string, senha: string): { ok: true } | { ok: false
 }
 
 export function sair() {
+  if (MODO_REAL) {
+    void import("@/_core/supabase/autenticacao").then(({ sair: sairReal }) => sairReal());
+    return;
+  }
   sessaoAdmin.atualizar(() => ({ usuarioId: null }));
 }
 

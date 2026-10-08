@@ -28,9 +28,9 @@ const REUNIOES_DEMO: Reuniao[] = [
   { id: "re-5", titulo: "Comitê mensal", data: "2026-07-14", hora: "10:00", local: "Sala 1", participantes: "Sócios", pauta: "Resultados do semestre." },
 ];
 
-export const tarefas = criarColecao<Tarefa[]>("escritorio-tarefas", () => TAREFAS_DEMO, { vazio: () => [] });
-export const documentos = criarColecao<Documento[]>("escritorio-documentos", () => DOCUMENTOS_DEMO, { vazio: () => [] });
-export const reunioes = criarColecao<Reuniao[]>("escritorio-reunioes", () => REUNIOES_DEMO, { vazio: () => [] });
+export const tarefas = criarColecao<Tarefa[]>("escritorio-tarefas", () => TAREFAS_DEMO, { remota: { tipo: "lista", tabela: "escritorio_tarefas" }, vazio: () => [] });
+export const documentos = criarColecao<Documento[]>("escritorio-documentos", () => DOCUMENTOS_DEMO, { remota: { tipo: "lista", tabela: "escritorio_documentos" }, vazio: () => [] });
+export const reunioes = criarColecao<Reuniao[]>("escritorio-reunioes", () => REUNIOES_DEMO, { remota: { tipo: "lista", tabela: "escritorio_reunioes" }, vazio: () => [] });
 
 export function useDadosEscritorio() {
   return { tarefas: useColecao(tarefas), documentos: useColecao(documentos), reunioes: useColecao(reunioes) };

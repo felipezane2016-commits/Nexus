@@ -13,6 +13,24 @@ Protótipo navegável do Nexus em duas zonas que compartilham os mesmos dados:
 O que o prestador envia aparece na conferência do admin. O que o escritório
 decide volta para o portal na hora.
 
+## Dados reais (Supabase)
+
+O sistema tem dois modos:
+
+- **Demonstração** (padrão): dados fictícios no navegador, contas de teste na tela de login.
+- **Real**: com `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` no `.env.local`, o
+  login é o do Supabase (convite por e-mail, senha criada pela própria pessoa,
+  "esqueci minha senha"), os dados ficam no banco em São Paulo, os anexos numa
+  pasta privada, e o que uma pessoa grava aparece na tela das outras em tempo
+  real. As permissões (papel, módulos, segregação de funções dos pagamentos,
+  portal do prestador) são checadas pelo próprio banco, com RLS e gatilhos.
+
+O passo a passo para criar o projeto e ligar o sistema está em **[SUPABASE.md](SUPABASE.md)**.
+
+- `supabase/migrations/` tabelas, RLS, regras de pagamento, auditoria, storage, tempo real
+- `supabase/functions/convidar/` convite de equipe e de prestador (Edge Function)
+- `client/src/_core/supabase/` modo, cliente, login e sincronização das coleções com as tabelas
+
 ## Rodando
 
 ```bash
