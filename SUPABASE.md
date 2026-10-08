@@ -28,6 +28,12 @@ cerca de 30 minutos. Nada aqui exige programar: é copiar, colar e clicar.
 2. Abra o arquivo `supabase/migrations/20261008000000_pnst_inicial.sql` deste
    repositório, copie **todo** o conteúdo e cole no editor.
 3. Clique em **Run**. Deve terminar com "Success. No rows returned".
+4. Repita com `supabase/migrations/20261008000001_endurecer_funcoes.sql` (fecha
+   as funções internas para quem não está logado).
+5. Em **Advisors → Security Advisor**, só devem sobrar avisos "Signed-In Users
+   Can Execute SECURITY DEFINER Function" das funções `eh_*`, `ve_modulo`,
+   `pode_editar`, `meu_*`, `aprovador_*` e `registrar_acesso`: são de propósito
+   (as regras de acesso precisam delas e cada uma só responde sobre quem está logado).
 
 Isso cria as tabelas, as regras de acesso (RLS), a numeração de pagamentos,
 a auditoria, a pasta privada de anexos e o tempo real.
