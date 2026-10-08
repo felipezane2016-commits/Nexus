@@ -33,6 +33,7 @@ pnpm build   # build de produção
 | E-mail                | Papel         | Módulos                            |
 | --------------------- | ------------- | ---------------------------------- |
 | `fernanda@nexus.demo` | Administrador | todos                              |
+| `felipe@nexus.demo`   | Administrador | todos (Felipe Zanetti)             |
 | `ricardo@nexus.demo`  | Gestor        | escritório, Prestadores e Contas   |
 | `marcos@nexus.demo`   | Gestor        | chefe da administração: aprova os pagamentos |
 | `helena@nexus.demo`   | Operador      | calendário, tarefas e Prestadores  |

@@ -24,6 +24,17 @@ export const USUARIOS_DEMO: Usuario[] = [
     ultimoAcesso: "2026-06-30T08:12:00.000Z",
   },
   {
+    id: "usr-felipe",
+    nome: "Felipe Zanetti",
+    email: "felipe@nexus.demo",
+    senha: "nexus2026",
+    departamento: "Account Management",
+    papel: "admin",
+    modulos: MODULOS_TODOS,
+    ativo: true,
+    ultimoAcesso: null,
+  },
+  {
     id: "usr-ricardo",
     nome: "Ricardo Alves",
     email: "ricardo@nexus.demo",
