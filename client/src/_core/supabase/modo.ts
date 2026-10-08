@@ -9,3 +9,11 @@ const chave = (import.meta.env?.VITE_SUPABASE_ANON_KEY as string | undefined) ??
 
 export const MODO_REAL = Boolean(url && chave);
 export const CONFIG_SUPABASE = { url, chave };
+
+/**
+ * A demonstração só existe quando pedida (VITE_DEMO=1, como na prévia) ou nos
+ * testes. Um site publicado sem as chaves do Supabase NÃO cai nela: mostra
+ * "sistema não configurado" — ninguém digita dado real num ambiente de teste.
+ */
+export const MODO_DEMO =
+  !MODO_REAL && ((import.meta.env?.VITE_DEMO as string | undefined) === "1" || import.meta.env?.MODE === "test");

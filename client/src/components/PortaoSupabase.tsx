@@ -1,5 +1,5 @@
 import { CHEGOU_POR_LINK, supabase } from "@/_core/supabase/cliente";
-import { MODO_REAL } from "@/_core/supabase/modo";
+import { MODO_DEMO, MODO_REAL } from "@/_core/supabase/modo";
 import { dispensarErro, useErroSincronizacao } from "@/_core/supabase/sincronizar";
 import logoPnst from "@/assets/pnst-logo.webp";
 import { AlertCircle, Loader2, X } from "lucide-react";
@@ -11,8 +11,30 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
  * Na demonstração, só devolve o app.
  */
 export default function PortaoSupabase({ children }: { children: ReactNode }) {
-  if (!MODO_REAL) return <>{children}</>;
-  return <Portao>{children}</Portao>;
+  if (MODO_REAL) return <Portao>{children}</Portao>;
+  if (MODO_DEMO) return <>{children}</>;
+  return <NaoConfigurado />;
+}
+
+/** Publicado sem as chaves: avisa em vez de abrir a demonstração. */
+function NaoConfigurado() {
+  return (
+    <div className="acesso">
+      <section className="acesso-palco">
+        <div className="acesso-cartao">
+          <div className="auth-badge">
+            <img src={logoPnst} alt="PNST — Pacheco Neto Sanden Teisseire Advogados" />
+          </div>
+          <span className="accent-eyebrow">Configuração</span>
+          <h2>Sistema ainda não ligado ao banco</h2>
+          <p>
+            Faltam as variáveis <code>VITE_SUPABASE_URL</code> e <code>VITE_SUPABASE_ANON_KEY</code> na hospedagem (ou no
+            <code> .env.local</code>). O passo a passo está no arquivo <code>SUPABASE.md</code> do projeto.
+          </p>
+        </div>
+      </section>
+    </div>
+  );
 }
 
 function Portao({ children }: { children: ReactNode }) {

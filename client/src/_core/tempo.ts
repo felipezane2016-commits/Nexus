@@ -1,9 +1,16 @@
+import { MODO_REAL } from "./supabase/modo";
+
+/** Data local (Brasília) no formato AAAA-MM-DD. */
+function hojeReal() {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+}
+
 /**
- * Data de referência da demonstração. Os dados de exemplo vivem em junho e
- * julho de 2026; medir prazos contra o relógio real deixaria tudo vencido e a
- * demonstração sem sentido. Com backend, isto vira `new Date()`.
+ * "Hoje" do sistema. No modo real é a data de Brasília. Na demonstração fica
+ * em 30/06/2026: os dados de exemplo vivem em junho e julho de 2026, e medir
+ * prazos contra o relógio real deixaria tudo vencido.
  */
-export const HOJE = "2026-06-30";
+export const HOJE = MODO_REAL ? hojeReal() : "2026-06-30";
 
 export function somarDias(data: string, dias: number) {
   const d = new Date(`${data}T12:00:00`);

@@ -1,6 +1,6 @@
 import { pode } from "@/_core/identidade/permissoes";
 import { useUsuarioAtual } from "@/_core/identidade/sessao";
-import { formatarData, formatarDataHora, gerarId } from "@/_core/tempo";
+import { formatarData, formatarDataHora, gerarId, HOJE } from "@/_core/tempo";
 import Cabecalho from "@/admin/componentes/Cabecalho";
 import Campo from "@/admin/componentes/Campo";
 import Painel from "@/admin/componentes/Painel";
@@ -144,7 +144,7 @@ function FormularioConta({ conta, temMovimento, aoFechar }: { conta: ContaBancar
     numero: conta?.numero ?? "",
     contaContabil: conta?.contaContabil ?? "",
     saldo: conta ? conta.saldoInicial.toFixed(2).replace(".", ",") : "",
-    dataSaldo: conta?.dataSaldoInicial ?? "2026-06-30",
+    dataSaldo: conta?.dataSaldoInicial ?? HOJE,
     ativa: conta?.ativa ?? true,
   });
   const [erros, setErros] = useState<Erros>({});

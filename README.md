@@ -15,15 +15,22 @@ decide volta para o portal na hora.
 
 ## Dados reais (Supabase)
 
-O sistema tem dois modos:
+O sistema tem dois modos, e nunca mistura os dois:
 
-- **Demonstração** (padrão): dados fictícios no navegador, contas de teste na tela de login.
 - **Real**: com `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` no `.env.local`, o
   login é o do Supabase (convite por e-mail, senha criada pela própria pessoa,
   "esqueci minha senha"), os dados ficam no banco em São Paulo, os anexos numa
   pasta privada, e o que uma pessoa grava aparece na tela das outras em tempo
   real. As permissões (papel, módulos, segregação de funções dos pagamentos,
   portal do prestador) são checadas pelo próprio banco, com RLS e gatilhos.
+  O banco começa vazio (nenhum dado fictício) e a data de "hoje" é a data real
+  de Brasília.
+- **Demonstração**: só quando pedida de propósito, com `VITE_DEMO=1`
+  (`VITE_DEMO=1 pnpm dev`). Dados fictícios no navegador e contas de teste na
+  tela de login. Os testes automáticos usam esse modo.
+
+Sem as chaves do Supabase e sem `VITE_DEMO=1`, o sistema mostra a tela
+"Sistema ainda não ligado ao banco" em vez de abrir com dados inventados.
 
 O passo a passo para criar o projeto e ligar o sistema está em **[SUPABASE.md](SUPABASE.md)**.
 
@@ -35,7 +42,8 @@ O passo a passo para criar o projeto e ligar o sistema está em **[SUPABASE.md](
 
 ```bash
 pnpm install
-pnpm dev     # http://localhost:3000
+pnpm dev                # http://localhost:3000 (dados reais, com o .env.local)
+VITE_DEMO=1 pnpm dev    # demonstração com dados fictícios
 ```
 
 ```bash
@@ -45,6 +53,9 @@ pnpm build   # build de produção
 ```
 
 ## Contas de demonstração
+
+Só existem no modo demonstração (`VITE_DEMO=1`).
+
 
 **Admin** (`/login`). Todos usam a senha **nexus2026**.
 
@@ -259,7 +270,8 @@ client/src/
   visualizador) dá as permissões (`registros.editar`, `registros.excluir`,
   `usuarios.gerenciar`). Os módulos do usuário dizem o que ele vê. Visualizador
   não edita nada.
-- **Data da demonstração.** "Hoje" é fixo em **30/06/2026** (`_core/tempo.ts`),
+- **Data da demonstração.** No modo real "hoje" é a data de Brasília. Na
+  demonstração, "hoje" é fixo em **30/06/2026** (`_core/tempo.ts`),
   para que prazos, vencimentos e alertas da semente façam sentido em qualquer
   data real.
 - **Semente.** Em Usuários e acessos o administrador tem "Restaurar
@@ -298,22 +310,25 @@ Estrutura e design da **Central de Operações PNST** (o app de referência):
 ## Build estático para preview
 
 ```bash
-VITE_HASH_ROUTER=1 pnpm exec vite build --base=./
+VITE_DEMO=1 VITE_HASH_ROUTER=1 pnpm exec vite build --base=./
 ```
+
+Sem `VITE_DEMO=1` (e sem as chaves do Supabase) o build mostra a tela de
+configuração.
 
 Com esse build, as rotas vivem no hash (`#/login`, `#/portal/login`), então
 qualquer hosting estático funciona.
 
 ## Fora do escopo / limites conhecidos
 
-- **Não há backend.** Os dados ficam no `localStorage` do navegador, com o
-  prefixo `nexus:v1:`. O login compara as credenciais de demonstração no
-  cliente. O scaffold tRPC/Drizzle do template continua no repositório, ainda
+- **Na demonstração não há backend.** Os dados ficam no `localStorage` do
+  navegador, com o prefixo `nexus:v1:`, e o login compara as credenciais de
+  demonstração no cliente. No modo real tudo fica no Supabase. O scaffold tRPC/Drizzle do template continua no repositório, ainda
   não ligado às telas.
 - **Módulos que não fazem parte do sistema:** Legal Workflow, Consultoria e
   Particular foram retirados. O Financeiro do escritório também não existe — o
   próprio app legado o marca como removido.
 - **Em construção:** o armazenamento do conteúdo dos arquivos (Documentos e
   Arquivos de prestadores guardam só os metadados).
-- **Os dados de demonstração são fictícios:** clientes, prestadores, taxas e
+- **Os dados de demonstração são fictícios** e só aparecem com `VITE_DEMO=1`: clientes, prestadores, taxas e
   pessoas.

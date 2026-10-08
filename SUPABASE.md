@@ -1,6 +1,6 @@
 # Ligando o PNST Administrativo ao Supabase
 
-Passo a passo para sair da demonstração e trabalhar com dados reais. Leva
+Passo a passo para ligar o sistema ao banco e trabalhar com dados reais. Leva
 cerca de 30 minutos. Nada aqui exige programar: é copiar, colar e clicar.
 
 > **Antes de tudo:** a chave **service_role / secret** do Supabase nunca vai
@@ -86,8 +86,9 @@ chave de serviço que nunca sai de lá).
    VITE_SUPABASE_ANON_KEY=eyJ...
    ```
 3. Teste no seu computador: `pnpm install` e `pnpm dev`, e abra <http://localhost:3000>.
-   A tela de login não mostra mais as contas de demonstração; entre com o
-   administrador do passo 4.
+   Sem esse arquivo o sistema mostra "Sistema ainda não ligado ao banco".
+   Com ele, a tela de login pede e-mail e senha; entre com o administrador do
+   passo 4. O sistema começa vazio: nada fictício, só o que a equipe cadastrar.
 
 ## 7. Colocar no ar para a equipe (10 min)
 

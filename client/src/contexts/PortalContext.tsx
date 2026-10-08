@@ -13,6 +13,7 @@ import { DEMO_COMPETENCIA } from "@/lib/portalSeed";
 import { autenticarPrestador, avisarFechamentoRecebido } from "@/modulos/prestadores/acoes";
 import { fechamentos, prestadores, recibos } from "@/modulos/prestadores/colecoes";
 import { MODO_REAL } from "@/_core/supabase/modo";
+import { HOJE } from "@/_core/tempo";
 import { createContext, useCallback, useContext, useMemo, type ReactNode } from "react";
 
 /**
@@ -228,7 +229,7 @@ export function PortalProvider({ children }: { children: ReactNode }) {
       signedIn: Boolean(prestador),
       receipts,
       closings,
-      currentCompetencia: DEMO_COMPETENCIA,
+      currentCompetencia: MODO_REAL ? HOJE.slice(0, 7) : DEMO_COMPETENCIA,
       signIn,
       signOut,
       createReceipt,
