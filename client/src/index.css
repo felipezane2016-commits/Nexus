@@ -2073,6 +2073,9 @@ button.board-card:hover {
 .text-button-perigo {
   color: var(--status-red-fg);
 }
+.texto-perigo {
+  color: var(--status-red-fg);
+}
 .icon-button-pequeno {
   width: 28px;
   height: 28px;

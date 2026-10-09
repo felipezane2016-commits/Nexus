@@ -40,11 +40,13 @@ const PASSOS: { rotulo: string; feito: (ordem: Ordem) => boolean }[] = [
   { rotulo: "Baixa no Sisjuri, extrato e contrato de câmbio", feito: (o) => Boolean(o.baixa.sisjuri && o.baixa.extrato && o.baixa.contrato) },
 ];
 
-export default function FichaOrdem({ ordem, usuario, aoFechar, aoEditar, aoEnviarSuperiores }: {
+export default function FichaOrdem({ ordem, usuario, aoFechar, aoEditar, aoExcluir, aoEnviarSuperiores }: {
   ordem: Ordem;
   usuario: Usuario | null;
   aoFechar: () => void;
   aoEditar: () => void;
+  /** Só para quem pode excluir registros. */
+  aoExcluir?: () => void;
   aoEnviarSuperiores: () => void;
 }) {
   const etapa = etapaDaOrdem(ordem);
@@ -68,6 +70,11 @@ export default function FichaOrdem({ ordem, usuario, aoFechar, aoEditar, aoEnvia
             <button type="button" className="text-button text-button-neutro" onClick={aoEditar}>
               <Pencil size={14} strokeWidth={2} /> Editar dados
             </button>
+            {aoExcluir ? (
+              <button type="button" className="text-button text-button-perigo" onClick={aoExcluir}>
+                <Trash2 size={14} strokeWidth={2} /> Excluir ordem
+              </button>
+            ) : null}
             {etapa !== "Recebida" && !Object.values(ordem.baixa).some(Boolean) ? (
               <button type="button" className="text-button text-button-neutro" onClick={() => voltarEtapa(ordem.id, autor)}>
                 <Undo2 size={14} strokeWidth={2} /> Desfazer última etapa

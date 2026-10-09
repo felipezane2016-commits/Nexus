@@ -11,9 +11,10 @@ import Vazio from "@/admin/componentes/Vazio";
 import { configEmailsOrdens, useDadosContas } from "@/modulos/contas/colecoes";
 import { formatarMoeda } from "@/modulos/contas/formato";
 import { exportarPlanilha } from "@/modulos/contas/planilha";
+import { excluirOrdem } from "@/modulos/contas/acoesOrdens";
 import { alertasDasOrdens, ETAPAS, etapaDaOrdem, PROXIMO_PASSO, tipoDaOrdem, type Etapa } from "@/modulos/contas/regras";
-import type { ConfigEmailsOrdens } from "@/modulos/contas/tipos";
-import { CalendarClock, FileSpreadsheet, Gavel, Inbox, Plus, Search, SearchX, Send, Settings2, Wallet } from "lucide-react";
+import type { ConfigEmailsOrdens, Ordem } from "@/modulos/contas/tipos";
+import { CalendarClock, FileSpreadsheet, Gavel, Inbox, Pencil, Plus, Search, SearchX, Send, Settings2, Trash2, Wallet } from "lucide-react";
 import { useState } from "react";
 import FichaOrdem from "./FichaOrdem";
 import FormularioOrdem from "./FormularioOrdem";
@@ -37,10 +38,11 @@ export default function Ordens() {
   const { ordens, taxas, configEmails } = useDadosContas();
   const usuario = useUsuarioAtual();
   const podeEditar = pode(usuario, "registros.editar");
+  const podeExcluir = pode(usuario, "registros.excluir");
   const [filtro, setFiltro] = useState<Filtro>("Em andamento");
   const [busca, setBusca] = useState("");
   const [aberta, setAberta] = useState<string | null>(null);
-  const [painel, setPainel] = useState<{ tipo: "nova" } | { tipo: "editar"; id: string } | { tipo: "superiores"; ids: string[] } | { tipo: "config" } | null>(null);
+  const [painel, setPainel] = useState<{ tipo: "nova" } | { tipo: "editar"; id: string } | { tipo: "superiores"; ids: string[] } | { tipo: "config" } | { tipo: "excluir"; id: string } | null>(null);
   const [exportando, setExportando] = useState(false);
 
   const comEtapa = ordens.map((ordem) => ({ ordem, etapa: etapaDaOrdem(ordem) }));
@@ -153,6 +155,11 @@ export default function Ordens() {
                   <th>Tipo</th>
                   <th>Etapa</th>
                   <th>Próximo passo</th>
+                  {podeEditar || podeExcluir ? (
+                    <th>
+                      <span className="sr-only">Ações</span>
+                    </th>
+                  ) : null}
                 </tr>
               </thead>
               <tbody>
@@ -174,6 +181,23 @@ export default function Ordens() {
                       <Selo tom={TOM_ETAPA[item.etapa]}>{item.etapa}</Selo>
                     </td>
                     <td className="celula-passo">{prazo(item)}</td>
+                    {podeEditar || podeExcluir ? (
+                      <td>
+                        {/* Os botões não abrem a ficha: o clique fica neles. */}
+                        <div className="inline-row" onClick={(evento) => evento.stopPropagation()}>
+                          {podeEditar ? (
+                            <button type="button" className="icon-button icon-button-pequeno" aria-label={`Editar ordem nº ${item.ordem.numeroOrdem}`} title="Editar" onClick={() => setPainel({ tipo: "editar", id: item.ordem.id })}>
+                              <Pencil size={14} strokeWidth={1.9} />
+                            </button>
+                          ) : null}
+                          {podeExcluir ? (
+                            <button type="button" className="icon-button icon-button-pequeno icon-button-danger" aria-label={`Excluir ordem nº ${item.ordem.numeroOrdem}`} title="Excluir" onClick={() => setPainel({ tipo: "excluir", id: item.ordem.id })}>
+                              <Trash2 size={14} strokeWidth={1.9} />
+                            </button>
+                          ) : null}
+                        </div>
+                      </td>
+                    ) : null}
                   </tr>
                 ))}
               </tbody>
@@ -188,6 +212,7 @@ export default function Ordens() {
           usuario={usuario}
           aoFechar={() => setAberta(null)}
           aoEditar={() => setPainel({ tipo: "editar", id: ordemAberta.id })}
+          aoExcluir={podeExcluir ? () => setPainel({ tipo: "excluir", id: ordemAberta.id }) : undefined}
           aoEnviarSuperiores={() => setPainel({ tipo: "superiores", ids: [ordemAberta.id] })}
         />
       ) : null}
@@ -204,7 +229,34 @@ export default function Ordens() {
       ) : null}
       {painel?.tipo === "superiores" ? <PainelSuperiores selecionadas={painel.ids} autor={usuario?.nome ?? ""} aoFechar={() => setPainel(null)} /> : null}
       {painel?.tipo === "config" ? <PainelConfig config={configEmails} podeEditar={podeEditar} aoFechar={() => setPainel(null)} /> : null}
+      {painel?.tipo === "excluir" ? (
+        <ConfirmarExclusao
+          ordem={ordens.find((ordem) => ordem.id === painel.id) ?? null}
+          aoFechar={() => setPainel(null)}
+          aoConfirmar={(id) => {
+            excluirOrdem(id);
+            if (aberta === id) setAberta(null);
+            setPainel(null);
+          }}
+        />
+      ) : null}
     </>
+  );
+}
+
+function ConfirmarExclusao({ ordem, aoFechar, aoConfirmar }: { ordem: Ordem | null; aoFechar: () => void; aoConfirmar: (id: string) => void }) {
+  if (!ordem) return null;
+  const etapa = etapaDaOrdem(ordem);
+  return (
+    <Painel rotulo="Excluir ordem" titulo={`Excluir a ordem nº ${ordem.numeroOrdem}?`} aoFechar={aoFechar} aoEnviar={() => aoConfirmar(ordem.id)} textoEnviar="Excluir ordem">
+      <p>
+        <strong>{ordem.cliente}</strong> — {formatarMoeda(ordem.valor, ordem.moeda)}, recebida em {formatarData(ordem.dataRecebimento)}, etapa <Selo tom={TOM_ETAPA[etapa]}>{etapa}</Selo>
+      </p>
+      <p className="texto-perigo">
+        A ordem sai da lista e da planilha exportada, com o histórico
+        {ordem.invoices.length === 1 ? " e a invoice anexada" : ordem.invoices.length ? ` e as ${ordem.invoices.length} invoices anexadas` : ""}. Não dá para desfazer.
+      </p>
+    </Painel>
   );
 }
 

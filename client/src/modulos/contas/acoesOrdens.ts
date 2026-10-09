@@ -1,3 +1,4 @@
+import { apagarAnexo } from "@/_core/armazenamento/anexos";
 import { gerarId, HOJE } from "@/_core/tempo";
 import { notificar } from "@/modulos/notificacoes/colecao";
 import { ordens } from "./colecoes";
@@ -106,6 +107,17 @@ const TEXTO_BAIXA: Record<ItemBaixa, string> = {
 
 export function marcarBaixa(id: string, item: ItemBaixa, feito: boolean, autor: string) {
   alterar(id, autor, `${TEXTO_BAIXA[item]}${feito ? "" : " — desmarcado"}.`, (ordem) => ({ baixa: { ...ordem.baixa, [item]: feito ? HOJE : null } }));
+}
+
+/**
+ * Apaga a ordem de vez, com os PDFs das invoices. No modo real a auditoria do
+ * banco guarda a ordem como estava antes da exclusão.
+ */
+export function excluirOrdem(id: string) {
+  const ordem = ordens.ler().find((item) => item.id === id);
+  if (!ordem) return;
+  ordens.atualizar((lista) => lista.filter((item) => item.id !== id));
+  for (const invoice of ordem.invoices) if (invoice.anexoId) void apagarAnexo(invoice.anexoId);
 }
 
 /** Volta a ordem uma etapa — para quando um passo foi marcado por engano. */
