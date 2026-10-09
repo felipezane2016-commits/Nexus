@@ -1,5 +1,5 @@
 import { HOJE } from "@/_core/tempo";
-import type { ConfigEmailsOrdens, Decisao, EventoEconomico, Invoice, Ordem, Taxa, TarefaConta } from "./tipos";
+import type { ConfigEmailsOrdens, Decisao, Invoice, Ordem, Taxa, TarefaConta } from "./tipos";
 
 /**
  * Tarefas do Account Management, com as categorias e periodicidades do app
@@ -218,15 +218,3 @@ export const CONFIG_EMAILS_DEMO: ConfigEmailsOrdens = {
   assinatura: "Fernanda Moraes\nAccount Management — PNST",
 };
 
-export const EVENTOS_ECONOMICOS_DEMO: EventoEconomico[] = [
-  { id: "ev-1", data: "2026-07-01", hora: "10:00", titulo: "PMI industrial", regiao: "EUA", impacto: "Médio" },
-  { id: "ev-2", data: "2026-07-03", hora: "09:30", titulo: "Payroll — relatório de emprego", regiao: "EUA", impacto: "Alto" },
-  { id: "ev-3", data: "2026-07-07", hora: "06:00", titulo: "Inflação ao consumidor (prévia)", regiao: "Europa", impacto: "Médio" },
-  { id: "ev-4", data: "2026-07-10", hora: "09:00", titulo: "IPCA de junho", regiao: "Brasil", impacto: "Alto" },
-  { id: "ev-5", data: "2026-07-14", hora: "09:30", titulo: "Inflação ao consumidor (CPI)", regiao: "EUA", impacto: "Alto" },
-  { id: "ev-6", data: "2026-07-16", hora: "09:15", titulo: "Decisão de juros do banco central europeu", regiao: "Europa", impacto: "Alto" },
-  { id: "ev-7", data: "2026-07-22", hora: "18:30", titulo: "Decisão do Copom", regiao: "Brasil", impacto: "Alto" },
-  { id: "ev-8", data: "2026-07-24", hora: "09:00", titulo: "IPCA-15", regiao: "Brasil", impacto: "Médio" },
-  { id: "ev-9", data: "2026-07-29", hora: "15:00", titulo: "Decisão do FOMC", regiao: "EUA", impacto: "Alto" },
-  { id: "ev-10", data: "2026-07-30", hora: "09:00", titulo: "Caged — emprego formal", regiao: "Brasil", impacto: "Baixo" },
-];

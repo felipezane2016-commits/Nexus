@@ -35,13 +35,7 @@ const PAGINAS: Pagina[] = [
   { padrao: "/contas/banco", titulo: "Painel de câmbio", Componente: lazy(() => import("./paginas/contas/PainelCambio")) },
   { padrao: "/contas/taxas", titulo: "Taxas diárias", Componente: lazy(() => import("./paginas/contas/Taxas")) },
   { padrao: "/contas/ordens", titulo: "Ordens de pagamento", Componente: lazy(() => import("./paginas/contas/ordens/Ordens")) },
-  { padrao: "/contas/tendencia", titulo: "Tendência", Componente: lazy(() => import("./paginas/contas/Tendencia")) },
   { padrao: "/contas/economia", titulo: "Economia potencial", Componente: lazy(() => import("./paginas/contas/Economia")) },
-  {
-    padrao: "/contas/calendario-economico",
-    titulo: "Calendário econômico",
-    Componente: lazy(() => import("./paginas/contas/CalendarioEconomico")),
-  },
   { padrao: "/pagamentos", titulo: "Pagamentos", Componente: lazy(() => import("./paginas/pagamentos/Pagamentos")) },
   { padrao: "/pagamentos/aprovacoes", titulo: "Aprovações", Componente: lazy(() => import("./paginas/pagamentos/Aprovacoes")) },
   { padrao: "/pagamentos/fornecedores", titulo: "Fornecedores", Componente: lazy(() => import("./paginas/pagamentos/Fornecedores")) },

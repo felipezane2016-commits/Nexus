@@ -125,7 +125,7 @@ export default function PainelSuperiores({ selecionadas, autor, aoFechar }: { se
           onChange={(e) => setComentario(e.target.value)}
           placeholder="o dólar iniciou a quarta-feira em alta, com o mercado ensaiando um ajuste…"
         />
-        <span className="field-hint">Entra logo depois de "Segue cotação,". Veja os eventos da semana no Calendário econômico.</span>
+        <span className="field-hint">Entra logo depois de "Segue cotação,".</span>
       </div>
 
       {escolhidas.length === 0 ? (

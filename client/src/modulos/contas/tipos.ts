@@ -97,9 +97,3 @@ export type ConfigEmailsOrdens = {
   emailsSuperiores: string;
   assinatura: string;
 };
-
-export const REGIOES = ["Brasil", "EUA", "Europa"] as const;
-export type Regiao = (typeof REGIOES)[number];
-export type Impacto = "Alto" | "Médio" | "Baixo";
-
-export type EventoEconomico = { id: string; data: string; hora: string; titulo: string; regiao: Regiao; impacto: Impacto };

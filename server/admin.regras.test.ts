@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { pode, veModulo, type Usuario } from "../client/src/_core/identidade/permissoes";
 import type { Closing, Receipt } from "../client/src/lib/portal";
-import { economiaPotencial, mediaMovel, spread, tendencia } from "../client/src/modulos/contas/regras";
+import { economiaPotencial, mediaMovel, spread } from "../client/src/modulos/contas/regras";
 import type { Taxa, TarefaConta } from "../client/src/modulos/contas/tipos";
 import { montarAgenda, vencendoEmBreve } from "../client/src/modulos/escritorio/agenda";
 import { codigoDisponivel, montarLotes, podeFinalizarConferencia, podeMarcarPago, rankingPrestadores } from "../client/src/modulos/prestadores/regras";
@@ -85,12 +85,6 @@ describe("Banco Industrial", () => {
   it("média móvel usa só a janela final", () => {
     expect(mediaMovel([1, 2, 3, 4, 5], 2)).toBe(4.5);
     expect(mediaMovel([2, 4], 30)).toBe(3);
-  });
-
-  it("tendência compara média de 7 com a de 30", () => {
-    const subindo = [...Array(23).fill(5), ...Array(7).fill(5.2)];
-    expect(tendencia(subindo)).toBe("Alta");
-    expect(tendencia(Array(30).fill(5))).toBe("Estável");
   });
 
   it("economia é o que a melhor cotação rende a mais sobre a mesma quantidade de moeda", () => {

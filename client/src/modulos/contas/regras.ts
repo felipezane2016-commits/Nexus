@@ -25,19 +25,6 @@ export function mediaMovel(valores: number[], janela: number) {
   return media(valores.slice(-janela));
 }
 
-export type Tendencia = "Alta" | "Baixa" | "Estável";
-
-/** Compara a média curta com a longa; diferença menor que 0,3% é estabilidade. */
-export function tendencia(valores: number[]): Tendencia {
-  const curta = mediaMovel(valores, 7);
-  const longa = mediaMovel(valores, 30);
-  if (!longa) return "Estável";
-  const variacao = (curta - longa) / longa;
-  if (variacao > 0.003) return "Alta";
-  if (variacao < -0.003) return "Baixa";
-  return "Estável";
-}
-
 /**
  * Quanto se ganha recebendo a moeda pelo banco que paga mais. O valor da
  * operação é em reais pela pior cotação; a diferença é o que a melhor rende a mais.

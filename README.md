@@ -115,9 +115,7 @@ Rotas do admin:
   - `/contas/banco` painel de câmbio
   - `/contas/taxas` (com exportação CSV)
   - `/contas/ordens` ordens de pagamento do Banco Industrial (fluxo completo)
-  - `/contas/tendencia`
   - `/contas/economia`
-  - `/contas/calendario-economico`
   - **Conciliação bancária**:
     - `/contas/conciliacao` painel das contas no mês
     - `/contas/conciliacao/conciliar` extrato × razão
